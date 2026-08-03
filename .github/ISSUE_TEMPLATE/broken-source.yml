@@ -1,0 +1,56 @@
+name: Report a broken source
+description: A site that used to work, or works incorrectly
+title: "Fix <host>"
+labels: ["broken source"]
+body:
+  - type: input
+    id: host
+    attributes:
+      label: Host
+      placeholder: example.com
+    validations:
+      required: true
+
+  - type: input
+    id: novel_url
+    attributes:
+      label: A novel URL that shows the problem
+      placeholder: https://example.com/novel/some-book
+    validations:
+      required: true
+
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: What goes wrong
+      options:
+        - Nothing is found at all
+        - Wrong or missing title, cover, author or synopsis
+        - Chapter count is too high
+        - Chapter count is too low
+        - Chapters are empty
+        - Chapters contain adverts, menus or translator notes
+        - Search does not work
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: Detail
+      description: >
+        If the count is wrong, say what it reported and what you expected. If chapters are
+        wrong, name one chapter. Paste any error message in full.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Checked
+      options:
+        - label: The site loads normally in my browser
+          required: false
+        - label: I am on the latest version of the app
+          required: false

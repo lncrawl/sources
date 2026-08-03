@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+
+# Build output. The manifest is a published artifact, never committed.
+/dist/
+/manifest.json

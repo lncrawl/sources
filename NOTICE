@@ -1,0 +1,14 @@
+lncrawl sources
+Copyright 2026 Sudipto Chandra and the Lightnovel Crawler contributors
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+This repository contains source definitions: data describing how to read public
+websites, plus a small number of Python hooks for sites that cannot be described
+as data alone.
+
+Nothing here is derived from the GPL-3.0-or-later code of
+https://github.com/lncrawl/lightnovel-crawler. Definitions and hooks are written
+against the observable behaviour of each website. Where a hook implements a
+site's own scheme, such as a content encoding or a request signature, it
+reimplements that scheme rather than adapting existing code.

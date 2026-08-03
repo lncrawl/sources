@@ -1,0 +1,51 @@
+name: Request a source
+description: Ask for a website to be supported
+title: "Add <host>"
+labels: ["new source"]
+body:
+  - type: input
+    id: host
+    attributes:
+      label: Host
+      description: Just the domain, no scheme.
+      placeholder: example.com
+    validations:
+      required: true
+
+  - type: input
+    id: novel_url
+    attributes:
+      label: A novel URL on that site
+      description: >
+        A link to one novel's main page, not the site's home page. This is what anyone
+        working on the request will test against, so a request without it usually stalls.
+      placeholder: https://example.com/novel/some-book
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: Language of the content
+      placeholder: en
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: kind
+    attributes:
+      label: What the site hosts
+      options:
+        - label: Text novels
+        - label: Manga or images
+        - label: Machine translations
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything unusual
+      description: >
+        Login required, region blocking, chapters split across pages, content that only
+        appears after the page runs its scripts. Say so here if you noticed any of it.
+    validations:
+      required: false

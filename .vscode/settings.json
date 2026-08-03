@@ -1,0 +1,14 @@
+{
+  "yaml.schemas": {
+    "./schema/source.v1.json": ["specs/*.yaml", "disabled/*.yaml", "base/*.yaml"]
+  },
+  "yaml.format.enable": true,
+  "files.associations": {
+    "*.yaml": "yaml"
+  },
+  "editor.tabSize": 2,
+  "[yaml]": {
+    "editor.insertSpaces": true,
+    "editor.autoIndent": "keep"
+  }
+}
