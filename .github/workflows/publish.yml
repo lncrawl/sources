@@ -1,0 +1,52 @@
+name: Publish manifest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "specs/**"
+      - "disabled/**"
+      - "base/**"
+      - "hooks/**"
+      - ".github/scripts/build_manifest.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - run: pip install pyyaml
+
+      # A bad manifest would tell every client to refetch everything, so the layout
+      # gate runs here too rather than trusting that the PR check ran.
+      - run: python .github/scripts/check_layout.py
+
+      - name: Build
+        run: |
+          mkdir -p dist
+          python .github/scripts/build_manifest.py -o dist/manifest.json
+          cp -r specs disabled base hooks dist/
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+      - id: deploy
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,64 @@
+name: Shadow diff
+
+# While a host is served by a spec here and still has a legacy Python crawler in the
+# app, both can be run against the same novel and compared. That keeps a converted
+# source verified continuously rather than only on the day it was written, and it is
+# the only check that notices a fix landing on the legacy side and never reaching here.
+#
+# Retire this workflow when the legacy tier is gone; it has nothing to compare against.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      hosts:
+        description: "Space separated hosts to compare. Empty means all overlapping."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shadow-diff
+  cancel-in-progress: false
+
+jobs:
+  diff:
+    name: Compare tiers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: sources
+
+      - uses: actions/checkout@v7
+        with:
+          repository: lncrawl/lightnovel-crawler
+          ref: dev
+          path: lncrawl
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install both tiers
+        run: |
+          pip install lncrawl-sourcelib
+          pip install ./lncrawl
+
+      - name: Diff
+        working-directory: sources
+        run: |
+          sourcelib shadow-diff \
+            --legacy-root ../lncrawl \
+            --hosts "${{ inputs.hosts }}" \
+            --report shadow.json
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: shadow-diff
+          path: sources/shadow.json
+          retention-days: 30
