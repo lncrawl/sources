@@ -12,7 +12,9 @@ can_search: false
 chapter:
   body:
     css: div.reading-content
-    # Pages arrive with their real source in data-src and a placeholder in src.
     pipe:
+      # The theme leaves a hidden input carrying the chapter id inside the reader.
+      - strip_css: [input]
+      # Pages arrive with their real source in data-src and a placeholder in src.
       - unlazy_images
       - keep_attrs: [src, alt]

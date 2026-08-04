@@ -18,7 +18,7 @@ search:
     info: { css: ".latest-chap .chapter a" }
 
 novel:
-  request: { page: novel }
+  # No request: the stage defaults to a GET of the novel URL.
   # The heading carries a status span, which has to go before the text is read.
   title: { css: ".post-title h1", pipe: [{ strip_tags: [span] }, text, trim] }
   cover: { css: ".summary_image a img", attr: [data-src, src] }
@@ -29,10 +29,13 @@ novel:
 toc:
   request:
     from:
-      # The theme's own chapter endpoint.
+      # Current installations render the list into the novel page, so the document is already
+      # in hand and the two endpoints below cost nothing when it is there.
+      - page: novel
+      # The theme's own chapter endpoint, for installations that load the list over ajax.
       - post: "{novel_url}/ajax/chapters/"
-      # Older installations answer nothing there and need the admin endpoint instead, which
-      # takes an id only the novel page carries.
+      # Older ones answer nothing there and need the admin endpoint, which takes an id only
+      # the novel page carries.
       - post: "{origin}/wp-admin/admin-ajax.php"
         payload:
           action: manga_get_chapters

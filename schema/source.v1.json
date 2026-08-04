@@ -1116,5 +1116,5 @@
   ],
   "title": "Source definition",
   "type": "object",
-  "x-generator": "lncrawl-sourcelib==0.1.0"
+  "x-generator": "lncrawl-sourcelib==0.1.2"
 }

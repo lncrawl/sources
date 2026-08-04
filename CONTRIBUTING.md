@@ -19,11 +19,26 @@ lncrawl dev try specs/<host>.yaml <a novel url on that host>
 and pulls in no application, no web server and no database:
 
 ```bash
-pip install lncrawl-sourcelib
+pip install 'lncrawl-sourcelib[fetch]'
 ```
+
+The `[fetch]` part adds the HTTP stack. Without it `check` and `resolve` still work, but
+`explain`, `try` and `record` have no way to reach a site, which is most of this guide.
 
 The rest of this guide uses the short `sourcelib` form. Prefix it with `lncrawl dev` if that is
 the one you have.
+
+**If you are also working on the interpreter**, run it from your checkout of it, so an edit
+there takes effect here without reinstalling:
+
+```bash
+uv run --with-editable <path-to-your-sourcelib-checkout> --with lncrawl-scraper \
+  sourcelib try specs/<host>.yaml <a novel url on that host>
+```
+
+Note which version CI uses: the `x-generator` field in `schema/source.v1.json` pins it, and
+that is what a pull request is validated against. A fix you rely on has to be released and the
+pin moved, or the same spec passes for you and fails here.
 
 ## Writing one
 

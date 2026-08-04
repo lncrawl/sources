@@ -414,6 +414,21 @@ for a different string, silently.
 `from` holds alternatives tried in order until one yields items. This is how a site with more than one
 possible chapter-list endpoint is described without conditionals.
 
+Two rules make it useful rather than decorative, because a site that has only one of the endpoints is
+the entire reason to write a list.
+
+**Any failure moves to the next alternative.** Not only a refusal the implementation models: a
+transport error, a rejected status and a body that will not parse all count. An endpoint absent from
+this installation answers `404`, and treating that as fatal means the first alternative decides the
+stage. When every alternative fails, the error MUST name what each one did, since a spec author cannot
+otherwise tell a wrong address from a blocked one.
+
+**An alternative that fetched but yielded nothing loses to the next one.** Where the stage has an
+`ItemList`, "yields items" means that list produces at least one row; a stage with no item list has no
+test and the first alternative that fetched is used. An ajax endpoint that answers `200` with an empty
+body is common enough that testing only reachability would report zero chapters for a novel whose list
+is sitting on the page named further down.
+
 ### 3.7 Paginate
 
 ```python
@@ -733,6 +748,14 @@ document that would satisfy it is still being read, and the resulting cycle is n
 time. Implementations MUST reject both at load time.
 
 An unknown placeholder or filter MUST be a load-time validation error.
+
+**A rendered `UrlTemplate` has a doubled slash in its path collapsed.** A template cannot know whether
+the placeholder before its literal `/` already ends in one, so `{novel_url}/ajax/chapters/` is the
+natural way to write that request and resolves to `.../a-title//ajax/chapters/` for a novel URL with a
+trailing slash. Sites disagree about whether the two are the same address and enough answer the doubled
+form with a `404` that leaving it to the author means every such template carries the same bug. Only
+the path is affected: a query string keeps its slashes, because a `//` there can be data. This applies
+to `UrlTemplate` alone, never to a `payload` or `headers` value.
 
 ### 4.3 Relative URLs
 
