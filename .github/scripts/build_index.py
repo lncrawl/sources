@@ -17,7 +17,8 @@ import json
 from pathlib import Path
 
 REPO = "https://github.com/lncrawl/sources"
-RFC = f"{REPO}/blob/main/docs/0001-source-definition.md"
+#: The format is normative in the interpreter's repository, not this one.
+RFC = "https://github.com/lncrawl/sourcelib/blob/main/docs/0001-source-definition.md"
 
 PAGE = """<!doctype html>
 <html lang="en">

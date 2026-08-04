@@ -54,10 +54,13 @@ Open a pull request with one host per PR. See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## The format
 
-[RFC-0001](docs/0001-source-definition.md) is the normative definition: every field, the
-evaluation rules, the transform steps, and the hook contract. It is what `sourcelib`, this
-repo's CI, the web editor and the JSON Schema are all written against, so it is the thing to
-read when the answer matters.
+[RFC-0001](https://github.com/lncrawl/sourcelib/blob/main/docs/0001-source-definition.md) is the normative
+definition: every field, the evaluation rules, the transform steps, and the hook contract. It
+lives with the interpreter, because a grammar version covers the model, the step registry and
+the hook points together and all three are implemented there.
+
+Read it when the answer has to be exact. For getting a source written, [docs/](docs/) is
+shorter and worked through examples.
 
 A minimal source is two meaningful lines, because it inherits everything else:
 

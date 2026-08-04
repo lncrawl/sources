@@ -1,0 +1,78 @@
+# Troubleshooting
+
+What a failure means, and where to look next. Every message below is one this repository's tooling
+actually prints.
+
+## Reading `try` output
+
+The exit code is the verdict, but the verdict is the least useful part. Read the field lines:
+
+- `ok` with a sample that looks wrong is the failure mode that matters. A title of `"Home"` or a
+  synopsis that is the site's marketing blurb both count as `ok`.
+- `none` on a cover, author, tag list or synopsis is a warning, not an error. Real pages omit those,
+  and failing on them would reject working sources.
+- A chapter count is not a chapter list. Read the titles.
+
+`uv run poe resolve specs/<host>.yaml` prints the document with every ancestor merged, which is the
+answer to "but the base sets that". A deep `extends` chain is otherwise guesswork.
+
+## Messages
+
+**`matched no chapters`** — `toc.items.css` selected nothing on the page that was fetched. Usually
+the list is not on the novel page at all; see the `from` alternatives in
+[patterns.md](patterns.md). Confirm what was fetched before changing the selector, because a
+selector is rarely wrong about a document you have actually looked at.
+
+**`no alternative in from produced a document`** — every alternative failed, and the message names
+what each one did. A `404` means that endpoint does not exist on this installation, which is fine if
+a later alternative works. All of them failing usually means the address needs a var the page did
+not supply.
+
+**`{vars.x} has no value in this context`** — the var produced nothing. Check its `on:`: a var
+reading `on: novel` runs against the novel stage's document, which is not the HTML page if that
+stage fetches JSON.
+
+**`page: 'novel' has not been fetched yet`** — a stage referenced a document that had not been
+produced. Stages run `search`, `novel`, `toc`, `chapter`, so a chapter may reuse the novel document
+and not the reverse. A stage cannot reuse its own, which is the natural typo: `novel.request` with
+`page: novel` reads as "the novel page" and means "the document this stage is about to produce".
+
+**`expected a node, got str`** — a pipe step that needs an element was handed text. Something earlier
+flattened it: `text` and `paragraphs` both end the node part of a pipe, so node steps come first.
+
+**`a css selector needs a parsed document`** — the response was not HTML. If it is JSON, use `json:`.
+
+**`produced nothing, and a novel needs a title`** — the title selector missed and the page's own
+metadata had nothing either. Check the page is what you think: a parked domain and a Cloudflare
+challenge both answer `200` with a plausible-looking document.
+
+**`is out of date; run sourcelib schema -o …`** — the committed schema does not match the model of
+the installed interpreter. Usually the interpreter is a different version than the schema pins; run
+`uv run poe pin`.
+
+**`lncrawl-sourcelib X is installed but the schema pins Y`** — your interpreter is not the one CI
+uses, so a spec can pass here and fail on the pull request, or the reverse. The message names both
+ways to fix it.
+
+## The site fights back
+
+**A page that is suspiciously small.** A few kilobytes where you expected hundreds is usually a
+challenge page or an error page, not the site. `explain` prints the byte count first for this reason.
+
+**A redirect to `ww1.`, `ww19.`, `ww547.`** and similar prefixes is domain parking. The host is gone,
+not blocked, and the answer is a `disabled/` entry rather than a new selector.
+
+**A dead site is not always dead.** Some networks answer a blocked domain with their own `200` page,
+which is indistinguishable from a site that changed. Before moving a spec to `disabled/`, check from
+somewhere else. A host wrongly disabled is worse than one left alone: the memory of why travels with
+the file and the next person believes it.
+
+**`curl` fails where the tooling works.** The interpreter's HTTP layer impersonates a browser's TLS
+fingerprint; `curl` does not. A Cloudflare error from `curl` says nothing about the site.
+
+## Offline checks disagree with the live site
+
+Fixtures test the spec, never the site. A green `poe fixtures` means the spec still reads the pages
+recorded that day, and it will stay green long after the site has been redesigned. The nightly health
+sweep is the counterweight. If `try` fails and `fixtures` passes, the site changed; re-record after
+fixing the spec.
