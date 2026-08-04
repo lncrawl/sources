@@ -69,6 +69,13 @@ lint-fix = { sequence = [
 ], help = "Fix what can be fixed, then format" }
 manifest = { cmd = "python .github/scripts/build_manifest.py", help = "Build manifest.json locally, as publishing does" }
 
+[tool.poe.tasks.link]
+help = "Point the interpreter at a sibling sourcelib checkout. Takes its path"
+# Not a `tool.uv.sources` entry: that would commit a path this repository cannot rely on, and CI has
+# no sibling checkout. Any `uv sync` undoes this, so re-run it when a gate suddenly disagrees with a
+# fixture you just recorded.
+cmd = "uv pip install -e"
+
 [tool.ruff]
 line-length = 100
 target-version = "py39"

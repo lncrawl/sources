@@ -1043,7 +1043,7 @@
         }
       ],
       "default": null,
-      "description": "The markup parser, for a site a lenient parser restructures.",
+      "description": "The markup parser. Defaults to lxml; set html.parser for a page lxml restructures.",
       "title": "Parser"
     },
     "pipes": {
@@ -1116,5 +1116,5 @@
   ],
   "title": "Source definition",
   "type": "object",
-  "x-generator": "lncrawl-sourcelib==0.1.2"
+  "x-generator": "lncrawl-sourcelib==0.1.3"
 }

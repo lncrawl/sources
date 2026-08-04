@@ -42,19 +42,40 @@ jobs:
       # The version pinned inside schema/source.v1.json, not whatever resolves. The schema is
       # regenerated below, so an unpinned install would let an interpreter release fail a source
       # pull request that touched neither.
+      #
+      # Asking the index whether that version exists, rather than trying the install and treating
+      # any failure as "not published yet". Those are different things: the first is a legitimate
+      # skip while a release is in flight, the second is a broken workflow, and collapsing them
+      # once meant a malformed requirement skipped every gate below and still reported success.
       - name: Read the pinned interpreter
         id: pin
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
-          schema = json.load(open("schema/source.v1.json"))
-          print(f"requirement={schema['x-generator']}")
+          import urllib.error
+          import urllib.request
+
+          name, _, version = json.load(open("schema/source.v1.json"))["x-generator"].partition("==")
+          # The extra belongs to the name, not to the version: `pkg[fetch]==1.0`, never
+          # `pkg==1.0[fetch]`, which is not a requirement at all.
+          print(f"requirement={name}[fetch]=={version}")
+          print(f"pinned={name}=={version}")
+
+          url = f"https://pypi.org/pypi/{name}/{version}/json"
+          try:
+              with urllib.request.urlopen(url, timeout=30) as response:
+                  published = response.status == 200
+          except urllib.error.HTTPError as error:
+              if error.code != 404:
+                  raise
+              published = False
+          print(f"published={str(published).lower()}")
           PY
 
+      # No continue-on-error: the version is known to exist, so a failure here is real.
       - name: Install the pinned interpreter
-        id: install
-        continue-on-error: true
-        run: uv pip install "${{ steps.pin.outputs.requirement }}[fetch]"
+        if: steps.pin.outputs.published == 'true'
+        run: uv pip install "${{ steps.pin.outputs.requirement }}"
 
       # `poe check` passes --strict, which fails when the checker found nothing. That catches a
       # wrong path, a wrong working directory or a broken glob silently validating zero documents.
@@ -63,15 +84,15 @@ jobs:
       # being slow or by a rate limit. Fixtures test the spec; the nightly health sweep tests the
       # site, and a green suite here does not mean a host is still alive.
       - name: Run the interpreter gates
-        if: steps.install.outcome == 'success'
+        if: steps.pin.outputs.published == 'true'
         run: uv run poe pin && uv run poe check && uv run poe fixtures
 
       - name: Assert the committed schema is what the model generates
-        if: steps.install.outcome == 'success'
+        if: steps.pin.outputs.published == 'true'
         run: uv run sourcelib schema -o schema/source.v1.json --check
 
-      - name: Report a missing interpreter
-        if: steps.install.outcome != 'success'
+      - name: Report an unpublished interpreter
+        if: steps.pin.outputs.published != 'true'
         run: |
-          echo "::warning::${{ steps.pin.outputs.requirement }} is not installable yet," \
-               "so the interpreter checks were skipped. Lint, layout and schema still ran."
+          echo "::warning::${{ steps.pin.outputs.pinned }} is not on PyPI yet, so the interpreter" \
+               "checks were skipped. Lint, layout and schema still ran."
