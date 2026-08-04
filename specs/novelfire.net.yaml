@@ -1,0 +1,41 @@
+# Ordinary selectors, no base, no hook. What most of the corpus looks like as data.
+spec: 1
+base_url: https://novelfire.net/
+language: en
+rate_limit: 3
+
+search:
+  request:
+    get: "{origin}/search?keyword={query|plus}&type=title"
+  css: "ul.novel-list li.novel-item"
+  fields:
+    title: { css: a, attr: title }
+    url: { css: a, attr: href }
+    info: { css: ".icon-book-open" }
+
+novel:
+  title: { css: "h1.novel-title" }
+  cover: { css: "figure.cover img", attr: [data-src, src] }
+  authors: { css: ".author span[itemprop=author]", all: true }
+  tags: { css: ".categories a", all: true }
+  synopsis: { css: ".summary .content" }
+
+toc:
+  request:
+    get: "{novel_url}/chapters"
+    paginate:
+      url: "{novel_url}/chapters?page={page}"
+      while: has_items
+  items:
+    css: "ul.chapter-list li a"
+    fields:
+      title: { css: ".chapter-title" }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#content"
+    pipe:
+      # The site repeats the chapter heading at the top of the body.
+      - { drop_leading: { matches: '(?i)^\s*chapter\s+\d+', within: 5 } }
+      - { paragraphs: { block_tags: [p] } }

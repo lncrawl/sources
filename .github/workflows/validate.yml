@@ -68,9 +68,11 @@ jobs:
         continue-on-error: true
         run: pip install "${{ steps.pin.outputs.requirement }}"
 
+      # --strict is deliberate: it fails when the checker found nothing, which catches a wrong
+      # path, a wrong working directory or a broken glob silently validating zero documents.
       - name: Validate every spec
         if: steps.install.outcome == 'success'
-        run: sourcelib check specs base --strict
+        run: sourcelib check specs disabled base --strict
 
       # Offline, against recorded pages, so a pull request cannot be failed by a site being
       # slow or by a rate limit. Fixtures test the spec; the nightly health sweep tests the

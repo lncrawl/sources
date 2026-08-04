@@ -1,0 +1,18 @@
+# The manga variant of the Madara theme: 23 sources extend this.
+spec: 1
+extends: base/wordpress.yaml
+
+has_manga: true
+
+# The inherited search endpoint answers with text results, which are wrong for a manga site.
+# Turned off rather than removed, so the configuration behind it survives for a child that
+# wants it back.
+can_search: false
+
+chapter:
+  body:
+    css: div.reading-content
+    # Pages arrive with their real source in data-src and a placeholder in src.
+    pipe:
+      - unlazy_images
+      - keep_attrs: [src, alt]

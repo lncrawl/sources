@@ -1,0 +1,53 @@
+# The Madara / wp-manga WordPress theme: 59 sources extend this and 23 more extend its manga
+# variant in base/wordpress-manga.yaml.
+spec: 1
+
+vars:
+  manga_id:
+    on: novel
+    css: "#manga-chapters-holder[data-id]"
+    attr: data-id
+
+search:
+  request:
+    get: "{origin}/?s={query|lower|plus}&post_type=wp-manga&op=&author=&artist=&release=&adult="
+  css: ".c-tabs-item__content"
+  fields:
+    title: { css: ".post-title h3 a, .post-title h4 a" }
+    url: { css: ".post-title h3 a, .post-title h4 a", attr: href }
+    info: { css: ".latest-chap .chapter a" }
+
+novel:
+  request: { page: novel }
+  # The heading carries a status span, which has to go before the text is read.
+  title: { css: ".post-title h1", pipe: [{ strip_tags: [span] }, text, trim] }
+  cover: { css: ".summary_image a img", attr: [data-src, src] }
+  authors: { css: '.author-content a[href*="manga-author"]', all: true }
+  tags: { css: '.genres-content a[rel="tag"]', all: true }
+  synopsis: { css: ".description-summary" }
+
+toc:
+  request:
+    from:
+      # The theme's own chapter endpoint.
+      - post: "{novel_url}/ajax/chapters/"
+      # Older installations answer nothing there and need the admin endpoint instead, which
+      # takes an id only the novel page carries.
+      - post: "{origin}/wp-admin/admin-ajax.php"
+        payload:
+          action: manga_get_chapters
+          manga: "{vars.manga_id}"
+  items:
+    reverse: true
+    css: "li.wp-manga-chapter a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: div.reading-content
+    pipe:
+      - strip_tags: [h3]
+      - strip_css: ['a[href="javascript:void(0)"]']
+      - paragraphs: { block_tags: [p] }
