@@ -14,10 +14,10 @@ would have seen underlined.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import re
 import sys
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import Any
 
 import jsonschema
 import yaml
@@ -42,14 +42,14 @@ Loader.yaml_implicit_resolvers = {
 Loader.add_implicit_resolver("tag:yaml.org,2002:bool", _BOOL_1_2, list("tTfF"))
 
 
-def documents() -> List[Path]:
-    found: List[Path] = []
+def documents() -> list[Path]:
+    found: list[Path] = []
     for folder in FOLDERS:
         found.extend(sorted((ROOT / folder).glob("*.yaml")))
     return found
 
 
-def load(path: Path) -> Dict[str, Any]:
+def load(path: Path) -> dict[str, Any]:
     data = yaml.load(path.read_text(encoding="utf-8"), Loader=Loader)
     if not isinstance(data, dict):
         raise ValueError("a spec document must be a mapping")

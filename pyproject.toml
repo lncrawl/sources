@@ -1,0 +1,92 @@
+# This repository ships no package. The file exists so that the Python it does hold, the hooks and
+# the CI scripts, has one lint configuration and one task list that an editor, a contributor and CI
+# all read.
+
+[project]
+name = "lncrawl-sources"
+version = "0"
+description = "Declarative source definitions for Lightnovel Crawler, per RFC-0001."
+readme = "README.md"
+license = { file = "LICENSE" }
+# The floor is the interpreter that runs the hooks, which is whatever lncrawl-sourcelib supports.
+# Raising it to please a linter or a type checker would strand users on older Pythons.
+requires-python = ">=3.9"
+
+[dependency-groups]
+dev = [
+    # The interpreter under test. Deliberately unpinned here: `schema/source.v1.json` carries the
+    # version CI installs, in its `x-generator` field, and `poe pin` reports when the two disagree.
+    # Pinning it in both places would make the schema stop being the single source of truth.
+    "lncrawl-sourcelib[fetch]",
+    "jsonschema>=4.23",
+    "poethepoet>=0.37.0",
+    "pyyaml>=6.0",
+    "ruff>=0.15.16",
+]
+
+[tool.uv]
+# Nothing to build: the specs are data and the hooks are loaded by path, never imported as a
+# package. Without this uv tries to build a wheel and fails on the missing module.
+package = false
+
+[tool.poe.tasks]
+# ---------------------------------------------------------------------------- #
+# The gates. CI runs these same tasks, so nothing gates a pull request that a
+# contributor cannot reproduce with one command.
+# ---------------------------------------------------------------------------- #
+check = { cmd = "sourcelib check specs disabled base --strict", help = "Resolve and validate every document" }
+fixtures = { cmd = "sourcelib check --fixtures --strict", help = "Replay recorded pages, offline" }
+schema = { cmd = "python .github/scripts/check_schema.py", help = "Check every document against the committed schema" }
+layout = { cmd = "python .github/scripts/check_layout.py", help = "Check the filename, folder and reference invariants" }
+pin = { cmd = "python .github/scripts/check_pin.py", help = "Check the installed interpreter is the one the schema pins" }
+all = { sequence = [
+    "lint",
+    "pin",
+    "layout",
+    "schema",
+    "check",
+    "fixtures",
+], help = "Every gate a pull request has to pass" }
+
+# ---------------------------------------------------------------------------- #
+# Writing a source
+# ---------------------------------------------------------------------------- #
+explain = { cmd = "sourcelib explain", help = "Digest a page, to write a spec against it. Takes a URL" }
+resolve = { cmd = "sourcelib resolve", help = "Print one spec with its ancestors merged. Takes a path" }
+try = { cmd = "sourcelib try", help = "Run a spec against a live URL. Takes a path and a novel URL" }
+record = { cmd = "sourcelib record", help = "Save a site's responses as a fixture. Takes a path and a novel URL" }
+
+# ---------------------------------------------------------------------------- #
+# Housekeeping
+# ---------------------------------------------------------------------------- #
+lint = { sequence = [
+    { cmd = "ruff check" },
+    { cmd = "ruff format --check" },
+], help = "Lint and check formatting" }
+lint-fix = { sequence = [
+    { cmd = "ruff check --fix" },
+    { cmd = "ruff format" },
+], help = "Fix what can be fixed, then format" }
+manifest = { cmd = "python .github/scripts/build_manifest.py", help = "Build manifest.json locally, as publishing does" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+# Markdown holds the RFC, whose Python blocks are illustrative and column-aligned on purpose.
+# Formatting them silently rewrites the specification's prose.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+# UP is on because everything here is new code with no legacy to migrate, and every file carries
+# `from __future__ import annotations`, which makes the PEP 585 and 604 spellings safe on the floor.
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = [
+    # The formatter owns line length.
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# A hook's parameters are duck-typed by contract: the value, `document` and `ctx` are whatever the
+# interpreter passes, and a hook must work against any implementation of RFC-0001 rather than
+# against one library's classes. So a signature names arguments it does not always read.
+"hooks/**/*.py" = ["ARG001"]

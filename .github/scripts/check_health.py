@@ -11,10 +11,10 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
-from pathlib import Path
 import sys
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import yaml
 

@@ -130,15 +130,16 @@ def check_orphan_hooks() -> None:
     lib/ is exempt by design: those modules exist to be imported. shared/ and sites/ hold
     hook functions, so one nobody references is either dead or a spec forgot it.
     """
-    referenced_text = "\n".join(
-        p.read_text(encoding="utf-8") for p in hooks_seen if p.is_file()
-    )
+    referenced_text = "\n".join(p.read_text(encoding="utf-8") for p in hooks_seen if p.is_file())
     for folder in HOOK_DIRS:
         for path in sorted((ROOT / HOOKS / folder).glob("*.py")):
             if path.resolve() in hooks_seen:
                 continue
             # A shared hook may be reached by import rather than by a spec reference.
-            if f"import {path.stem}" in referenced_text or f"{folder}.{path.stem}" in referenced_text:
+            if (
+                f"import {path.stem}" in referenced_text
+                or f"{folder}.{path.stem}" in referenced_text
+            ):
                 continue
             fail(path, "hook is neither referenced by a spec nor imported by one that is")
 

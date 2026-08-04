@@ -7,38 +7,43 @@ extends the original, and it is still its own PR. This keeps a revert to one fil
 
 ## Getting the tools
 
-**If you already have Lightnovel Crawler**, you can use it. Every command below also exists as
-`lncrawl dev …`, so there is no second tool to learn:
+**Working in this repository**, one command sets everything up. It installs the interpreter and
+the checks, and nothing else: no application, no web server, no database.
+
+```bash
+uv sync
+uv run poe            # every task, with what it does
+```
+
+`poe all` runs exactly what a pull request is checked against, so there is no gate here you
+cannot reproduce before pushing:
+
+```bash
+uv run poe all
+```
+
+The interpreter version matters and `poe pin` reports it. `schema/source.v1.json` names the
+version in its `x-generator` field and CI installs that one, so a fix you rely on has to be
+released and the pin moved. Otherwise the same spec passes for you and fails here.
+
+**If you already have Lightnovel Crawler**, every command also exists as `lncrawl dev …`, so
+there is no second tool to learn:
 
 ```bash
 lncrawl dev check
 lncrawl dev try specs/<host>.yaml <a novel url on that host>
 ```
 
-**If you only want to write specs**, install the interpreter on its own. It is a small package
-and pulls in no application, no web server and no database:
+**If you are also working on the interpreter**, point this repository at your checkout of it so
+an edit there takes effect here without reinstalling:
 
 ```bash
-pip install 'lncrawl-sourcelib[fetch]'
+uv pip install -e <path-to-your-sourcelib-checkout>
 ```
 
-The `[fetch]` part adds the HTTP stack. Without it `check` and `resolve` still work, but
-`explain`, `try` and `record` have no way to reach a site, which is most of this guide.
-
-The rest of this guide uses the short `sourcelib` form. Prefix it with `lncrawl dev` if that is
-the one you have.
-
-**If you are also working on the interpreter**, run it from your checkout of it, so an edit
-there takes effect here without reinstalling:
-
-```bash
-uv run --with-editable <path-to-your-sourcelib-checkout> --with lncrawl-scraper \
-  sourcelib try specs/<host>.yaml <a novel url on that host>
-```
-
-Note which version CI uses: the `x-generator` field in `schema/source.v1.json` pins it, and
-that is what a pull request is validated against. A fix you rely on has to be released and the
-pin moved, or the same spec passes for you and fails here.
+The rest of this guide writes `sourcelib …`, which is what `poe` runs underneath. Use
+`uv run sourcelib …` in a synced checkout, or prefix with `lncrawl dev` if that is the one you
+have.
 
 ## Writing one
 

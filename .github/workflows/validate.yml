@@ -14,44 +14,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  layout:
-    name: Layout and references
+  validate:
+    name: Specs, layout and schema
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+
+      # The interpreter comes from .python-version, which names the floor rather than the newest
+      # release. A hook has to run on the oldest Python lncrawl-sourcelib supports, and the floor
+      # is where a 3.10-only spelling shows up.
+      - uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.14"
-      - run: pip install pyyaml
-      - run: python .github/scripts/check_layout.py
+          enable-cache: true
 
-  schema:
-    name: Documents match the published schema
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-      - run: pip install jsonschema pyyaml
+      # Every tool the gates need is a dev dependency, so the task list in pyproject.toml is the
+      # same one a contributor runs. Deliberately no lncrawl: the definitions repository validates
+      # itself, which is the whole point of keeping the interpreter in its own package.
+      - name: Install the tools
+        run: uv sync
 
-      # Needs only the committed schema, so it runs before the interpreter is published.
-      # It catches unknown keys, wrong types and bad shapes. The cross-field rules a
-      # schema cannot express are the interpreter's job, below.
-      - run: python .github/scripts/check_schema.py
+      # These read only the committed schema and the tree, so they run before the interpreter is
+      # involved and still report on a pull request that predates a release.
+      - run: uv run poe lint
+      - run: uv run poe layout
+      - run: uv run poe schema
 
-  spec:
-    name: Interpreter checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-
-      # The version pinned inside schema/source.v1.json, not whatever is latest. The
-      # schema is regenerated below, so an unpinned install would let an interpreter
-      # release fail a source pull request that did not touch either.
+      # The version pinned inside schema/source.v1.json, not whatever resolves. The schema is
+      # regenerated below, so an unpinned install would let an interpreter release fail a source
+      # pull request that touched neither.
       - name: Read the pinned interpreter
         id: pin
         run: |
@@ -61,32 +51,27 @@ jobs:
           print(f"requirement={schema['x-generator']}")
           PY
 
-      # Deliberately not lncrawl. The definitions repo validates itself, which is the
-      # whole point of keeping the interpreter in its own package.
-      - name: Install the interpreter
+      - name: Install the pinned interpreter
         id: install
         continue-on-error: true
-        run: pip install "${{ steps.pin.outputs.requirement }}"
+        run: uv pip install "${{ steps.pin.outputs.requirement }}[fetch]"
 
-      # --strict is deliberate: it fails when the checker found nothing, which catches a wrong
-      # path, a wrong working directory or a broken glob silently validating zero documents.
-      - name: Validate every spec
-        if: steps.install.outcome == 'success'
-        run: sourcelib check specs disabled base --strict
-
-      # Offline, against recorded pages, so a pull request cannot be failed by a site being
-      # slow or by a rate limit. Fixtures test the spec; the nightly health sweep tests the
+      # `poe check` passes --strict, which fails when the checker found nothing. That catches a
+      # wrong path, a wrong working directory or a broken glob silently validating zero documents.
+      #
+      # `poe fixtures` replays recorded pages offline, so a pull request cannot be failed by a site
+      # being slow or by a rate limit. Fixtures test the spec; the nightly health sweep tests the
       # site, and a green suite here does not mean a host is still alive.
-      - name: Replay recorded fixtures
+      - name: Run the interpreter gates
         if: steps.install.outcome == 'success'
-        run: sourcelib check --fixtures
+        run: uv run poe pin && uv run poe check && uv run poe fixtures
 
       - name: Assert the committed schema is what the model generates
         if: steps.install.outcome == 'success'
-        run: sourcelib schema -o schema/source.v1.json --check
+        run: uv run sourcelib schema -o schema/source.v1.json --check
 
       - name: Report a missing interpreter
         if: steps.install.outcome != 'success'
         run: |
           echo "::warning::${{ steps.pin.outputs.requirement }} is not installable yet," \
-               "so the interpreter checks were skipped. Layout and schema still ran."
+               "so the interpreter checks were skipped. Lint, layout and schema still ran."

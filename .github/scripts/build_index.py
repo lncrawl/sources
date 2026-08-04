@@ -15,7 +15,6 @@ import argparse
 import html
 import json
 from pathlib import Path
-import sys
 
 REPO = "https://github.com/lncrawl/sources"
 RFC = f"{REPO}/blob/main/docs/0001-source-definition.md"

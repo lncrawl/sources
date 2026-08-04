@@ -43,23 +43,26 @@ jobs:
         with:
           ref: ${{ steps.ref.outputs.name }}
 
-      - uses: actions/setup-python@v7
+      - uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.14"
-      - run: pip install jsonschema pyyaml
+          enable-cache: true
+      - run: uv sync
 
-      - run: python .github/scripts/check_layout.py
-      - run: python .github/scripts/check_schema.py
+      # The same task names a contributor runs, so a release cannot be gated on a check nobody
+      # can reproduce locally. Not the interpreter gates: those belong to validate.yml, which
+      # already ran on the commit this tag points at.
+      - run: uv run poe layout
+      - run: uv run poe schema
 
       - name: Build
         run: |
           mkdir -p dist
-          python .github/scripts/build_manifest.py -o dist/manifest.json
+          uv run python .github/scripts/build_manifest.py -o dist/manifest.json
           cp -r specs disabled base hooks dist/
           printf '%s\n' "${{ steps.ref.outputs.name }}" > dist/VERSION
           # Without an index the site root is a 404 while every file under it serves
           # correctly, which reads as a failed deploy to anyone who types the URL.
-          python .github/scripts/build_index.py \
+          uv run python .github/scripts/build_index.py \
             --manifest dist/manifest.json \
             --release "${{ steps.ref.outputs.name }}" \
             -o dist/index.html
