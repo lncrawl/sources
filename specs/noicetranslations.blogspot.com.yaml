@@ -1,0 +1,4 @@
+spec: 1
+extends: base/blogger.yaml
+base_url: https://noicetranslations.blogspot.com/
+language: en

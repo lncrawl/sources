@@ -1,0 +1,47 @@
+# Blogger-hosted translation sites where a novel is a label and a chapter is a post: 7 sources
+# extend this.
+#
+# Both lists come from hooks, and for one reason: the feed pages by `start-index`, a 1-based item
+# offset, and reports its length as a count of entries rather than of pages. The next offset is
+# "however many actually arrived", which needs arithmetic the format does not have. See
+# hooks/shared/blogger_feed.py.
+spec: 1
+
+# Blogger answers the first feed call of a burst and challenges the ones behind it with a Google
+# challenge no Cloudflare-shaped solver clears. One request a second keeps it answering, and the
+# feed is cheap enough that this costs a novel two calls.
+rate_limit: 1
+
+hooks:
+  novel.title: hooks/shared/blogger_feed.py
+  toc.items: hooks/shared/blogger_feed.py
+  search.items: hooks/shared/blogger_feed.py
+
+search:
+  request:
+    # Blogger ignores `q`, which is the point: it is how the query reaches the hook, since the
+    # `search.items` signature passes only the document and the context.
+    get: "{origin}/feeds/posts/summary?alt=json&max-results=0&q={query|urlencode}"
+
+novel:
+  # The label archive page. The title comes from the hook, because the heading here carries the
+  # blog's name as well as the novel's.
+  request:
+    get: "{novel_url}"
+  # A label archive has no genres of its own, and the inherited `keywords` meta describes the
+  # blog: one of these sites answers with its translation groups and another with "Manga, Manhwa"
+  # on every novel it hosts. Blank is the honest answer.
+  tags: { const: [] }
+
+toc:
+  request:
+    page: novel
+  # Required by the schema even though the hook supplies the rows.
+  items:
+    css: "a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body: { css: .post-body }

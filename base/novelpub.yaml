@@ -1,0 +1,80 @@
+# The NovelPub / LightNovelPub family: 5 sources extend this.
+#
+# Not yet verified against a live host, so no spec extends it. Of the five, novelpub.com and
+# webnovelpub.com redirect to ww547./ww19. parking pages, lightnovelpub.com answers with a
+# challenge, and pandanovel.co builds its listings with scripts. Written from the selectors the
+# family shares; confirm against whichever host is reachable before adding a spec.
+spec: 1
+
+rate_limit: 3
+
+vars:
+  # Search posts to an endpoint that refuses a request without this token, and the token is only
+  # on the search page. Fetched once and reused, which is what a request-scoped var is for.
+  verify_token:
+    on:
+      get: "{origin}/search"
+    css: '#novelSearchForm input[name="__LNRequestVerifyToken"]'
+    attr: value
+
+search:
+  request:
+    post: "{origin}/lnsearchlive"
+    payload:
+      inputContent: "{query}"
+    headers:
+      lnrequestverifytoken: "{vars.verify_token}"
+      referer: "{origin}/search"
+  # The response is JSON carrying a rendered fragment, so the path names the fragment and the
+  # selector runs inside it.
+  json: resultview
+  css: ".novel-list .novel-item a"
+  fields:
+    title: { css: .novel-title }
+    url: { attr: href }
+    info: { css: .novel-stats, all: true, pipe: [trim, drop_empty, { join: " | " }] }
+
+novel:
+  title: { css: "article#novel .novel-title" }
+  cover: { css: "article#novel figure.cover > img", attr: [data-src, src] }
+  authors: { css: "article#novel span[itemprop='author']", all: true }
+  tags: { css: "article#novel .categories a", all: true }
+  synopsis: { css: "article#novel .summary .content" }
+
+toc:
+  request:
+    get: "{novel_url}/chapters"
+    paginate:
+      # The pager links carry the last page number rather than announcing a total, so the count
+      # is the largest number any of them mentions.
+      count:
+        css: ".pagination-container li a[href]"
+        attr: href
+        all: true
+        pipe: [{ regex: { pattern: "page[-,=](\\d+)" } }, max]
+      url: "{novel_url}/chapters/page-{page}"
+      concurrent: true
+  items:
+    css: "ul.chapter-list li a"
+    fields:
+      title: { css: .chapter-title }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: .chapter-content
+    pipe:
+      # These themes inject house ads into the body, several of them shaped like ordinary
+      # paragraphs, which is why the list reaches for positions and not just classes.
+      - strip_css:
+          - .adsbox
+          - .ad-container
+          - .ad
+          - .OUTBRAIN
+          - .noveltopads
+          - .chadsticky
+          - "p > strong > strong"
+          - "p[class]"
+          - "p:nth-child(1) > strong"
+      - unwrap: [div]
+      - paragraphs
