@@ -59,12 +59,23 @@ def collect_files(folder: str, pattern: str) -> dict:
     }
 
 
+def collect_hooks() -> dict:
+    # Keyed by path, not stem: shared/x.py and sites/x.py are different files. Recursive
+    # and unfiltered, so hooks/lib/ is listed too — a client that fetched only the files
+    # specs name would install a hook whose imports it never downloaded.
+    return {
+        str(path.relative_to(ROOT)): {"sha": sha(path)}
+        for path in sorted((ROOT / "hooks").rglob("*.py"))
+        if "__pycache__" not in path.parts
+    }
+
+
 def build() -> dict:
     manifest = {
         "specs": collect_specs("specs"),
         "disabled": collect_specs("disabled"),
         "bases": collect_files("base", "*.yaml"),
-        "hooks": collect_files("hooks", "*.py"),
+        "hooks": collect_hooks(),
     }
     # The revision serves the app's ETag, so it has to move whenever any entry does
     # and stay put otherwise. Hashing the manifest body gives both for free.

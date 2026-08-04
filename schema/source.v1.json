@@ -1,0 +1,1120 @@
+{
+  "$defs": {
+    "ChapterStage": {
+      "additionalProperties": false,
+      "description": "One chapter's body.",
+      "properties": {
+        "body": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The chapter text."
+        },
+        "join": {
+          "default": "",
+          "description": "Joins the bodies of a multi-page chapter, in order.",
+          "title": "Join",
+          "type": "string"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Request"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Defaults to a GET of the URL the table of contents captured. Carries paginate when a body spans several pages."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Defaults to the URL captured by the table of contents.",
+          "title": "Url"
+        }
+      },
+      "title": "ChapterStage",
+      "type": "object"
+    },
+    "Extractor": {
+      "additionalProperties": false,
+      "description": "Reads one value from one document.",
+      "properties": {
+        "all": {
+          "default": false,
+          "description": "Produce a list of every match instead of the first.",
+          "title": "All",
+          "type": "boolean"
+        },
+        "attr": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "default": "text",
+          "description": "'text', 'html' (inner markup), 'outer_html', or attribute names. A list is tried in order and may mix them.",
+          "title": "Attr"
+        },
+        "const": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A literal. Interpolation still applies, so this produces a value from vars alone when the page does not carry it.",
+          "title": "Const"
+        },
+        "css": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A CSS selector, evaluated relative to the node in scope. Supports Selectors Level 3 plus :-soup-contains(), :has() and :scope.",
+          "title": "Css"
+        },
+        "default": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Used when everything else produced nothing.",
+          "title": "Default"
+        },
+        "fallback": {
+          "description": "Whole alternative Extractors, tried in order while the result is empty. Add a new selector ahead of the old one rather than replacing it.",
+          "items": {
+            "$ref": "#/$defs/Extractor"
+          },
+          "title": "Fallback",
+          "type": "array"
+        },
+        "header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A response header, by name, from the response this stage's request produced. Cannot be combined with any other source.",
+          "title": "Header"
+        },
+        "json": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A dotted path into a JSON body, or into the element css selected. '$' denotes the whole body; segments may be keys or numeric indices.",
+          "title": "Json"
+        },
+        "pipe": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Transforms to apply: a name from 'pipes', an inline list of steps, or a mix. Absent means the field's default pipe.",
+          "title": "Pipe"
+        },
+        "regex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A regular expression applied to the document's raw text, or to the element css selected.",
+          "title": "Regex"
+        }
+      },
+      "title": "Extractor",
+      "type": "object"
+    },
+    "ItemList": {
+      "additionalProperties": false,
+      "description": "A repeated structure: a container, and per-row Extractors evaluated inside it.",
+      "properties": {
+        "css": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Selects the row container.",
+          "title": "Css"
+        },
+        "fields": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Extractor"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "description": "Per-row Extractors, each evaluated with that row in scope. Extra keys are preserved on the item and readable later as {chapter.<key>}. A field may instead be a URL template referencing earlier siblings as {item.<name>}.",
+          "title": "Fields",
+          "type": "object"
+        },
+        "json": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A dotted path to an array of rows.",
+          "title": "Json"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Request"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The request producing the document these rows come from."
+        },
+        "reverse": {
+          "default": false,
+          "description": "Reverse the order, applied after sort_by.",
+          "title": "Reverse",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Orders rows by a field, compared numerically. A row whose value is not a number sorts after every row that is.",
+          "title": "Sort By"
+        }
+      },
+      "title": "ItemList",
+      "type": "object"
+    },
+    "NovelStage": {
+      "additionalProperties": false,
+      "description": "The novel's own metadata.",
+      "properties": {
+        "authors": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The author names."
+        },
+        "cover": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The cover image URL."
+        },
+        "language": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A per-novel language, for hosts serving more than one."
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Request"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Defaults to a GET of the novel URL."
+        },
+        "synopsis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The description."
+        },
+        "tags": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Genre or tag names."
+        },
+        "title": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The novel title."
+        }
+      },
+      "title": "NovelStage",
+      "type": "object"
+    },
+    "Paginate": {
+      "additionalProperties": false,
+      "description": "How a stage walks more than one page.",
+      "properties": {
+        "concurrent": {
+          "default": false,
+          "description": "Fetch pages in parallel. Valid only with 'count', since the other conditions cannot know what to request next until the current page is read.",
+          "title": "Concurrent",
+          "type": "boolean"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reads the page count from the first page."
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Caps pages fetched. A truncated result is reported.",
+          "title": "Limit"
+        },
+        "next": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Extractor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reads a link to the next page from the current document."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Produces the second page onward; the first comes from the stage's own request. Required with 'while' and 'count', invalid with 'next'.",
+          "title": "Url"
+        },
+        "while": {
+          "anyOf": [
+            {
+              "const": "has_items",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Stop at the first page yielding nothing. Use when the page count is unknown.",
+          "title": "While"
+        }
+      },
+      "title": "Paginate",
+      "type": "object"
+    },
+    "Request": {
+      "additionalProperties": false,
+      "description": "Everything about making a request. Reading the response belongs to the stage.",
+      "properties": {
+        "encoding": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overrides the spec encoding for this request. Governs the request body as well as the response.",
+          "title": "Encoding"
+        },
+        "form": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A selector for a form. Its inputs are harvested into payload by name, then payload is applied over the result. With post, the form comes from the document in scope; with get, from the document get fetches, and the request goes to the form's own action.",
+          "title": "Form"
+        },
+        "from": {
+          "description": "Alternatives tried in order until one yields items.",
+          "items": {
+            "$ref": "#/$defs/Request"
+          },
+          "title": "From",
+          "type": "array"
+        },
+        "get": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A GET URL template.",
+          "title": "Get"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers for this request, merged over the spec's own.",
+          "title": "Headers",
+          "type": "object"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Names this request so 'page' can reference it. Every stage's own request is already named after its stage.",
+          "title": "Name"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reuse a document already fetched in this operation, by stage name or declared request name.",
+          "title": "Page"
+        },
+        "paginate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Paginate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How this stage walks more than one page."
+        },
+        "payload": {
+          "additionalProperties": true,
+          "description": "The request body, valid only with post. Sent as JSON when it holds a nested object, list, boolean or number, and form-encoded otherwise. An explicit content-type header overrides that.",
+          "title": "Payload",
+          "type": "object"
+        },
+        "post": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A POST URL template.",
+          "title": "Post"
+        },
+        "render": {
+          "default": false,
+          "description": "Run the page's scripts before parsing, for a site whose content is not in the served markup. Far slower than an HTTP fetch.",
+          "title": "Render",
+          "type": "boolean"
+        },
+        "wait_for": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A selector to wait for before reading. Should be set whenever render is.",
+          "title": "Wait For"
+        }
+      },
+      "title": "Request",
+      "type": "object"
+    },
+    "SearchStage": {
+      "additionalProperties": false,
+      "description": "Search results. Rows carry title, url and info.",
+      "properties": {
+        "css": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Selects the row container.",
+          "title": "Css"
+        },
+        "fields": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Extractor"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "description": "Per-row Extractors, each evaluated with that row in scope. Extra keys are preserved on the item and readable later as {chapter.<key>}. A field may instead be a URL template referencing earlier siblings as {item.<name>}.",
+          "title": "Fields",
+          "type": "object"
+        },
+        "json": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A dotted path to an array of rows.",
+          "title": "Json"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Request"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The request producing the document these rows come from."
+        },
+        "reverse": {
+          "default": false,
+          "description": "Reverse the order, applied after sort_by.",
+          "title": "Reverse",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Orders rows by a field, compared numerically. A row whose value is not a number sorts after every row that is.",
+          "title": "Sort By"
+        }
+      },
+      "title": "SearchStage",
+      "type": "object"
+    },
+    "TocStage": {
+      "additionalProperties": false,
+      "description": "The table of contents.",
+      "properties": {
+        "items": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ItemList"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The chapter rows. The only source of chapters."
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Request"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The request producing the chapter list."
+        },
+        "volumes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ItemList"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Volume heading rows interleaved with the chapter rows, over the same container. Each chapter takes the nearest preceding heading."
+        }
+      },
+      "title": "TocStage",
+      "type": "object"
+    },
+    "Var": {
+      "additionalProperties": false,
+      "description": "A named Extractor whose result templates read as ``{vars.<name>}``.",
+      "properties": {
+        "all": {
+          "default": false,
+          "description": "Produce a list of every match instead of the first.",
+          "title": "All",
+          "type": "boolean"
+        },
+        "attr": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "default": "text",
+          "description": "'text', 'html' (inner markup), 'outer_html', or attribute names. A list is tried in order and may mix them.",
+          "title": "Attr"
+        },
+        "const": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A literal. Interpolation still applies, so this produces a value from vars alone when the page does not carry it.",
+          "title": "Const"
+        },
+        "css": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A CSS selector, evaluated relative to the node in scope. Supports Selectors Level 3 plus :-soup-contains(), :has() and :scope.",
+          "title": "Css"
+        },
+        "default": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Used when everything else produced nothing.",
+          "title": "Default"
+        },
+        "fallback": {
+          "description": "Whole alternative Extractors, tried in order while the result is empty. Add a new selector ahead of the old one rather than replacing it.",
+          "items": {
+            "$ref": "#/$defs/Extractor"
+          },
+          "title": "Fallback",
+          "type": "array"
+        },
+        "header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A response header, by name, from the response this stage's request produced. Cannot be combined with any other source.",
+          "title": "Header"
+        },
+        "json": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A dotted path into a JSON body, or into the element css selected. '$' denotes the whole body; segments may be keys or numeric indices.",
+          "title": "Json"
+        },
+        "on": {
+          "anyOf": [
+            {
+              "enum": [
+                "url",
+                "novel",
+                "chapter"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Request"
+            }
+          ],
+          "default": "novel",
+          "description": "What this var reads: the novel URL string, the novel page, the chapter page, or its own request (cached for the session).",
+          "title": "On"
+        },
+        "pipe": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Transforms to apply: a name from 'pipes', an inline list of steps, or a mix. Absent means the field's default pipe.",
+          "title": "Pipe"
+        },
+        "regex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A regular expression applied to the document's raw text, or to the element css selected.",
+          "title": "Regex"
+        },
+        "renew": {
+          "default": false,
+          "description": "Re-evaluate and retry once when a request using this var is refused. For credentials that expire mid-crawl.",
+          "title": "Renew",
+          "type": "boolean"
+        }
+      },
+      "title": "Var",
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/lncrawl/sources/main/schema/source.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A declarative description of how to read one website, as defined by RFC-0001.",
+  "properties": {
+    "base_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The site's absolute root URL. Its host must match the filename. Absent makes the spec abstract.",
+      "title": "Base Url"
+    },
+    "can_login": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Derived when absent. false forces an inherited login off; true is rejected unless a login hook resolves.",
+      "title": "Can Login"
+    },
+    "can_search": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Derived when absent. false forces an inherited search off; true is rejected unless a search stage resolves.",
+      "title": "Can Search"
+    },
+    "chapter": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChapterStage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How to read one chapter's text."
+    },
+    "chapters_per_volume": {
+      "default": 100,
+      "description": "How many chapters make a volume when the site declares none.",
+      "exclusiveMinimum": 0,
+      "title": "Chapters Per Volume",
+      "type": "integer"
+    },
+    "disabled": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Why this host is not served. Present if and only if the document lives in disabled/.",
+      "title": "Disabled"
+    },
+    "encoding": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A character encoding, for a site that does not declare its own.",
+      "title": "Encoding"
+    },
+    "extends": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A repository-relative path to one parent spec, in specs/ or base/.",
+      "title": "Extends"
+    },
+    "has_manga": {
+      "default": false,
+      "description": "Chapters are images, not text.",
+      "title": "Has Manga",
+      "type": "boolean"
+    },
+    "has_mtl": {
+      "default": false,
+      "description": "Content is machine-translated.",
+      "title": "Has Mtl",
+      "type": "boolean"
+    },
+    "headers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Headers for every request. A spec cannot set User-Agent or control header order; those belong to the HTTP layer.",
+      "title": "Headers",
+      "type": "object"
+    },
+    "hooks": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      ],
+      "description": "A hook file binding every point it defines, or a mapping of point to file. Points are '<stage>.<field>', '<stage>.request', 'check_response' or 'login'.",
+      "title": "Hooks"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "An ISO 639-1 two-letter code, used only as a starting default. Detection from the fetched content wins.",
+      "title": "Language"
+    },
+    "novel": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NovelStage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How to read a novel's metadata."
+    },
+    "parser": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The markup parser, for a site a lenient parser restructures.",
+      "title": "Parser"
+    },
+    "pipes": {
+      "additionalProperties": {
+        "items": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": true,
+              "type": "object"
+            }
+          ]
+        },
+        "type": "array"
+      },
+      "description": "Reusable transform pipes by name, inheritable through extends.",
+      "title": "Pipes",
+      "type": "object"
+    },
+    "rate_limit": {
+      "default": 3.0,
+      "description": "Requests per second for this host.",
+      "exclusiveMinimum": 0,
+      "title": "Rate Limit",
+      "type": "number"
+    },
+    "search": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SearchStage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How to search the site. Absent means the source cannot search."
+    },
+    "spec": {
+      "description": "The version of the whole contract: this model, the step registry and the hook points. An interpreter refuses a version it does not implement.",
+      "minimum": 1,
+      "title": "Spec",
+      "type": "integer"
+    },
+    "toc": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TocStage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How to read the chapter list."
+    },
+    "vars": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Var"
+      },
+      "description": "Named Extractors, read by templates as {vars.<name>}.",
+      "title": "Vars",
+      "type": "object"
+    }
+  },
+  "required": [
+    "spec"
+  ],
+  "title": "Source definition",
+  "type": "object",
+  "x-generator": "lncrawl-sourcelib==0.1.0"
+}

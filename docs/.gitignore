@@ -1,0 +1,12 @@
+# Working conversions from the RFC-0001 exercise: existing crawlers expressed in the format by
+# hand, before any interpreter existed. They found the revisions recorded in the RFC and that was
+# their purpose.
+#
+# Not committed, deliberately. None of them was ever run, so every selector is a claim, and they are
+# shaped exactly like real specs while being excluded from CI. Committed they would rot against a
+# format that changed twenty-two times while they were written, and someone would copy a selector
+# out of one.
+#
+# Kept on disk because they are still the fastest way to check whether a format change breaks
+# something real.
+drafts/

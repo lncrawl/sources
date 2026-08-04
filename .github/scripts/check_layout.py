@@ -17,6 +17,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS, DISABLED, BASE, HOOKS = "specs", "disabled", "base", "hooks"
+HOOK_DIRS = ("shared", "sites")
 
 errors: list[str] = []
 hooks_seen: set[Path] = set()
@@ -74,8 +75,8 @@ def check_references(path: Path, doc: dict) -> None:
         target = ROOT / ref
         if not target.is_file():
             fail(path, f"hook {point} points at a missing file: {ref}")
-        elif ref.split("/", 1)[0] != HOOKS:
-            fail(path, f"hook {point} must live under {HOOKS}/: {ref}")
+        elif ref.split("/")[:2] not in [[HOOKS, d] for d in HOOK_DIRS]:
+            fail(path, f"hook {point} must live under {HOOKS}/shared/ or {HOOKS}/sites/: {ref}")
         else:
             hooks_seen.add(target.resolve())
 
@@ -124,9 +125,22 @@ def check_base() -> None:
 
 
 def check_orphan_hooks() -> None:
-    for path in sorted((ROOT / HOOKS).glob("*.py")):
-        if path.resolve() not in hooks_seen:
-            fail(path, "hook is not referenced by any spec")
+    """Flag hook files nothing reaches.
+
+    lib/ is exempt by design: those modules exist to be imported. shared/ and sites/ hold
+    hook functions, so one nobody references is either dead or a spec forgot it.
+    """
+    referenced_text = "\n".join(
+        p.read_text(encoding="utf-8") for p in hooks_seen if p.is_file()
+    )
+    for folder in HOOK_DIRS:
+        for path in sorted((ROOT / HOOKS / folder).glob("*.py")):
+            if path.resolve() in hooks_seen:
+                continue
+            # A shared hook may be reached by import rather than by a spec reference.
+            if f"import {path.stem}" in referenced_text or f"{folder}.{path.stem}" in referenced_text:
+                continue
+            fail(path, "hook is neither referenced by a spec nor imported by one that is")
 
 
 def main() -> int:
