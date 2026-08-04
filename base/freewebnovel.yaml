@@ -1,0 +1,55 @@
+# The FreeWebNovel family: 6 sources extend this.
+#
+# Not verified against a live host yet, so no spec extends it. Deferred rather than blocked: the
+# chapter list is walked page by page because the theme reports its length only in a `select`
+# whose options all carry the same value, so a long novel is a hundred sequential requests. Of
+# the six hosts, innread and readmtl answer 5xx and centralnovel answers 403 from here.
+#
+# One thing worth knowing when it is picked up: the promo text the original crawler went to some
+# trouble to strip, by parsing a generated `<style>` block for `p:nth-last-child` rules, is no
+# longer emitted. That code reads the style element without checking it exists, so the Python
+# this replaces now raises AttributeError on every chapter.
+spec: 1
+
+rate_limit: 2
+
+search:
+  request:
+    post: "{origin}/search/"
+    payload:
+      searchkey: "{query}"
+  css: ".col-content .con .txt h3 a"
+  fields:
+    title: { attr: [title, text] }
+    url: { attr: href }
+
+novel:
+  title: { css: ".m-desc h1.tit, h1.tit" }
+  cover: { css: ".m-imgtxt img", attr: [data-src, src] }
+  authors: { css: ".m-imgtxt a[href*='/authors/']", all: true }
+  tags: { css: ".m-imgtxt a[href*='/genres/'], .tags a", all: true }
+  synopsis: { css: ".m-desc .txt, .inner" }
+
+toc:
+  request:
+    page: novel
+    paginate:
+      # Walked until a page runs dry, which is not the preferred shape. The theme does report its
+      # length, as one `#indexselect` option per page of forty, but every option carries the same
+      # `value`: the pager is driven by script and the markup cannot say where page two is. Counting
+      # the options would need a step that measures a list, which the registry does not have.
+      while: has_items
+      url: "{novel_url}?page={page}"
+  items:
+    css: "#idData li > a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".m-read .txt, .m-read"
+    pipe:
+      # The theme prints the chapter heading and footnote markers inside the body.
+      - strip_tags: [h1, h2, h3, h4, sub]
+      - paragraphs

@@ -1,0 +1,22 @@
+# Madara, the theme base/wordpress.yaml already describes: 14 sources extend this.
+#
+# It exists as a thin layer rather than a document of its own because the two are the same theme.
+# The original crawler carried them as separate templates with duplicated selectors, and keeping
+# that split here would mean fixing every Madara defect twice.
+spec: 1
+extends: base/wordpress.yaml
+
+search:
+  # These deployments print the latest chapter and a vote count beside each result, which is more
+  # useful than the chapter link alone when several hosts carry the same novel.
+  fields:
+    info:
+      css: ".latest-chap .chapter a"
+      fallback:
+        - { css: ".rating .total_votes" }
+
+toc:
+  items:
+    # Scoped to the theme's own list. The parent's selector is looser on purpose, because several
+    # WordPress variants put those rows outside a `ul.main`.
+    css: "ul.main .wp-manga-chapter a, li.wp-manga-chapter a"

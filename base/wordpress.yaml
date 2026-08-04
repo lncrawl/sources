@@ -51,6 +51,9 @@ chapter:
   body:
     css: div.reading-content
     pipe:
-      - strip_tags: [h3]
+      # The heading the body repeats is an h3 on some deployments and an h1 on others, and prose
+      # does not use headings, so all three go. Not `drop_leading`: only `p` counts as a block
+      # below, so a heading is inline content there and arrives wrapped rather than dropped.
+      - strip_tags: [h1, h2, h3]
       - strip_css: ['a[href="javascript:void(0)"]']
       - paragraphs: { block_tags: [p] }

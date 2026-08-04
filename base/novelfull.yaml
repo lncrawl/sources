@@ -1,0 +1,61 @@
+# The NovelFull family: 16 sources extend this.
+spec: 1
+
+vars:
+  # The ajax chapter route keys on this, and only the novel page carries it.
+  novel_id:
+    on: novel
+    css: "#rating[data-novel-id]"
+    attr: data-novel-id
+
+search:
+  request:
+    get: "{origin}/search?keyword={query|urlencode}"
+  css: "#list-page .row h3[class*='title'] > a"
+  fields:
+    title: { attr: [title, text] }
+    url: { attr: href }
+    info: { css: span.chapter }
+
+novel:
+  title: { css: h3.title }
+  cover: { css: ".book img", attr: [data-src, src] }
+  authors:
+    css: ".info a[href*='/a/'], .info a[href*='/au/'], .info a[href*='author']"
+    all: true
+  tags: { css: ".info a[href*='/genre'], div.genre a", all: true }
+  synopsis: { css: .desc-text }
+
+toc:
+  request:
+    from:
+      # One request for the whole list, however many thousand chapters it holds. Which of the two
+      # routes a deployment answers on is not something the page announces, so both are tried.
+      - get: "{origin}/ajax-chapter-option?novelId={vars.novel_id}"
+      - get: "{origin}/ajax/chapter-archive?novelId={vars.novel_id}"
+  items:
+    # Deliberately not falling back to the novel page. Its list is paginated at twenty-five rows,
+    # which yields items and would therefore win the `from` race while truncating the novel to its
+    # first page. A deployment that really has no working ajax route overrides this with
+    # `page: novel` plus pagination over `{novel_url}?page={page}`.
+    #
+    # The two spellings are the same list in the two shapes the routes answer with: anchors from one
+    # and a select from the other, where the address is in `value` rather than `href`.
+    css: "ul.list-chapter > li > a[href], select > option[value]"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: [href, value] }
+
+chapter:
+  body:
+    # Two ids across the family, and a page carries one or the other.
+    css: "#chr-content, #chapter-content"
+    pipe:
+      # The heading the body repeats sits behind several empty ad slots, so the empties go first and
+      # it becomes the leading block. Counting a window past them instead would encode however many
+      # slots this page happened to have.
+      - drop_empty_nodes
+      # The number in that heading does not always agree with the one in the list, so the pattern
+      # matches its shape rather than a value.
+      - drop_leading: { matches: '(?i)^\s*chapter\s+\d+' }
+      - paragraphs
