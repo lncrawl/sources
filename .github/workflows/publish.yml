@@ -1,15 +1,17 @@
 name: Publish manifest
 
+# Tag-gated, not merge-gated. Merging to main reaches nobody: what installed apps receive is
+# decided by pushing a tag, so a batch of source fixes goes out when it is deliberately
+# released rather than the moment each one lands.
 on:
   push:
-    branches: [main]
-    paths:
-      - "specs/**"
-      - "disabled/**"
-      - "base/**"
-      - "hooks/**"
-      - ".github/scripts/build_manifest.py"
+    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to publish. Defaults to the ref this was started from.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -28,21 +30,39 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - name: Resolve ref
+        id: ref
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            echo "name=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.ref.outputs.name }}
+
       - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
-      - run: pip install pyyaml
+      - run: pip install jsonschema pyyaml
 
-      # A bad manifest would tell every client to refetch everything, so the layout
-      # gate runs here too rather than trusting that the PR check ran.
       - run: python .github/scripts/check_layout.py
+      - run: python .github/scripts/check_schema.py
 
       - name: Build
         run: |
           mkdir -p dist
           python .github/scripts/build_manifest.py -o dist/manifest.json
           cp -r specs disabled base hooks dist/
+          printf '%s\n' "${{ steps.ref.outputs.name }}" > dist/VERSION
+          # Without an index the site root is a 404 while every file under it serves
+          # correctly, which reads as a failed deploy to anyone who types the URL.
+          python .github/scripts/build_index.py \
+            --manifest dist/manifest.json \
+            --release "${{ steps.ref.outputs.name }}" \
+            -o dist/index.html
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
