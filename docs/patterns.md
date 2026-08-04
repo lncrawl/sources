@@ -79,6 +79,55 @@ paginate:
 Prefer `count` over `while` when the site offers it. Stopping at the first empty page turns a
 temporary blank into a truncated novel, and nothing in the output says so.
 
+### `{page}` counts from 2, and some sites do not
+
+`count` and `while` assume the stage's own request *was* page 1, so the pages they fetch are
+numbered from 2. A site whose paging is zero-based, or is an item offset rather than a page number,
+does not line up with that, and nothing in the format can shift it: there is no arithmetic in a
+template.
+
+This is worth recognising because it fails **silently and while reporting success**. Measured on one
+`novelmtl` host, whose novel page is page `0` and whose pager links start at `page=1`:
+
+| Pagination | Chapters | Verdict |
+| ---------- | -------- | ------- |
+| `next`     | 1333     | PASSED  |
+| `count`    | 1233     | PASSED  |
+
+The count itself was right. `count` read the last-page link and got 13, then fetched pages 2 to 13
+and never fetched page 1, losing exactly one page of chapters. A trial cannot catch that: every field
+produced something and the chapter list looked plausible.
+
+So when a site's own numbering does not start where `{page}` does, use `next` if the theme offers a
+next link, and a `toc.items` hook if it does not. Check the arithmetic before trusting `count`: open
+the second page and see what the site calls it.
+
+### Overriding a base's pagination
+
+`paginate` is a mapping, so a child's keys **merge** into the base's rather than replacing them.
+Supplying a different termination condition therefore leaves two in the resolved spec, and validation
+refuses it:
+
+```
+toc.request.paginate
+  Value error, only one of while, count, next may be set, got ['count', 'next']
+```
+
+The error names the child, not the base it inherited from, which is confusing the first time. Delete
+the inherited key explicitly:
+
+```yaml
+toc:
+  request:
+    paginate:
+      next: null # the base sets this; this spec pages by count instead
+      count: { css: ".pager a:last-child" }
+      url: "{novel_url}?page={page}"
+```
+
+An explicit `null` deletes an inherited key anywhere, not just here. It is the tool for every case
+where a base declares something a child needs gone rather than changed.
+
 ## The data is JSON, not HTML
 
 A growing share of sites are API shells. Selectors are the wrong tool; use a dotted path. `$` is the

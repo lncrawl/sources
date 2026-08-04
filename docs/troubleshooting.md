@@ -40,6 +40,11 @@ and not the reverse. A stage cannot reuse its own, which is the natural typo: `n
 **`expected a node, got str`** — a pipe step that needs an element was handed text. Something earlier
 flattened it: `text` and `paragraphs` both end the node part of a pipe, so node steps come first.
 
+**`only one of while, count, next may be set`** — usually a child overriding a base's pagination. The
+keys merge rather than replace, so supplying a second condition leaves both in the resolved spec, and
+the error names the child rather than the base it came from. Write `next: null` (or whichever the base
+set) to delete the inherited one. `uv run poe resolve` shows what actually merged.
+
 **`a css selector needs a parsed document`** — the response was not HTML. If it is JSON, use `json:`.
 
 **`produced nothing, and a novel needs a title`** — the title selector missed and the page's own
@@ -69,6 +74,21 @@ the file and the next person believes it.
 
 **`curl` fails where the tooling works.** The interpreter's HTTP layer impersonates a browser's TLS
 fingerprint; `curl` does not. A Cloudflare error from `curl` says nothing about the site.
+
+## A pass that is not one
+
+The failures worth fearing are the ones that report success.
+
+**A chapter count that is short by exactly one page.** If the site's paging does not start where
+`{page}` does, `count` and `while` skip a page and every field still produces something. See
+[patterns.md](patterns.md#page-counts-from-2-and-some-sites-do-not). Open the site's second page and
+check what it calls itself.
+
+**A body that is mostly advertising.** `try` reports the length, not the quality. Read one.
+
+**A title that is the site's name.** When a selector misses, the interpreter falls back to the page's
+own metadata, and a parked domain or a challenge page has a perfectly good `<title>`. A novel called
+`Home` or the site's brand means the selector missed and the fallback covered for it.
 
 ## Offline checks disagree with the live site
 
