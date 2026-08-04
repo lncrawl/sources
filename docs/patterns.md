@@ -48,20 +48,24 @@ The site reports how many pages there are:
 
 ```yaml
 paginate:
-  count: { css: ".pagination a:last-child", pipe: [{ regex: { pattern: "page-(\\d+)" } }] }
+  last: { css: ".pagination a:last-child", pipe: [{ regex: { pattern: "page-(\\d+)" } }] }
   url: "{novel_url}/chapters/page-{page}"
-  concurrent: true
 ```
 
-The count can come from a **response header**, which is how a REST feed usually says it:
+Those pages are fetched in parallel without asking. `concurrent` is on by default wherever the
+condition allows it, and the host's pace still applies: it is enforced per origin, so parallelism
+decides how many requests wait on that budget rather than how large it is. Set `concurrent: false` to
+force one at a time.
+
+The last page can come from a **response header**, which is how a REST feed usually says it:
 
 ```yaml
 paginate:
-  count: { header: X-WP-TotalPages }
+  last: { header: X-WP-TotalPages }
   url: "{origin}/wp-json/wp/v2/posts?categories={vars.category_id}&page={page}"
 ```
 
-There is a next link, and no count anywhere:
+There is a next link, and nothing saying where the list ends:
 
 ```yaml
 paginate:
@@ -76,31 +80,42 @@ paginate:
   url: "{novel_url}/chapters?page={page}"
 ```
 
-Prefer `count` over `while` when the site offers it. Stopping at the first empty page turns a
+Prefer `last` over `while` when the site offers it. Stopping at the first empty page turns a
 temporary blank into a truncated novel, and nothing in the output says so.
 
-### `{page}` counts from 2, and some sites do not
+### Say what the site numbers its pages from
 
-`count` and `while` assume the stage's own request *was* page 1, so the pages they fetch are
-numbered from 2. A site whose paging is zero-based, or is an item offset rather than a page number,
-does not line up with that, and nothing in the format can shift it: there is no arithmetic in a
-template.
+`first` and `last` are the numbers the **site** puts on its own pages, not a count of them. The stage's
+own request already produced `first`, so the walk covers the pages after it. `first` defaults to 1, and
+a site numbering from zero says so:
 
-This is worth recognising because it fails **silently and while reporting success**. Measured on one
-`novelmtl` host, whose novel page is page `0` and whose pager links start at `page=1`:
+```yaml
+paginate:
+  first: 0 # the novel page is page 0 here, so the next one is 1
+  last: { css: ".pagination a[href]", attr: href, all: true, pipe: [{ regex: { pattern: "page=(\\d+)" } }, max] }
+  url: "{origin}/ajax?page={page}"
+```
+
+Either may be a literal or read from the page, and where an extractor finds several numbers the largest
+wins, because a pager lists the pages it can reach.
+
+A site that addresses a page by the **index of its first item** rather than by a page number is not
+described by these. That is a different mechanism, and it needs a hook.
+
+**Get `first` wrong and it fails while reporting success.** Before it existed, one `novelmtl` host whose
+novel page is page `0` gave:
 
 | Pagination | Chapters | Verdict |
 | ---------- | -------- | ------- |
 | `next`     | 1333     | PASSED  |
-| `count`    | 1233     | PASSED  |
+| `last`     | 1233     | PASSED  |
 
-The count itself was right. `count` read the last-page link and got 13, then fetched pages 2 to 13
-and never fetched page 1, losing exactly one page of chapters. A trial cannot catch that: every field
-produced something and the chapter list looked plausible.
+The last page was right. It read 13 from the pager, then walked 2 to 13 and never fetched page 1,
+losing exactly that page of chapters while every field still produced something. With `first: 0` the
+same spec reads all 1333.
 
-So when a site's own numbering does not start where `{page}` does, use `next` if the theme offers a
-next link, and a `toc.items` hook if it does not. Check the arithmetic before trusting `count`: open
-the second page and see what the site calls it.
+So open the site's second page and see what it calls itself. `next` remains the answer only where a site
+publishes nothing about where its list ends.
 
 ### Overriding a base's pagination
 
@@ -110,7 +125,7 @@ refuses it:
 
 ```
 toc.request.paginate
-  Value error, only one of while, count, next may be set, got ['count', 'next']
+  Value error, only one of while, last, next may be set, got ['last', 'next']
 ```
 
 The error names the child, not the base it inherited from, which is confusing the first time. Delete
@@ -120,8 +135,8 @@ the inherited key explicitly:
 toc:
   request:
     paginate:
-      next: null # the base sets this; this spec pages by count instead
-      count: { css: ".pager a:last-child" }
+      next: null # the base sets this; this spec pages by last instead
+      last: { css: ".pager a:last-child" }
       url: "{novel_url}?page={page}"
 ```
 
@@ -238,6 +253,20 @@ chapter:
       - unwrap: [div]
       - paragraphs
 ```
+
+### When `drop_leading` does nothing
+
+It only removes a block that looks like a heading: a leaf holding a line of text, not an element with
+blocks of its own and not almost all of the body. That guard exists because a theme that wraps a whole
+chapter in one div opening with its title would otherwise lose the chapter, and report success. If your
+heading survives, one of three things is true:
+
+- **It is not in a block of its own.** A heading written as bare text between `<br>` tags is not an
+  element, so there is nothing to remove. Nothing in the format reaches it.
+- **It is behind something.** Empty ad slots count as blocks, so put `drop_empty_nodes` before it
+  rather than widening `within` to however many slots this page happened to have.
+- **It is a tag rather than a heading.** `strip_tags: [h1, h2, h3]` is simpler, and prose does not use
+  headings. That is what the WordPress and MangaStream bases do.
 
 Note what a *filter* does. `regex` and `reject` yield **nothing** when they do not match, so a field
 whose pipe ends in one disappears rather than passing through. That is deliberate, and it is how a

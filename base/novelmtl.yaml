@@ -3,6 +3,12 @@ spec: 1
 
 rate_limit: 1.4
 
+vars:
+  # The ajax pager keys on the novel's slug rather than an id, and the URL is the only place it is.
+  slug:
+    on: url
+    regex: "/novel/([^/?#.]+)"
+
 search:
   request:
     # The form carries hidden inputs generated per visit, so the only valid request is one built
@@ -29,16 +35,17 @@ toc:
   request:
     get: "{novel_url}"
     paginate:
-      # Followed rather than numbered, and that is not a preference. The theme pages a hundred at a
-      # time through an ajax endpoint whose `page` is zero-based, so the first extra page is
-      # `page=1` while `{page}` would start at 2 and silently drop a hundred chapters. The numbered
-      # links are no better: they stop at 8 on a novel that has fourteen pages.
-      #
-      # The `>` link is the second to last row, after the numbers and before `>>`, which jumps to
-      # the end. Nothing distinguishes them but position.
-      # Sequential by nature: each page's address is only known once the previous one is read, so
-      # this trades the concurrency `count` would allow for a walk that does not lose pages.
-      next: { css: "ul.pagination li:nth-last-child(2) a", attr: href }
+      # The theme pages a hundred at a time through an ajax endpoint whose `page` is zero-based,
+      # so the novel page is page 0 rather than the default 1.
+      first: 0
+      # The `>>` link jumps to the end, so the largest number any pager link mentions is the last
+      # page. The numbered links alone would not do: they stop at 8 on a novel of fourteen pages.
+      last:
+        css: "ul.pagination li a[href]"
+        attr: href
+        all: true
+        pipe: [{ regex: { pattern: "page=(\\d+)" } }, max]
+      url: "{origin}/e/extend/fy.php?page={page}&wjm={vars.slug}"
   items:
     css: "ul.chapter-list li a"
     fields:

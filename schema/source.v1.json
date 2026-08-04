@@ -367,16 +367,39 @@
     },
     "Paginate": {
       "additionalProperties": false,
-      "description": "How a stage walks more than one page.",
+      "description": "How a stage walks more than one page.\n\n`first` and `last` are the numbers the *site* puts on its own pages, not a count of them. The\nstage's own request already produced `first`, so the pages fetched through `url` are the ones\nafter it, up to and including `last`.",
       "properties": {
         "concurrent": {
-          "default": false,
-          "description": "Fetch pages in parallel. Valid only with 'count', since the other conditions cannot know what to request next until the current page is read.",
-          "title": "Concurrent",
-          "type": "boolean"
-        },
-        "count": {
           "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fetch pages in parallel. Left unset it is on wherever the termination condition allows it, which is 'last' and 'while'. Never with 'next', whose pages are only known one at a time. Set false to force one request at a time.",
+          "title": "Concurrent"
+        },
+        "first": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "$ref": "#/$defs/Extractor"
+            }
+          ],
+          "default": 1,
+          "description": "The number this site gives its first page, which the stage's own request already fetched. Defaults to 1. Set 0 for a site numbering from zero.",
+          "title": "First"
+        },
+        "last": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
             {
               "$ref": "#/$defs/Extractor"
             },
@@ -385,21 +408,8 @@
             }
           ],
           "default": null,
-          "description": "Reads the page count from the first page."
-        },
-        "limit": {
-          "anyOf": [
-            {
-              "exclusiveMinimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Caps pages fetched. A truncated result is reported.",
-          "title": "Limit"
+          "description": "The number of the last page, written literally or read from the first page. Where several numbers match, the largest wins.",
+          "title": "Last"
         },
         "next": {
           "anyOf": [
@@ -423,7 +433,7 @@
             }
           ],
           "default": null,
-          "description": "Produces the second page onward; the first comes from the stage's own request. Required with 'while' and 'count', invalid with 'next'.",
+          "description": "Produces the pages after the first. Required with 'while' and 'last', invalid with 'next', which takes its address from the link.",
           "title": "Url"
         },
         "while": {
@@ -437,7 +447,7 @@
             }
           ],
           "default": null,
-          "description": "Stop at the first page yielding nothing. Use when the page count is unknown.",
+          "description": "Stop at the first page yielding nothing. Use when the last page is unknown.",
           "title": "While"
         }
       },
@@ -1116,5 +1126,5 @@
   ],
   "title": "Source definition",
   "type": "object",
-  "x-generator": "lncrawl-sourcelib==0.1.3"
+  "x-generator": "lncrawl-sourcelib==0.1.4"
 }

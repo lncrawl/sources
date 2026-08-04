@@ -33,12 +33,12 @@ invent fields like these, and they port as **overrides of the thing the flag con
 | `madara_body_from_paragraphs` | child overrides `chapter.body.pipe` to use `paragraphs` |
 | `chapter_list_on_novel_page`  | child overrides `toc.request.from`                    |
 | `madara_search_quote_mode`    | a different `search` URL template                     |
-| `madara_search_max_results`   | `search.paginate.limit`                               |
+| `madara_search_max_results`   | `search.paginate.last` as a literal page number       |
 | `landing_link_selector`       | a selector override                                   |
 
 This is better than a boolean because the difference becomes visible in the child. But note the trap:
 **mappings merge, so an override that means "not this" needs an explicit `null`** to delete the
-inherited key. A child supplying `count` where the base set `next` leaves both and validation refuses
+inherited key. A child supplying `last` where the base set `next` leaves both and validation refuses
 it, naming the child rather than the base.
 
 Two attributes are deliberately not ported. `auto_create_volumes` is read by nothing except a dead
@@ -52,10 +52,18 @@ Two orderings that have each cost a hundred chapters:
 - In `toc.request.from`, put `page: novel` **first** when the list is sometimes inline. It costs no
   request, and modern installations of several themes render the list into the novel page while the
   ajax endpoints they used to need now answer `404`.
-- Prefer `paginate.next` over `paginate.count` unless you have checked the site's numbering. `{page}`
-  counts from 2 for the pages after the first, so a zero-based or offset-paged site is off by one and
-  **loses a whole page while reporting success**. Open the site's second page and see what it calls
-  itself. A next link is followed verbatim and cannot be off by one.
+- **Open the site's second page and see what it calls itself**, then say so with `first`.
+  It is the number the site gives the page the stage already fetched, and it defaults to 1; a
+  zero-based site sets `first: 0`. Getting it wrong **loses a page while reporting success**, which no
+  trial can catch.
+
+  Then prefer `last` over both alternatives wherever the site publishes a page total. It is safer
+  than `while`, because a transient blank page cannot truncate the novel, and faster than either,
+  because a known last page is fetched at the full width the rate limit allows while `while` walks in
+  speculative windows and `next` cannot parallelise at all. Two specs moved this way: novelfire from
+  `while` to `last` went 120 seconds to 52 for the same 3139 chapters, and novelmtl from `next` to
+  `last` with `first: 0` reads the same 1333 while no longer depending on the theme happening to
+  render a next link.
 
 ## Verify, then let hosts depend on it
 

@@ -23,9 +23,11 @@ Most reaches for a hook are a spec problem. Check in this order:
   item list means parse-then-select.
 - **The request needs a value from another page.** `vars` reads from the URL, from a stage's document,
   or from a request of its own that is fetched once and reused. That last one covers a session token.
-- **The pager is odd but has a link.** `paginate.next` follows an href verbatim.
+- **The pager is odd but numbered.** `first` and `last` are the numbers the site puts on its pages,
+  so a list numbered from zero is `first: 0` and not a hook. `paginate.next` follows an href verbatim
+  where a site publishes no page numbers at all.
 
-A hook is genuinely justified for: arithmetic in pagination (an item offset, a zero-based index, a
+A hook is genuinely justified for: paging that is not by page number (an item offset, a start-and-end
 range), rejecting a row on a field other than the required one, decryption or any transformation with
 branching, and a protocol the request model does not describe.
 

@@ -51,11 +51,15 @@ The exit code is the least useful part of the output.
   the site's marketing blurb, a body of advertising: all `ok`.
 - A chapter **count** is not a chapter **list**. Read the titles, and check the first and last are the
   first and last.
-- If the count is short by a suspiciously round number, suspect pagination. `count` and `while` assume
-  the site's pages are numbered from 1; a zero-based or offset-paged site loses a page and still
-  passes.
+- If the count is short by a suspiciously round number, suspect pagination. `first` defaults to 1, so
+  a site numbering from zero loses a page and still passes until the spec says `first: 0`.
 
 `poe resolve specs/<host>.yaml` is the answer to "but the base sets that".
+
+Two flags while iterating. `--toc-pages 4` stops the chapter-list walk early, which is where a trial
+spends its time, and the report says the count was truncated. `--sample 25` reads more bodies before
+you believe it: samples are spread evenly across the list, and a theme's oddities come in runs, so the
+last bug found this way showed up in exactly one of three sampled chapters.
 
 ## When it will not cooperate
 

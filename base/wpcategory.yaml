@@ -38,9 +38,8 @@ toc:
     paginate:
       # The feed reports its own length, so the walk has a known end. Stopping when a page looks
       # empty is how a partial list gets mistaken for a whole one.
-      count: { header: X-WP-TotalPages }
+      last: { header: X-WP-TotalPages }
       url: "{origin}/wp-json/wp/v2/posts?categories={vars.category_id}&per_page=100&page={page}&orderby=date&order=asc&_fields=link,title"
-      concurrent: true
   items:
     json: "$"
     fields:

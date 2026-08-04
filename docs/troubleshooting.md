@@ -40,7 +40,7 @@ and not the reverse. A stage cannot reuse its own, which is the natural typo: `n
 **`expected a node, got str`** — a pipe step that needs an element was handed text. Something earlier
 flattened it: `text` and `paragraphs` both end the node part of a pipe, so node steps come first.
 
-**`only one of while, count, next may be set`** — usually a child overriding a base's pagination. The
+**`only one of while, last, next may be set`** — usually a child overriding a base's pagination. The
 keys merge rather than replace, so supplying a second condition leaves both in the resolved spec, and
 the error names the child rather than the base it came from. Write `next: null` (or whichever the base
 set) to delete the inherited one. `uv run poe resolve` shows what actually merged.
@@ -79,9 +79,9 @@ fingerprint; `curl` does not. A Cloudflare error from `curl` says nothing about 
 
 The failures worth fearing are the ones that report success.
 
-**A chapter count that is short by exactly one page.** If the site's paging does not start where
-`{page}` does, `count` and `while` skip a page and every field still produces something. See
-[patterns.md](patterns.md#page-counts-from-2-and-some-sites-do-not). Open the site's second page and
+**A chapter count that is short by exactly one page.** The site's paging does not start where
+`{page}` does, and `first` is how to say so. Every field still produces something. See
+[patterns.md](patterns.md#say-what-the-site-numbers-its-pages-from). Open the site's second page and
 check what it calls itself.
 
 **A body that is mostly advertising.** `try` reports the length, not the quality. Read one.

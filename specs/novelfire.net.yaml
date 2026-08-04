@@ -24,8 +24,13 @@ toc:
   request:
     get: "{novel_url}/chapters"
     paginate:
+      # The pager names its last page, so the walk has a known end.
+      last:
+        css: ".pagination a[href]"
+        attr: href
+        all: true
+        pipe: [{ regex: { pattern: "page=(\\d+)" } }, max]
       url: "{novel_url}/chapters?page={page}"
-      while: has_items
   items:
     css: "ul.chapter-list li a"
     fields:

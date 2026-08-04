@@ -47,13 +47,12 @@ toc:
     paginate:
       # The pager links carry the last page number rather than announcing a total, so the count
       # is the largest number any of them mentions.
-      count:
+      last:
         css: ".pagination-container li a[href]"
         attr: href
         all: true
         pipe: [{ regex: { pattern: "page[-,=](\\d+)" } }, max]
       url: "{novel_url}/chapters/page-{page}"
-      concurrent: true
   items:
     css: "ul.chapter-list li a"
     fields:

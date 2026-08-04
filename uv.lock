@@ -514,7 +514,7 @@ wheels = [
 
 [[package]]
 name = "lncrawl-sourcelib"
-version = "0.1.3"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -523,9 +523,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/48/90/fc8765690f69bc9f3ab73bafc598a829066f94c4f6ccece9dbc62aa80cb2/lncrawl_sourcelib-0.1.3.tar.gz", hash = "sha256:46ef3d58ef29b764a3234305ee6a8ba3a71e75a2fb3689a9b03feda595fff8df", size = 285448, upload-time = "2026-08-04T18:00:38.798Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8f/a8/4df5b2210f59731b306477d8d7e10e41d2b41506287feddd22354a293fa0/lncrawl_sourcelib-0.1.4.tar.gz", hash = "sha256:29b1f4bd616ee1368f3f4d130d67df51961577b27072534041935227498c6ad1", size = 300033, upload-time = "2026-08-04T20:49:25.757Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/92/ef/9b21310bc246bedb4ccccdbba5a2e1e214c7400a240e836e11b06a930359/lncrawl_sourcelib-0.1.3-py3-none-any.whl", hash = "sha256:eda0e7860e3ab6c19bd47aac785ec829dc54f0cd7c5693bbb6cbcfff88317d74", size = 82637, upload-time = "2026-08-04T18:00:37.102Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/5c/6c03f480fabdd50b401b78fac20c229f4010e5ac4cf50d14f1938cf11f66/lncrawl_sourcelib-0.1.4-py3-none-any.whl", hash = "sha256:05ecb9a9a09d2d15be49464fc10f66587874f8a59bad31600bc377a9ca3e5c3b", size = 86226, upload-time = "2026-08-04T20:49:24.222Z" },
 ]
 
 [package.optional-dependencies]

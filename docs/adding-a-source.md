@@ -25,7 +25,7 @@ uv run poe explain https://example.com/novel/some-title
 ```
 
 `explain` prints a few kilobytes describing a page that is usually several hundred: what repeats and
-how many rows, which script carries the data, what metadata exists, and where a page count would
+how many rows, which script carries the data, what metadata exists, and where the last page's number would
 come from. It never offers a class that looks build-generated, because a bundler hash breaks on the
 next deploy.
 
@@ -93,10 +93,25 @@ always visible in the file.
 uv run poe try specs/example.com.yaml https://example.com/novel/some-title
 ```
 
-Read the output rather than the exit code. `try` prints what every field produced and samples the
-first, middle and last chapter, and the two failures it cannot catch for you are a selector that
-matched the wrong thing and a body that came back full of advertising. A chapter count that looks
-right is not the same as a chapter list that is right.
+Read the output rather than the exit code. `try` prints what every field produced and samples three
+chapters, the first, the middle and the last. The two failures it cannot catch for you are a selector
+that matched the wrong thing and a body that came back full of advertising. A chapter count that
+looks right is not the same as a chapter list that is right.
+
+Two flags matter while you are still iterating:
+
+```bash
+uv run poe try specs/example.com.yaml <url> --toc-pages 4   # stop after two pages of the list
+uv run poe try specs/example.com.yaml <url> --sample 25      # read more bodies before believing it
+```
+
+`--toc-pages` is where the time goes. Reading the chapter list is most of a trial, and a spec that
+pages with `while` or `next` reads it a window at a time, so a novel with a hundred pages of list is
+a long wait before the first chapter appears. The reported chapter count is then short and says so.
+
+`--sample` is worth raising for a final pass. Samples are spread evenly and always include the first
+and last, and a theme's oddities come in runs: the last bug found this way appeared in exactly one of
+three sampled chapters.
 
 When it passes, record it so CI can notice the site changing under the spec:
 
