@@ -1,0 +1,6 @@
+spec: 1
+extends: base/novelmtl.yaml
+base_url: https://wuxiamtl.com/
+disabled: Answers the same JWT challenge as a cluster of parked domains; the host throttles hard enough that what is behind it could not be read.
+
+has_mtl: true

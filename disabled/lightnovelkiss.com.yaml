@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://lightnovelkiss.com/
+disabled: No response direct or through the tor pool.

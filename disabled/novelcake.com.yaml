@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://novelcake.com/
+disabled: Redirects to an ad click tracker.

@@ -1,0 +1,6 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://novelhulk.com/
+disabled: Domain is parked on parklogic.
+
+rate_limit: 2

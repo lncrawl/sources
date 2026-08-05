@@ -1,0 +1,13 @@
+spec: 1
+extends: base/novelmtl.yaml
+base_url: https://fanmtl.com/
+
+has_mtl: true
+
+chapter:
+  body:
+    # This deployment's own centred ad block, then the family's cleanup by name. Referencing
+    # `clean_body` rather than respelling it keeps the shared steps in one place.
+    pipe:
+      - strip_css: ['div[align="center"]']
+      - clean_body

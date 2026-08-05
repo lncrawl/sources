@@ -1,0 +1,4 @@
+spec: 1
+extends: base/freewebnovel.yaml
+base_url: https://innnovel.com/
+disabled: No response direct or through the tor pool.

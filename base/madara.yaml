@@ -1,4 +1,4 @@
-# Madara, the theme base/wordpress.yaml already describes: 14 sources extend this.
+# Madara, the theme base/wordpress.yaml already describes.
 #
 # It exists as a thin layer rather than a document of its own because the two are the same theme.
 # The original crawler carried them as separate templates with duplicated selectors, and keeping

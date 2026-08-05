@@ -1,0 +1,5 @@
+spec: 1
+extends: base/mangastream.yaml
+base_url: https://ebotnovel.com/
+
+has_mtl: true

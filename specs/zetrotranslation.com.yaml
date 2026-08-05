@@ -1,0 +1,10 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://zetrotranslation.com/
+
+chapter:
+  body:
+    pipe:
+      - strip_tags: [script]
+      - strip_css: [".code-block", ".adsbygoogle"]
+      - clean_body

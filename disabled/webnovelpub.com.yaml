@@ -1,0 +1,4 @@
+spec: 1
+extends: base/novelpub.yaml
+base_url: https://webnovelpub.com/
+disabled: Answers a JWT challenge, and behind it a parking network page.

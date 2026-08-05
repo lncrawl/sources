@@ -25,11 +25,26 @@ Most reaches for a hook are a spec problem. Check in this order:
   or from a request of its own that is fetched once and reused. That last one covers a session token.
 - **The pager is odd but numbered.** `first` and `last` are the numbers the site puts on its pages,
   so a list numbered from zero is `first: 0` and not a hook. `paginate.next` follows an href verbatim
-  where a site publishes no page numbers at all.
+  where a site publishes no page numbers at all, and `step` set to the page size addresses a feed by
+  the index of its first row — provided the host serves that size in full, since `step` is a fixed
+  stride and a short page silently skips the difference.
+- **The row to drop is identified by a field the stage does not need.** `require` names extra fields a
+  row cannot do without, and a `reject` in that field's pipe is then the condition.
+- **The junk is identified only by its wording.** `strip_matching` removes an element by what it says.
 
-A hook is genuinely justified for: paging that is not by page number (an item offset, a start-and-end
-range), rejecting a row on a field other than the required one, decryption or any transformation with
-branching, and a protocol the request model does not describe.
+A hook is genuinely justified for: paging whose next address is a number only the response knows,
+decryption or any transformation with branching, a protocol the request model does not describe, and
+any condition that needs a `vars` or `query` value *inside* a step argument, since steps take literals
+only. `hooks/shared/blogger_feed.py` is alive on three of those at once. Its feed under-delivers
+`max-results` by an amount that varies per blog and per offset, so the walk has to advance by what
+arrived; recognising the novel's own info post compares a row against the label name; and matching a
+search query compares a label against `{query}`.
+
+Two more limits are worth knowing before you conclude a spec cannot do something. A row that is a JSON
+object honours only `json`, `const`, `pipe`, `default` and `all` — a `regex`, `attr` or `fallback` on
+such a field is ignored rather than refused. And `const` is not interpolated, so a field cannot yet be
+produced from `vars` alone. Both are interpreter defects against RFC-0001 rather than format decisions,
+so check whether they are still true before writing Python around them.
 
 Track the rate. Past roughly 15% of specs carrying a `hooks:` entry, the grammar is wrong and should
 be extended rather than worked around one host at a time. Say so rather than writing the fifth copy.
@@ -80,5 +95,5 @@ against one library's classes, which is why `hooks/**` ignores the unused-argume
 A hook is the one place in this repository where a paragraph of prose earns its keep. Its docstring
 should say what the format could not express and what the alternative was, because the next person's
 first question is whether the hook is still necessary. `hooks/shared/blogger_feed.py` is the worked
-example: it records that the feed pages by item offset and reports a count of entries, so the next
-offset is however many arrived, which no declared pagination can say.
+example. Keep its docstring honest as the grammar grows, and re-measure before you rewrite it: the
+claim that `step` had made its paging declarable was true of one blog and false of the other six.

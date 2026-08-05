@@ -1,0 +1,24 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://woopread.com/
+
+# The search URL answers with the home page whatever is asked for. Entering a novel URL works.
+can_search: false
+
+novel:
+  # This deployment fills the theme's own cover slot with a placeholder, so the OpenGraph image is
+  # the reliable one. The theme's selector stays behind it for a page that has no meta tag.
+  cover:
+    css: 'meta[property="og:image"]'
+    attr: content
+    fallback:
+      - { css: ".summary_image a img", attr: [data-src, src] }
+  # The whole block's text, not its anchors: this site writes the author as plain text.
+  authors: { css: ".author-content" }
+
+chapter:
+  body:
+    css: ".container .reading-content div"
+    pipe:
+      - strip_matching: { pattern: '^\s*(Translator|Editor):', tags: [p] }
+      - clean_body

@@ -1,5 +1,4 @@
-# WordPress sites where a novel is a category and each chapter is a post in it: 8 sources
-# extend this.
+# WordPress sites where a novel is a category and each chapter is a post in it.
 #
 # The novel comes from the REST API rather than the rendered page. These themes show only a page
 # or two of the newest chapters and often no pager at all, so the HTML never holds the whole list,
@@ -20,10 +19,17 @@ search:
   request:
     get: "{origin}/wp-json/wp/v2/categories?search={query|urlencode}&per_page=20&_fields=id,name,slug,count,parent,link"
   json: "$"
+  # Neither test reads a field this stage requires, so `require` is what drops the row: each of
+  # these resolves empty when its filter rejects, and an empty required field skips the item.
+  require: [parent, posts]
   fields:
     title: { json: name, pipe: [parse_html, text, trim] }
     url: { json: link }
     info: { json: count, pipe: [{ replace: { pattern: "$", with: " chapters" } }] }
+    # A category with a parent is a section of a novel rather than a novel, and one with no posts
+    # is a label the theme created and never used. Both were offered as results before this.
+    parent: { json: parent, pipe: [{ reject: { pattern: "^[1-9]" } }] }
+    posts: { json: count, pipe: [{ reject: { pattern: "^0$" } }] }
 
 novel:
   request:

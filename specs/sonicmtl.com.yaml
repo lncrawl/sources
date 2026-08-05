@@ -1,0 +1,20 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://sonicmtl.com/
+
+has_mtl: true
+
+chapter:
+  body:
+    pipe:
+      # This deployment inlines its ad slots into the reader.
+      - strip_css:
+          [
+            ".ad",
+            ".c-ads",
+            ".custom-code",
+            ".body-top-ads",
+            ".before-content-ad",
+            ".autors-widget",
+          ]
+      - clean_body

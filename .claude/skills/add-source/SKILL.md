@@ -43,6 +43,10 @@ Declare `pipe:` only when the site is unusual. Every field kind has a default, a
 replaces the default rather than extending it**, so a needless one silently drops the deduplication or
 paragraph handling you were relying on.
 
+To add one step to a base's body pipe, reference the base's own by name rather than respelling it:
+`pipe: [{strip_css: [...]}, clean_body]`. Do not redeclare `pipes.clean_body` in the child to do it,
+because a mapping merges by key and the name would then refer to itself.
+
 ## Reading the result honestly
 
 The exit code is the least useful part of the output.
@@ -52,7 +56,9 @@ The exit code is the least useful part of the output.
 - A chapter **count** is not a chapter **list**. Read the titles, and check the first and last are the
   first and last.
 - If the count is short by a suspiciously round number, suspect pagination. `first` defaults to 1, so
-  a site numbering from zero loses a page and still passes until the spec says `first: 0`.
+  a site numbering from zero loses a page and still passes until the spec says `first: 0`. A feed
+  addressed by item index sets `step` to the page size, and that size must be one the host serves in
+  full.
 
 `poe resolve specs/<host>.yaml` is the answer to "but the base sets that".
 
@@ -69,3 +75,9 @@ by five hosts beats five copies, and copy-per-source is exactly what the Python 
 
 Before concluding a host is dead: a parked domain, a Cloudflare challenge and an ISP block page all
 answer `200`. Check the byte count and the redirect target, and check from a second network.
+
+The signatures worth knowing, all measured on this corpus: a ~4.6 KB page titled `Redirecting...`
+whose script names `router.parklogic.com` is a parked domain, and its size varies with the domain's
+length because the name is interpolated. A ~475 byte body doing `window.location.replace` with a
+`js=eyJ...` JWT is a live site behind a bot check. A 114 byte body redirecting to `/lander` is
+parked. Nearly half the template-covered hosts turned out to be one of these.

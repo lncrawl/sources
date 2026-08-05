@@ -1,0 +1,11 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://writerupdates.com/
+disabled: No response direct or through the tor pool.
+
+novel:
+  authors:
+    css: .author-content a[href*="novel-author"]
+chapter:
+  body:
+    css: div.text-left

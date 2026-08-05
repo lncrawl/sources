@@ -1,0 +1,19 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://readnovelz.net/
+disabled: No response direct or through the tor pool.
+
+novel:
+  title:
+    css: meta[property="og:title"]
+    attr: content
+    pipe:
+    - regex:
+        pattern: ^(.*?)\s*\\s*\S+$
+    - trim
+  cover:
+    css: meta[property="og:image"]
+    attr: content
+chapter:
+  body:
+    css: div.text-left

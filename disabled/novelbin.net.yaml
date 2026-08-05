@@ -1,0 +1,4 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://novelbin.net/
+disabled: Answers a JWT challenge, and behind it a parking lander with no links.

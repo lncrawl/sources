@@ -1,0 +1,7 @@
+spec: 1
+extends: specs/novelnext.com.yaml
+base_url: https://novelnextz.com/
+disabled: Answers the same JWT challenge as a cluster of parked domains; the host throttles hard enough that what is behind it could not be read.
+
+# The parent's pace is its own; this deployment answers at the family default.
+rate_limit: 3.0

@@ -1,14 +1,4 @@
-# The FreeWebNovel family: 6 sources extend this.
-#
-# Not verified against a live host yet, so no spec extends it. Deferred rather than blocked: the
-# chapter list is walked page by page because the theme reports its length only in a `select`
-# whose options all carry the same value, so a long novel is a hundred sequential requests. Of
-# the six hosts, innread and readmtl answer 5xx and centralnovel answers 403 from here.
-#
-# One thing worth knowing when it is picked up: the promo text the original crawler went to some
-# trouble to strip, by parsing a generated `<style>` block for `p:nth-last-child` rules, is no
-# longer emitted. That code reads the style element without checking it exists, so the Python
-# this replaces now raises AttributeError on every chapter.
+# The FreeWebNovel family.
 spec: 1
 
 rate_limit: 2

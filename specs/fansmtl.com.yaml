@@ -1,0 +1,3 @@
+spec: 1
+extends: specs/fanmtl.com.yaml
+base_url: https://fansmtl.com/

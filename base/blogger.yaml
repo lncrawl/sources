@@ -1,5 +1,4 @@
-# Blogger-hosted translation sites where a novel is a label and a chapter is a post: 7 sources
-# extend this.
+# Blogger-hosted translation sites where a novel is a label and a chapter is a post.
 #
 # Both lists come from hooks, and for one reason: the feed pages by `start-index`, a 1-based item
 # offset, and reports its length as a count of entries rather than of pages. The next offset is

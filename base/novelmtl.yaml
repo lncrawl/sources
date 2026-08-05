@@ -1,4 +1,4 @@
-# The NovelMTL family, machine-translated novels behind one theme: 18 sources extend this.
+# The NovelMTL family, machine-translated novels behind one theme.
 spec: 1
 
 rate_limit: 1.4
@@ -53,16 +53,18 @@ toc:
       title: { css: .chapter-title }
       url: { attr: href }
 
+pipes:
+  clean_body:
+    - paragraphs: { block_tags: [p] }
+
 chapter:
   body:
     css: .chapter-content
-    pipe:
-      - paragraphs: { block_tags: [p] }
+    pipe: [clean_body]
     # Most bodies open by repeating the chapter heading, and `drop_leading` cannot remove it here.
     # The theme writes some chapters as `<p>` elements and others as bare text separated by `<br>`,
     # and in the second shape the heading is a text node rather than a block, which is the only
     # thing the step can match. Reordering it after `paragraphs` does not help: that step yields
     # html and the pipe cannot turn html back into a node.
     #
-    # Left in the body deliberately rather than removed by a fragile pattern. The Python this
-    # replaces did not strip it either, so nothing regresses.
+    # Left in the body deliberately rather than removed by a fragile pattern.

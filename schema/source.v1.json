@@ -17,10 +17,17 @@
           "description": "The chapter text."
         },
         "join": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": "",
           "description": "Joins the bodies of a multi-page chapter, in order.",
-          "title": "Join",
-          "type": "string"
+          "title": "Join"
         },
         "request": {
           "anyOf": [
@@ -59,21 +66,35 @@
       "description": "Reads one value from one document.",
       "properties": {
         "all": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Produce a list of every match instead of the first.",
-          "title": "All",
-          "type": "boolean"
+          "title": "All"
         },
         "attr": {
           "anyOf": [
             {
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              ]
             },
             {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
+              "type": "null"
             }
           ],
           "default": "text",
@@ -116,12 +137,19 @@
           "title": "Default"
         },
         "fallback": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Extractor"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole alternative Extractors, tried in order while the result is empty. Add a new selector ahead of the old one rather than replacing it.",
-          "items": {
-            "$ref": "#/$defs/Extractor"
-          },
-          "title": "Fallback",
-          "type": "array"
+          "title": "Fallback"
         },
         "header": {
           "anyOf": [
@@ -211,19 +239,26 @@
           "title": "Css"
         },
         "fields": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/Extractor"
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Extractor"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
               },
-              {
-                "type": "string"
-              }
-            ]
-          },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Per-row Extractors, each evaluated with that row in scope. Extra keys are preserved on the item and readable later as {chapter.<key>}. A field may instead be a URL template referencing earlier siblings as {item.<name>}.",
-          "title": "Fields",
-          "type": "object"
+          "title": "Fields"
         },
         "json": {
           "anyOf": [
@@ -250,11 +285,33 @@
           "default": null,
           "description": "The request producing the document these rows come from."
         },
+        "require": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Extra field names a row cannot do without, beyond the one its stage already requires. A row where any of them resolves empty is dropped, so a filter step such as regex or reject in that field's pipe becomes a row-level condition.",
+          "title": "Require"
+        },
         "reverse": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Reverse the order, applied after sort_by.",
-          "title": "Reverse",
-          "type": "boolean"
+          "title": "Reverse"
         },
         "sort_by": {
           "anyOf": [
@@ -367,7 +424,7 @@
     },
     "Paginate": {
       "additionalProperties": false,
-      "description": "How a stage walks more than one page.\n\n`first` and `last` are the numbers the *site* puts on its own pages, not a count of them. The\nstage's own request already produced `first`, so the pages fetched through `url` are the ones\nafter it, up to and including `last`.",
+      "description": "How a stage walks more than one page.\n\n`first`, `step` and `last` describe the sequence `{page}` takes, in the numbers the *site* uses\nrather than as a count. The stage's own request already produced `first`, so the pages fetched\nthrough `url` are the ones after it, up to and including `last`.",
       "properties": {
         "concurrent": {
           "anyOf": [
@@ -385,10 +442,17 @@
         "first": {
           "anyOf": [
             {
-              "type": "integer"
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "$ref": "#/$defs/Extractor"
+                }
+              ]
             },
             {
-              "$ref": "#/$defs/Extractor"
+              "type": "null"
             }
           ],
           "default": 1,
@@ -422,6 +486,20 @@
           ],
           "default": null,
           "description": "Reads a link to the next page from the current document."
+        },
+        "step": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 1,
+          "description": "How much '{page}' advances between pages. 1 for a site numbering pages. A site addressing a page by the index of its first row sets this to the page size, so '{page}' counts rows rather than pages.",
+          "title": "Step"
         },
         "url": {
           "anyOf": [
@@ -485,12 +563,19 @@
           "title": "Form"
         },
         "from": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Request"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Alternatives tried in order until one yields items.",
-          "items": {
-            "$ref": "#/$defs/Request"
-          },
-          "title": "From",
-          "type": "array"
+          "title": "From"
         },
         "get": {
           "anyOf": [
@@ -506,12 +591,19 @@
           "title": "Get"
         },
         "headers": {
-          "additionalProperties": {
-            "type": "string"
-          },
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Headers for this request, merged over the spec's own.",
-          "title": "Headers",
-          "type": "object"
+          "title": "Headers"
         },
         "name": {
           "anyOf": [
@@ -552,10 +644,17 @@
           "description": "How this stage walks more than one page."
         },
         "payload": {
-          "additionalProperties": true,
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "The request body, valid only with post. Sent as JSON when it holds a nested object, list, boolean or number, and form-encoded otherwise. An explicit content-type header overrides that.",
-          "title": "Payload",
-          "type": "object"
+          "title": "Payload"
         },
         "post": {
           "anyOf": [
@@ -571,10 +670,17 @@
           "title": "Post"
         },
         "render": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Run the page's scripts before parsing, for a site whose content is not in the served markup. Far slower than an HTTP fetch.",
-          "title": "Render",
-          "type": "boolean"
+          "title": "Render"
         },
         "wait_for": {
           "anyOf": [
@@ -611,19 +717,26 @@
           "title": "Css"
         },
         "fields": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "$ref": "#/$defs/Extractor"
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Extractor"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
               },
-              {
-                "type": "string"
-              }
-            ]
-          },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Per-row Extractors, each evaluated with that row in scope. Extra keys are preserved on the item and readable later as {chapter.<key>}. A field may instead be a URL template referencing earlier siblings as {item.<name>}.",
-          "title": "Fields",
-          "type": "object"
+          "title": "Fields"
         },
         "json": {
           "anyOf": [
@@ -650,11 +763,33 @@
           "default": null,
           "description": "The request producing the document these rows come from."
         },
+        "require": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Extra field names a row cannot do without, beyond the one its stage already requires. A row where any of them resolves empty is dropped, so a filter step such as regex or reject in that field's pipe becomes a row-level condition.",
+          "title": "Require"
+        },
         "reverse": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Reverse the order, applied after sort_by.",
-          "title": "Reverse",
-          "type": "boolean"
+          "title": "Reverse"
         },
         "sort_by": {
           "anyOf": [
@@ -722,21 +857,35 @@
       "description": "A named Extractor whose result templates read as ``{vars.<name>}``.",
       "properties": {
         "all": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Produce a list of every match instead of the first.",
-          "title": "All",
-          "type": "boolean"
+          "title": "All"
         },
         "attr": {
           "anyOf": [
             {
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              ]
             },
             {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
+              "type": "null"
             }
           ],
           "default": "text",
@@ -779,12 +928,19 @@
           "title": "Default"
         },
         "fallback": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Extractor"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "description": "Whole alternative Extractors, tried in order while the result is empty. Add a new selector ahead of the old one rather than replacing it.",
-          "items": {
-            "$ref": "#/$defs/Extractor"
-          },
-          "title": "Fallback",
-          "type": "array"
+          "title": "Fallback"
         },
         "header": {
           "anyOf": [
@@ -815,15 +971,22 @@
         "on": {
           "anyOf": [
             {
-              "enum": [
-                "url",
-                "novel",
-                "chapter"
-              ],
-              "type": "string"
+              "anyOf": [
+                {
+                  "enum": [
+                    "url",
+                    "novel",
+                    "chapter"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/Request"
+                }
+              ]
             },
             {
-              "$ref": "#/$defs/Request"
+              "type": "null"
             }
           ],
           "default": "novel",
@@ -871,10 +1034,17 @@
           "title": "Regex"
         },
         "renew": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": false,
           "description": "Re-evaluate and retry once when a request using this var is refused. For credentials that expire mid-crawl.",
-          "title": "Renew",
-          "type": "boolean"
+          "title": "Renew"
         }
       },
       "title": "Var",
@@ -938,11 +1108,18 @@
       "description": "How to read one chapter's text."
     },
     "chapters_per_volume": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "default": 100,
       "description": "How many chapters make a volume when the site declares none.",
-      "exclusiveMinimum": 0,
-      "title": "Chapters Per Volume",
-      "type": "integer"
+      "title": "Chapters Per Volume"
     },
     "disabled": {
       "anyOf": [
@@ -984,35 +1161,63 @@
       "title": "Extends"
     },
     "has_manga": {
-      "default": false,
-      "description": "Chapters are images, not text.",
-      "title": "Has Manga",
-      "type": "boolean"
-    },
-    "has_mtl": {
-      "default": false,
-      "description": "Content is machine-translated.",
-      "title": "Has Mtl",
-      "type": "boolean"
-    },
-    "headers": {
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Headers for every request. A spec cannot set User-Agent or control header order; those belong to the HTTP layer.",
-      "title": "Headers",
-      "type": "object"
-    },
-    "hooks": {
       "anyOf": [
         {
-          "type": "string"
+          "type": "boolean"
         },
+        {
+          "type": "null"
+        }
+      ],
+      "default": false,
+      "description": "Chapters are images, not text.",
+      "title": "Has Manga"
+    },
+    "has_mtl": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": false,
+      "description": "Content is machine-translated.",
+      "title": "Has Mtl"
+    },
+    "headers": {
+      "anyOf": [
         {
           "additionalProperties": {
             "type": "string"
           },
           "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Headers for every request. A spec cannot set User-Agent or control header order; those belong to the HTTP layer.",
+      "title": "Headers"
+    },
+    "hooks": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          ]
+        },
+        {
+          "type": "null"
         }
       ],
       "description": "A hook file binding every point it defines, or a mapping of point to file. Points are '<stage>.<field>', '<stage>.request', 'check_response' or 'login'.",
@@ -1057,30 +1262,44 @@
       "title": "Parser"
     },
     "pipes": {
-      "additionalProperties": {
-        "items": {
-          "anyOf": [
-            {
-              "type": "string"
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              ]
             },
-            {
-              "additionalProperties": true,
-              "type": "object"
-            }
-          ]
+            "type": "array"
+          },
+          "type": "object"
         },
-        "type": "array"
-      },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Reusable transform pipes by name, inheritable through extends.",
-      "title": "Pipes",
-      "type": "object"
+      "title": "Pipes"
     },
     "rate_limit": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "default": 3.0,
       "description": "Requests per second for this host.",
-      "exclusiveMinimum": 0,
-      "title": "Rate Limit",
-      "type": "number"
+      "title": "Rate Limit"
     },
     "search": {
       "anyOf": [
@@ -1113,12 +1332,19 @@
       "description": "How to read the chapter list."
     },
     "vars": {
-      "additionalProperties": {
-        "$ref": "#/$defs/Var"
-      },
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/Var"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "description": "Named Extractors, read by templates as {vars.<name>}.",
-      "title": "Vars",
-      "type": "object"
+      "title": "Vars"
     }
   },
   "required": [
@@ -1126,5 +1352,5 @@
   ],
   "title": "Source definition",
   "type": "object",
-  "x-generator": "lncrawl-sourcelib==0.1.4"
+  "x-generator": "lncrawl-sourcelib==0.1.5"
 }

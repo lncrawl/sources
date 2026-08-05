@@ -1,0 +1,21 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://mostnovel.com/
+disabled: The domain now redirects to an unrelated gambling site.
+
+novel:
+  # The cover's alt text carries the novel name without the status span the heading holds.
+  title:
+    css: ".summary_image a img"
+    attr: alt
+    fallback:
+      - { css: ".post-title h1", pipe: [{ strip_tags: [span] }, text, trim] }
+  cover: { css: ".summary_image a img", attr: [data-src, src] }
+
+chapter:
+  body:
+    css: .text-left
+    pipe:
+      # Google's injected translate widget.
+      - strip_css: ["div.skiptranslate"]
+      - clean_body

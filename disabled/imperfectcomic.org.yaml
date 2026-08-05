@@ -1,0 +1,6 @@
+spec: 1
+extends: base/mangastream.yaml
+base_url: https://imperfectcomic.org/
+disabled: Answers a JWT challenge, and behind it a parking network page.
+
+has_manga: true

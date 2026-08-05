@@ -1,0 +1,8 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://isekaiscan.eu/
+disabled: No response direct or through the tor pool.
+
+search:
+  request:
+    get: '{origin}/?s={query|lower|urlencode_plus}&post_type=wp-manga&op=&author=&artist=&release=&adult='

@@ -1,4 +1,4 @@
-# The MangaStream WordPress theme, used for novels rather than manga: 16 sources extend this.
+# The MangaStream WordPress theme, used for novels rather than manga.
 #
 # Mostly non-English hosts, so `language` is left to detection. The theme declares `<html lang>`
 # correctly and that beats anything a spec could assert.
@@ -37,25 +37,25 @@ toc:
     # The row is the `li` and not its anchor: a row carries two anchors on some deployments, and
     # the chapter number lives on the row rather than the link.
     css: ".eplister li"
-    # The theme lists newest first. Where a deployment lists oldest first instead, that spec sets
-    # `reverse: false`. The original crawler guessed the direction from a class name on the first
-    # row, which is worth avoiding: guessing wrong silently reverses a whole novel.
     reverse: true
     fields:
       title: { css: .epl-title }
       url: { css: a, attr: href }
 
+pipes:
+  clean_body:
+    # The theme prints the chapter heading inside the body, and which element it uses varies:
+    # h3 on some deployments, h2 on others. Prose does not use headings, so all three go.
+    #
+    # Several deployments print it a second time in a leading `blockquote`, which is left alone
+    # deliberately: a novel body uses blockquote for letters and remembered speech, so stripping
+    # it would trade one duplicated line for lost passages across sixteen hosts. `drop_leading`
+    # cannot help either, since its pattern would have to be written per language and this family
+    # spans Arabic, Portuguese, French and Indonesian.
+    - strip_tags: [h1, h2, h3]
+    - paragraphs
+
 chapter:
   body:
     css: "#readernovel, #readerarea, .entry-content"
-    pipe:
-      # The theme prints the chapter heading inside the body, and which element it uses varies:
-      # h3 on some deployments, h2 on others. Prose does not use headings, so all three go.
-      #
-      # Several deployments print it a second time in a leading `blockquote`, which is left alone
-      # deliberately: a novel body uses blockquote for letters and remembered speech, so stripping
-      # it would trade one duplicated line for lost passages across sixteen hosts. `drop_leading`
-      # cannot help either, since its pattern would have to be written per language and this family
-      # spans Arabic, Portuguese, French and Indonesian.
-      - strip_tags: [h1, h2, h3]
-      - paragraphs
+    pipe: [clean_body]

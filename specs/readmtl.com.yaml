@@ -1,0 +1,5 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://readmtl.com/
+
+has_mtl: true

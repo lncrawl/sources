@@ -1,0 +1,11 @@
+spec: 1
+extends: base/wpcategory.yaml
+base_url: https://novelaenespanol.com/
+
+language: es
+
+vars:
+  # This deployment puts novels under /novela-ligera/ rather than the theme's /category/.
+  slug:
+    on: url
+    regex: "/novela-ligera/([^/?#]+)"

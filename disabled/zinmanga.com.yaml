@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://zinmanga.com/
+disabled: Domain is parked on parklogic.

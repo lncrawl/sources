@@ -1,9 +1,4 @@
-# The NovelPub / LightNovelPub family: 5 sources extend this.
-#
-# Not yet verified against a live host, so no spec extends it. Of the five, novelpub.com and
-# webnovelpub.com redirect to ww547./ww19. parking pages, lightnovelpub.com answers with a
-# challenge, and pandanovel.co builds its listings with scripts. Written from the selectors the
-# family shares; confirm against whichever host is reachable before adding a spec.
+# The NovelPub / LightNovelPub family.
 spec: 1
 
 rate_limit: 3

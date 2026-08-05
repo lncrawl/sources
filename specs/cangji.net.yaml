@@ -1,0 +1,24 @@
+spec: 1
+extends: base/wpcategory.yaml
+base_url: https://cangji.net/
+
+toc:
+  request:
+    # `content.protected` is asked for so a row can be rejected on it below. The base keeps the
+    # field list narrow because these feeds are walked a hundred posts at a time.
+    get: "{origin}/wp-json/wp/v2/posts?categories={vars.category_id}&per_page=100&page=1&orderby=date&order=asc&_fields=link,title,content.protected"
+    paginate:
+      last: { header: X-WP-TotalPages }
+      url: "{origin}/wp-json/wp/v2/posts?categories={vars.category_id}&per_page=100&page={page}&orderby=date&order=asc&_fields=link,title,content.protected"
+  items:
+    require: [unlocked, kind]
+    fields:
+      unlocked:
+        # Most of the back catalogue is behind a post password for supporters, and a locked post
+        # answers 200 with an empty body. Listing those hands the reader a run of blank chapters.
+        json: "content.protected"
+        pipe: [{ reject: { pattern: "(?i)^true$" } }]
+      kind:
+        # The info pages live in their own category rather than inside each novel's.
+        json: link
+        pipe: [{ reject: { pattern: "/synopsis/" } }]

@@ -1,0 +1,26 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://wordrain69.com/
+
+# The site's own search returns nothing. Entering a novel URL still works, so the rest is served.
+can_search: false
+
+novel:
+  # The heading here is the novel name followed by one trailing word the theme appends.
+  title:
+    css: 'meta[property="og:title"]'
+    attr: content
+    pipe: [{ regex: { pattern: "^(.*)\\s+\\S+$" } }, trim]
+  cover:
+    css: 'meta[property="og:image"]'
+    attr: content
+    fallback:
+      - { css: ".summary_image a img", attr: [data-src, src] }
+
+chapter:
+  body:
+    css: div.text-left
+    pipe:
+      - strip_tags: [a, script]
+      - strip_css: [".code-block", ".adsbygoogle", ".adsense-code", ".sharedaddy"]
+      - clean_body

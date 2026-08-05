@@ -1,0 +1,16 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://novel-bin.com/
+
+rate_limit: 1
+
+toc:
+  request:
+    # This deployment answers neither ajax route, so the list comes off the novel page. `from` is
+    # deleted rather than overridden: a mapping merges, so leaving it would keep the parent's
+    # alternatives alongside `page` and validation would refuse both.
+    from: null
+    page: novel
+    paginate:
+      while: has_items
+      url: "{novel_url}?page={page}"

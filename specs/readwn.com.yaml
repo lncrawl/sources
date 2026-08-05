@@ -1,0 +1,5 @@
+spec: 1
+extends: base/novelmtl.yaml
+base_url: https://readwn.com/
+
+has_mtl: true

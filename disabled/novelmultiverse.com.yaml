@@ -1,0 +1,18 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://novelmultiverse.com/
+disabled: No response direct or through the tor pool.
+
+novel:
+  authors:
+    css: .author-content a[href*="novel-author"]
+  title:
+    css: meta[property="og:title"]
+    attr: content
+    pipe:
+    - regex:
+        pattern: ^(.*?)\s*\\s*\S+$
+    - trim
+  cover:
+    css: meta[property="og:image"]
+    attr: content

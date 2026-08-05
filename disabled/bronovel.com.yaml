@@ -1,0 +1,16 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://bronovel.com/
+disabled: Domain is parked on parklogic.
+
+novel:
+  title:
+    css: meta[property="og:title"]
+    attr: content
+    pipe:
+    - regex:
+        pattern: ^(.*?)\s*\\s*\S+$
+    - trim
+chapter:
+  body:
+    css: div.text-left

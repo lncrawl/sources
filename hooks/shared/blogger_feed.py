@@ -1,13 +1,21 @@
 """The chapter list for a Blogger-hosted site, where a novel is a label and a chapter is a post.
 
-This is a hook rather than a declared `paginate` because the feed's shape needs arithmetic the
-format deliberately does not have. Blogger pages by `start-index`, a 1-based *item* offset, and
-reports `openSearch$totalResults` as a count of entries rather than of pages. A blog also serves
-fewer entries than asked for whenever its own cap is lower, so the next offset is "however many
-actually arrived" and not a fixed stride. None of `while`, `count` or `next` can express that.
+Three things keep it a hook rather than a `paginate` block and two item lists.
 
-The alternative was walking the rendered archive behind its "older posts" link, which ends when a
-page happens to look empty. That is how a partial chapter list gets mistaken for a whole one.
+The feed does not honour `max-results`. Asking a hundred returns 25, then 17, then 36 on one blog,
+70, then 67, then 77 on another, and a hundred on a third, so the next offset is however many
+actually arrived. `paginate.step` is a fixed stride, and a stride wider than the page silently skips
+the difference: a novel loses most of its chapters and the crawl still reports success.
+
+Both row tests compare a row against a value the crawl holds — a title against the label name, a
+label against the query — and a step argument takes literals only, with no interpolation.
+
+And the title is the label out of the URL, which needs percent-decoding that no filter or step
+performs.
+
+The alternative to the feed was walking the rendered archive behind its "older posts" link, which
+ends when a page happens to look empty. That is how a partial chapter list gets mistaken for a whole
+one.
 """
 
 from __future__ import annotations
@@ -22,13 +30,13 @@ from urllib.parse import quote, unquote
 #: post, which is a far larger response for nothing the list uses.
 FEED = "feeds/posts/summary"
 
-#: Blogger clamps `max-results` to a per-blog number rather than honouring it, so the walk has to
-#: advance by what arrived. 499 rather than the documented 500 because at exactly 500 some blogs
-#: answer with an *empty* `entry` list while still reporting the real `openSearch$totalResults`:
-#: noicetranslations returns 63 entries at 499 and none at 500. That looks identical to a label with
-#: no posts, so a walk that trusts it reports zero chapters for a novel that has plenty. Other blogs
-#: clamp normally at 500, which is why the fault is easy to miss.
-PAGE_SIZE = 499
+#: What to ask for, not what arrives. Above whatever each blog will serve in one response the number
+#: makes no difference at all — 100, 499 and 500 returned an identical 25 entries on one blog and an
+#: identical 97 on another — so this is a ceiling rather than a page size, and the walk below reads
+#: the length of every batch instead of trusting it. Kept under 500 because that is where a blog was
+#: once seen to answer with an empty `entry` list while still reporting the real total, which is
+#: indistinguishable from a label with no posts.
+PAGE_SIZE = 100
 
 LABEL_PATH = re.compile(r"/search/label/([^/?#&]+)")
 
@@ -76,9 +84,10 @@ def _walk(session: Any, origin: str, path: str) -> list[dict[str, Any]]:
         batch = list(feed.get("entry") or [])
         entries.extend(batch)
         total = _int((feed.get("openSearch$totalResults") or {}).get("$t"))
-        # Advance by what arrived, not by what was asked for.
         if not batch or len(entries) >= total:
             return entries
+        # By what arrived rather than by PAGE_SIZE: equal while the cap is honoured, and correct if
+        # a blog ever returns short of it.
         start += len(batch)
 
 

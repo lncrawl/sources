@@ -1,0 +1,22 @@
+spec: 1
+extends: base/wpcategory.yaml
+base_url: https://wuxiaworld.ru/
+
+language: ru
+
+novel:
+  # The only tag this theme puts on a novel is the novel's own name, which tells a reader nothing
+  # they do not already have.
+  tags: { const: [] }
+
+toc:
+  items:
+    fields:
+      title:
+        json: "title.rendered"
+        pipe:
+          - parse_html
+          - text
+          - trim
+          # Every chapter title ends with the site's own two-word label.
+          - replace: { pattern: "\\s*Ранобэ\\s+Новелла\\s*$", with: "" }

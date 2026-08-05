@@ -1,0 +1,10 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://f-w-o.com/
+
+novel:
+  authors:
+    css: .author-content a[href*="novel-author"]
+chapter:
+  body:
+    css: div.text-left

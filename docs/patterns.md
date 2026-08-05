@@ -83,6 +83,26 @@ paginate:
 Prefer `last` over `while` when the site offers it. Stopping at the first empty page turns a
 temporary blank into a truncated novel, and nothing in the output says so.
 
+### The site counts items, not pages
+
+A feed addressed by the index of its first row rather than by a page number sets `step` to the page
+size. `{page}` then counts rows:
+
+```yaml
+paginate:
+  first: 1
+  step: 100
+  while: has_items
+  url: "{origin}/feeds/posts/summary?alt=atom&max-results=100&start-index={page}"
+```
+
+**Pick a page size the host actually honours.** If it returns fewer rows than asked, the stride and the
+rows returned disagree and the walk skips the difference silently. Blogger does not honour
+`max-results` at all, and the shortfall varies by blog and by offset: asking 100 returned 25, then 17,
+then 36 on one blog, 70, then 67, then 77 on another, and the full 100 on a third. Asking 25 came back
+whole everywhere it was measured. Count the rows at several offsets before trusting a stride, and take
+the size that arrives complete over the size that would be fewer requests.
+
 ### Say what the site numbers its pages from
 
 `first` and `last` are the numbers the **site** puts on its own pages, not a count of them. The stage's
@@ -99,8 +119,10 @@ paginate:
 Either may be a literal or read from the page, and where an extractor finds several numbers the largest
 wins, because a pager lists the pages it can reach.
 
-A site that addresses a page by the **index of its first item** rather than by a page number is not
-described by these. That is a different mechanism, and it needs a hook.
+A site that addresses a page by the **index of its first item** rather than by a page number sets
+`step` to the page size, as above. Two shapes still need a hook: a start-and-end range over a known
+total, and a feed that answers with fewer rows than asked, where the next offset is a number only the
+response knows.
 
 **Get `first` wrong and it fails while reporting success.** Before it existed, one `novelmtl` host whose
 novel page is page `0` gave:
@@ -254,6 +276,41 @@ chapter:
       - paragraphs
 ```
 
+### Junk that only its wording identifies
+
+A translator's note, a watermark and a "read this at ..." line sit in ordinary markup, so no selector
+finds them. `strip_matching` removes an element by what it says:
+
+```yaml
+pipe:
+  - strip_matching: { pattern: '^\s*(Translator|Editor):' }
+  - strip_matching: { pattern: "Bookmark this website", tags: [p, strong] }
+  - clean_body
+```
+
+It considers only elements with no children of their own unless `tags` names some. That is not a
+detail: every ancestor of a match contains the matching text too, so an unrestricted search would
+find the body itself and delete the chapter while every field still reported `ok`.
+
+### Adding a step to a base's pipe
+
+A declared `pipe` **replaces** the default rather than extending it, so a child wanting one more step
+would have to respell the whole list, and would then stop tracking the base when it changed.
+Reference the base's named pipe instead. Every base with a body pipe declares it as `clean_body`:
+
+```yaml
+chapter:
+  body:
+    pipe:
+      - strip_css: [".c-ads", ".custom-code"]
+      - clean_body
+```
+
+Do not redeclare `pipes: { clean_body: ... }` in the child to do this. A mapping merges by key, so
+the child's entry replaces the parent's and the name inside it then refers to itself, which is a
+load-time error. Redeclare it only when you mean to replace the base's cleanup outright, as
+`base/wordpress-manga.yaml` does for a body that is images.
+
 ### When `drop_leading` does nothing
 
 It only removes a block that looks like a heading: a leaf holding a line of text, not an element with
@@ -272,6 +329,29 @@ Note what a *filter* does. `regex` and `reject` yield **nothing** when they do n
 whose pipe ends in one disappears rather than passing through. That is deliberate, and it is how a
 loose selector gets narrowed. It is also how a careless pipe silently deletes data, so check the
 `try` output rather than the exit code.
+
+## The list has rows that are not chapters
+
+A row is dropped when a field the stage requires resolves empty, and a loose selector narrowed by a
+filter step is the usual way to use that. When the test reads a field the stage has no use for, name
+it in `require`:
+
+```yaml
+items:
+  json: "$"
+  require: [parent, posts]
+  fields:
+    title: { json: name }
+    url: { json: link }
+    parent: { json: parent, pipe: [{ reject: { pattern: "^[1-9]" } }] }
+    posts: { json: count, pipe: [{ reject: { pattern: "^0$" } }] }
+```
+
+A `reject` yields nothing when it matches, so the field resolves empty and the row goes. `require`
+adds to what the stage already needs and cannot remove it: a chapter still needs a `url`.
+
+A name in `require` that is not a declared field is a load-time error, because it would otherwise read
+as a field empty on every row and drop the entire list, which looks exactly like a dead selector.
 
 ## A site that is one of many names
 

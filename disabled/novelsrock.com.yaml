@@ -1,0 +1,8 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://novelsrock.com/
+disabled: Domain is parked on parklogic.
+
+search:
+  request:
+    get: '{origin}/?s={query|lower|urlencode_plus}&post_type=wp-manga&op=&author=&artist=&release=&adult='

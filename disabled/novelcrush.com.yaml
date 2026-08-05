@@ -1,0 +1,11 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://novelcrush.com/
+disabled: Redirects to an ad click tracker.
+
+novel:
+  authors:
+    css: .author-content a[href*="novel-author"]
+chapter:
+  body:
+    css: div.text-left

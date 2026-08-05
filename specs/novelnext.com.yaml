@@ -1,0 +1,16 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://novelnext.com/
+
+rate_limit: 0.2
+
+chapter:
+  body:
+    pipe:
+      # The theme prints a translator credit and a bookmark plea as ordinary paragraphs, so only
+      # the words identify them.
+      - strip_matching:
+          pattern: '^\s*(Translator|Editor):|Bookmark this website|to update the latest novels'
+          tags: [p, h4]
+      - strip_matching: { pattern: 'NovelNext\.com', tags: [strong] }
+      - clean_body

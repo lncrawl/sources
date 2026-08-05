@@ -1,4 +1,3 @@
-# The NovelFull family: 16 sources extend this.
 spec: 1
 
 vars:
@@ -34,28 +33,24 @@ toc:
       - get: "{origin}/ajax-chapter-option?novelId={vars.novel_id}"
       - get: "{origin}/ajax/chapter-archive?novelId={vars.novel_id}"
   items:
-    # Deliberately not falling back to the novel page. Its list is paginated at twenty-five rows,
-    # which yields items and would therefore win the `from` race while truncating the novel to its
-    # first page. A deployment that really has no working ajax route overrides this with
-    # `page: novel` plus pagination over `{novel_url}?page={page}`.
-    #
-    # The two spellings are the same list in the two shapes the routes answer with: anchors from one
-    # and a select from the other, where the address is in `value` rather than `href`.
     css: "ul.list-chapter > li > a[href], select > option[value]"
     fields:
       title: { attr: [title, text] }
       url: { attr: [href, value] }
 
+pipes:
+  clean_body:
+    # The heading the body repeats sits behind several empty ad slots, so the empties go first and
+    # it becomes the leading block. Counting a window past them instead would encode however many
+    # slots this page happened to have.
+    - drop_empty_nodes
+    # The number in that heading does not always agree with the one in the list, so the pattern
+    # matches its shape rather than a value.
+    - drop_leading: { matches: '(?i)^\s*chapter\s+\d+' }
+    - paragraphs
+
 chapter:
   body:
     # Two ids across the family, and a page carries one or the other.
     css: "#chr-content, #chapter-content"
-    pipe:
-      # The heading the body repeats sits behind several empty ad slots, so the empties go first and
-      # it becomes the leading block. Counting a window past them instead would encode however many
-      # slots this page happened to have.
-      - drop_empty_nodes
-      # The number in that heading does not always agree with the one in the list, so the pattern
-      # matches its shape rather than a value.
-      - drop_leading: { matches: '(?i)^\s*chapter\s+\d+' }
-      - paragraphs
+    pipe: [clean_body]
