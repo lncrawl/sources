@@ -46,9 +46,15 @@ uv run poe record specs/<host>.yaml <novel-url>
 installs. That is deliberate: an unpinned install would let an interpreter release fail a pull request
 that touched neither the spec nor the interpreter. `uv run poe pin` reports a local mismatch.
 
-So a fix you need from the interpreter is not available by upgrading locally. The sequence is:
-release it there, then bump the pin here and re-record any affected fixture. A recording made under a
-different interpreter will not replay, and nothing can make one fixture satisfy both.
+A fix you need from the interpreter is still testable before it ships: `poe link ../sourcelib` puts a
+sibling checkout in the environment. **Then run the CLI as `.venv/bin/sourcelib`, not through `uv run`
+or `poe`**, both of which sync first and reinstall the pinned version over the link without saying so —
+the flag you just added comes back as `unrecognized arguments`.
+
+What cannot be short-circuited is the pin itself. Only a release lets CI and everyone else have the
+fix, so the sequence stays: release it there, then bump the pin here and re-record any affected
+fixture. A recording made under a different interpreter will not replay, and nothing can make one
+fixture satisfy both.
 
 ## Layout
 

@@ -54,6 +54,7 @@ all = { sequence = [
 explain = { cmd = "sourcelib explain", help = "Digest a page, to write a spec against it. Takes a URL" }
 resolve = { cmd = "sourcelib resolve", help = "Print one spec with its ancestors merged. Takes a path" }
 try = { cmd = "sourcelib try", help = "Run a spec against a live URL. Takes a path and a novel URL" }
+try-search = { cmd = "sourcelib try-search", help = "Run a spec's search stage. Takes a path and a query" }
 record = { cmd = "sourcelib record", help = "Save a site's responses as a fixture. Takes a path and a novel URL" }
 
 # ---------------------------------------------------------------------------- #
@@ -72,8 +73,8 @@ manifest = { cmd = "python .github/scripts/build_manifest.py", help = "Build man
 [tool.poe.tasks.link]
 help = "Point the interpreter at a sibling sourcelib checkout. Takes its path"
 # Not a `tool.uv.sources` entry: that would commit a path this repository cannot rely on, and CI has
-# no sibling checkout. Any `uv sync` undoes this, so re-run it when a gate suddenly disagrees with a
-# fixture you just recorded.
+# no sibling checkout. Any sync undoes this, and `uv run` and `poe` both sync before they run, so a
+# linked checkout is only reached by calling `.venv/bin/sourcelib` directly.
 cmd = "uv pip install -e"
 
 [tool.ruff]

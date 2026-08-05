@@ -59,6 +59,9 @@ The exit code is the least useful part of the output.
   a site numbering from zero loses a page and still passes until the spec says `first: 0`. A feed
   addressed by item index sets `step` to the page size, and that size must be one the host serves in
   full.
+- **A green trial says nothing about search.** A trial takes a novel URL, a fixture records a novel
+  crawl, and `check` validates structure, so a search stage that answers nothing looks exactly like a
+  host with no results. One base's search had never returned a row and every gate was green.
 
 `poe resolve specs/<host>.yaml` is the answer to "but the base sets that".
 
@@ -66,6 +69,9 @@ Two flags while iterating. `--toc-pages 4` stops the chapter-list walk early, wh
 spends its time, and the report says the count was truncated. `--sample 25` reads more bodies before
 you believe it: samples are spread evenly across the list, and a theme's oddities come in runs, so the
 last bug found this way showed up in exactly one of three sampled chapters.
+
+`poe try-search specs/<host>.yaml "a title the host carries"` runs the search stage. It takes no novel
+URL, and it is the only thing that reaches search at all.
 
 ## When it will not cooperate
 

@@ -113,6 +113,16 @@ a long wait before the first chapter appears. The reported chapter count is then
 and last, and a theme's oddities come in runs: the last bug found this way appeared in exactly one of
 three sampled chapters.
 
+If the spec searches, run that too, because **nothing else here reaches a search stage**: a trial
+takes a novel URL, a fixture records a novel crawl, and `check` only validates structure. One base's
+search had never answered a single query and every gate was green.
+
+```bash
+uv run poe try-search specs/example.com.yaml "a title the host carries"
+```
+
+Read the result titles rather than the count.
+
 When it passes, record it so CI can notice the site changing under the spec:
 
 ```bash
