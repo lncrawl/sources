@@ -1,0 +1,4 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://fenrirtranslations.com/
+disabled: "Parked. No response direct or through the tor pool."

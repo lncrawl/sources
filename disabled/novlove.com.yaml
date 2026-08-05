@@ -1,4 +1,4 @@
 spec: 1
 extends: base/novelfull.yaml
 base_url: https://novlove.com/
-disabled: The site says it moved elsewhere.
+disabled: "The site says it moved elsewhere."

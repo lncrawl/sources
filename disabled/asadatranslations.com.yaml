@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://asadatranslations.com/
+disabled: "Answers with an empty body direct, through the tor pool and in a browser."

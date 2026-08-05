@@ -1,0 +1,23 @@
+spec: 1
+base_url: https://gravitytales.com/
+has_mtl: true
+
+novel:
+  title:
+    css: "article h1"
+  authors:
+    css: ".author"
+    all: true
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "#chapter-sections-wrapper li.chapter-group__list-item a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".chapter__content"

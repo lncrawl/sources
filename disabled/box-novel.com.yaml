@@ -1,0 +1,5 @@
+spec: 1
+base_url: https://www.box-novel.com/
+disabled: "No usable content direct, through the tor pool, or in a browser."
+
+novel: {}

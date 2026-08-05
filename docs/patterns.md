@@ -103,6 +103,27 @@ then 36 on one blog, 70, then 67, then 77 on another, and the full 100 on a thir
 whole everywhere it was measured. Count the rows at several offsets before trusting a stride, and take
 the size that arrives complete over the size that would be fewer requests.
 
+### The cheap path first, a browser only if it fails
+
+`render` runs every request for that stage in a browser, which is slow and needs one installed. Where
+a host *usually* answers a plain fetch and only sometimes challenges, ask for both and let `from`
+choose: alternatives are tried until one yields rows, so a challenge page — which yields none — loses
+to the rendered attempt behind it.
+
+```yaml
+novel:
+  request:
+    from:
+      - get: "{novel_url}" # tried first, costs nothing
+      - get: "{novel_url}" # only reached when the first yields nothing
+        render: true
+        wait_for: ".wp-manga-chapter"
+```
+
+The day the host stops challenging, the browser stops being used, with no edit to the spec. Prefer
+this to a bare `render: true` unless the markup is *never* in the served page, as with a list that
+scripts build from an API.
+
 ### Say what the site numbers its pages from
 
 `first` and `last` are the numbers the **site** puts on its own pages, not a count of them. The stage's

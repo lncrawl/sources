@@ -3,4 +3,4 @@ spec: 1
 # which is what base/madara.yaml already describes.
 extends: base/madara.yaml
 base_url: https://daonovel.com/
-disabled: The domain's nameservers answer SERVFAIL.
+disabled: "The domain's nameservers answer SERVFAIL."

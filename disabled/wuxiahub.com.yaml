@@ -1,4 +1,4 @@
 spec: 1
 extends: base/novelmtl.yaml
 base_url: https://wuxiahub.com/
-disabled: No response direct or through the tor pool.
+disabled: "No response direct or through the tor pool."

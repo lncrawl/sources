@@ -1,0 +1,23 @@
+spec: 1
+base_url: https://lightnovelstranslations.com/
+
+novel:
+  authors:
+    css: 'a[href*="/author/"]'
+    all: true
+  cover:
+    css: ".novel-image img"
+    attr: [content, data-src, src]
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: ".novel_list_chapter_content li.unlock a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".text_story"

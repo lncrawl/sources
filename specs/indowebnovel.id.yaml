@@ -1,0 +1,17 @@
+spec: 1
+base_url: https://indowebnovel.id/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "ul.series-chapterlist a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#content"

@@ -1,0 +1,4 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://hotnovelfull.com/
+disabled: "No response direct, through the tor pool, or in a browser."

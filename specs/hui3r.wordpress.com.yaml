@@ -1,0 +1,3 @@
+spec: 1
+extends: base/wp-blog.yaml
+base_url: https://hui3r.wordpress.com/

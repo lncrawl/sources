@@ -1,0 +1,19 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://phoenixnovels.com.br/
+
+toc:
+  request:
+    # The theme is Asura now, not the one the parent describes, and the list is rendered into the
+    # novel page. `from` is deleted because none of its addresses answers here.
+    from: null
+    page: novel
+  items:
+    # Only inside the list panel: a "first chapter" call to action sits in a sibling section and
+    # would otherwise arrive as a duplicate row.
+    css: "#chList a[href]"
+
+chapter:
+  # The Asura reader wraps the text in an article of its own; the parent's container is gone.
+  body:
+    css: "article.reader-article"

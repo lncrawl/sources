@@ -1,0 +1,5 @@
+spec: 1
+base_url: https://www.freelightnovel.com/
+disabled: "Answers with an empty body direct, through the tor pool and in a browser."
+
+novel: {}

@@ -1,0 +1,19 @@
+spec: 1
+base_url: https://bookhamster.ru/
+
+novel:
+  synopsis:
+    css: "div.descr-ranobe"
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: ".menu-ranobe a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.entry-content"

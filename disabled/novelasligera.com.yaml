@@ -1,0 +1,5 @@
+spec: 1
+base_url: https://novelasligera.com/
+disabled: "No response direct, through the tor pool, or in a browser."
+
+novel: {}

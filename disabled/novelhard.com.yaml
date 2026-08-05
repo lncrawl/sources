@@ -1,7 +1,7 @@
 spec: 1
 extends: base/wordpress.yaml
 base_url: https://novelhard.com/
-disabled: Answers a JWT challenge, and behind it a parking network page.
+disabled: "Answers a JWT challenge, and behind it a parking network page."
 
 chapter:
   body:

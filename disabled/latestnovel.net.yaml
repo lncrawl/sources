@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://latestnovel.net/
+disabled: "Serves a 19 KB page carrying only the domain name."

@@ -1,0 +1,17 @@
+spec: 1
+base_url: https://asianhobbyist.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.flex.tableBody a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.mainBody.m0a"

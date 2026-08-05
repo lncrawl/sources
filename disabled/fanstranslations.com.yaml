@@ -1,7 +1,7 @@
 spec: 1
 extends: base/wordpress.yaml
 base_url: https://fanstranslations.com/
-disabled: No response direct or through the tor pool.
+disabled: "No response direct or through the tor pool."
 
 rate_limit: 4
 novel:

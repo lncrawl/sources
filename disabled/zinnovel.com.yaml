@@ -1,4 +1,4 @@
 spec: 1
 extends: base/wordpress.yaml
 base_url: https://zinnovel.com/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."

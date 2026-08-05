@@ -1,4 +1,4 @@
 spec: 1
 extends: base/blogger.yaml
 base_url: https://novellatte.blogspot.com/
-disabled: The blog is deleted; Blogger answers 404 Blog not found.
+disabled: "The blog is deleted; Blogger answers 404 Blog not found."

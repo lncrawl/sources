@@ -1,7 +1,7 @@
 spec: 1
 extends: base/wordpress.yaml
 base_url: https://1stkissnovel.org/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."
 
 chapter:
   body:

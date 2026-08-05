@@ -1,0 +1,19 @@
+spec: 1
+base_url: https://lazygirltranslations.com/
+
+novel: {}
+
+toc:
+  # An eplister list, as the mangastream family uses, but this deployment's rows sit under the
+  # full-list wrapper only: extending that base read a single chapter.
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.eplister.eplisterfull a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "article.hentry"

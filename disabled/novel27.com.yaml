@@ -1,0 +1,5 @@
+spec: 1
+base_url: https://novel27.com/
+disabled: "The connection is closed on every path: direct, the tor pool and a browser."
+
+novel: {}

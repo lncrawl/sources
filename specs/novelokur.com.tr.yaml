@@ -1,0 +1,22 @@
+spec: 1
+base_url: https://novelokur.com.tr/
+
+novel:
+  tags:
+    css: 'a[href*="/genre/"]'
+    all: true
+  title:
+    css: "h1"
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "a[href*='/chapter/']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".chapter-content"

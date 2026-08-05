@@ -1,4 +1,4 @@
 spec: 1
 extends: base/novelmtl.yaml
 base_url: https://wuxiav.com/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."

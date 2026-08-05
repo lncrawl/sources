@@ -1,0 +1,7 @@
+spec: 1
+extends: base/wp-blog.yaml
+base_url: https://virlyce.com/
+
+novel:
+  synopsis:
+    css: ".entry-content"

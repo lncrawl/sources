@@ -1,0 +1,10 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://meionovels.com/
+
+novel:
+  tags:
+    css: ".genres a"
+    all: true
+  synopsis:
+    css: ".summary__content"

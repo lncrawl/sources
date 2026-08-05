@@ -1,4 +1,4 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://mangastic.net/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."

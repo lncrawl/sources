@@ -8,3 +8,13 @@ chapter:
       - strip_tags: [script]
       - strip_css: [".code-block", ".adsbygoogle"]
       - clean_body
+
+toc:
+  request:
+    # The list is script-built now: the served page and the theme's ajax route both answer 197 KB
+    # with no chapter rows at all, and rendering the same URL produces 60. `from` is deleted
+    # because none of its three addresses carries the list any more.
+    from: null
+    get: "{novel_url}"
+    render: true
+    wait_for: "li.wp-manga-chapter"

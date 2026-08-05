@@ -1,4 +1,4 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://mangatx.com/
-disabled: Answers a JWT challenge, and behind it a Skenzo parking page.
+disabled: "Answers a JWT challenge, and behind it a Skenzo parking page."

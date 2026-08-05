@@ -1,7 +1,7 @@
 spec: 1
 extends: base/wordpress.yaml
 base_url: https://mostnovel.com/
-disabled: The domain now redirects to an unrelated gambling site.
+disabled: "The domain now redirects to an unrelated gambling site."
 
 novel:
   # The cover's alt text carries the novel name without the status span the heading holds.

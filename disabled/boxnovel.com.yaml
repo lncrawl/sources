@@ -1,0 +1,4 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://boxnovel.com/
+disabled: "Answers with an empty body direct, through the tor pool and in a browser."

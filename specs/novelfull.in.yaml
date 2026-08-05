@@ -1,0 +1,19 @@
+spec: 1
+base_url: https://novelfull.in/
+
+novel:
+  title:
+    css: "h1"
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.chapter-content ul li a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".chapter-content"

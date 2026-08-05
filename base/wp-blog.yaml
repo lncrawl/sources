@@ -1,0 +1,23 @@
+# A WordPress blog where a novel's table of contents *is* a post and every chapter is another post.
+# Common among translation blogs that never installed a novel theme: there is no chapter list widget
+# to read, so the list is whatever the post body links to.
+#
+# One selector serves both stages for that reason. On the novel's post it holds the links; on a
+# chapter's post it holds the text. Themes differ only in whether the class is prefixed, so the
+# selector names both spellings rather than making every child override it.
+spec: 1
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: ".entry-content a[href], .single-entry-content a[href], article.hentry .post-content a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content, .single-entry-content, article.hentry .post-content"

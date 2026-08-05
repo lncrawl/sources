@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://meownovel.com/
+disabled: "Parked. Serves a 9 KB page carrying only the domain name."

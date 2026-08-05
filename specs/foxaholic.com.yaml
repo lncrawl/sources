@@ -1,0 +1,40 @@
+spec: 1
+base_url: https://foxaholic.com/
+
+# Cheap first, browser only if that fails. `from` tries alternatives until one yields rows, so a
+# challenge page — which yields none — loses to the rendered attempt behind it, and a day when the
+# host stops challenging costs no browser at all.
+novel:
+  tags:
+    css: 'a[href*="/genre/"]'
+    all: true
+  authors:
+    css: ".author-content a"
+    all: true
+  synopsis:
+    css: ".summary__content"
+  request:
+    from:
+      - get: "{novel_url}"
+      - get: "{novel_url}"
+        render: true
+        wait_for: ".wp-manga-chapter"
+
+toc:
+  request:
+    page: novel
+  items:
+    css: ".wp-manga-chapter a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  request:
+    from:
+      - get: "{chapter.url}"
+      - get: "{chapter.url}"
+        render: true
+        wait_for: ".entry-content_wrap"
+  body:
+    css: ".entry-content_wrap"

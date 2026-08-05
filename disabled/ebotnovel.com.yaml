@@ -1,6 +1,6 @@
 spec: 1
 extends: base/mangastream.yaml
 base_url: https://ebotnovel.com/
-disabled: Answers a Namecheap page saying the domain registration expired.
+disabled: "Answers a Namecheap page saying the domain registration expired."
 
 has_mtl: true

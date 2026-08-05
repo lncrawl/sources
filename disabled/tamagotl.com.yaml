@@ -1,6 +1,6 @@
 spec: 1
 extends: base/mangastream.yaml
 base_url: https://tamagotl.com/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."
 
 has_mtl: true

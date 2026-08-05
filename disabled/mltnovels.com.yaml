@@ -1,6 +1,6 @@
 spec: 1
 extends: base/mangastream.yaml
 base_url: https://mltnovels.com/
-disabled: Answers a JWT challenge, and behind it a parking network page.
+disabled: "Answers a JWT challenge, and behind it a parking network page."
 
 has_mtl: true

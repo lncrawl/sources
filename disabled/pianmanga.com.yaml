@@ -1,4 +1,4 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://pianmanga.com/
-disabled: Answers a 1 KB doorway page reading 'Click here to enter'.
+disabled: "Answers a 1 KB doorway page reading 'Click here to enter'."

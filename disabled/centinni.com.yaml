@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://www.centinni.com/
+disabled: "Serves an 11 KB stub whose only text is HOME."

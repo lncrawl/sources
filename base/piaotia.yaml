@@ -1,0 +1,20 @@
+# An old Chinese table-layout theme, shared by three hosts. The chapter list is a table of links
+# under the page's single content div, and a chapter's text sits directly in that div with no
+# wrapper of its own, which is why the body selector names the div rather than a class.
+spec: 1
+encoding: gbk
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div#content table tr td a[href], div.centent a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div#content, div.bookname + div"

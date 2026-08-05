@@ -1,4 +1,4 @@
 spec: 1
 extends: base/novelmtl.yaml
 base_url: https://lightnovelmeta.com/
-disabled: Answers a JWT challenge that leads to a second script-driven page, so no markup is served without running scripts.
+disabled: "Answers a JWT challenge that leads to a second script-driven page, so no markup is served without running scripts."

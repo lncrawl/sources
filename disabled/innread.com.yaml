@@ -1,4 +1,4 @@
 spec: 1
 extends: base/freewebnovel.yaml
 base_url: https://innread.com/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."

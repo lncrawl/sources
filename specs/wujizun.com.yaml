@@ -1,0 +1,10 @@
+spec: 1
+extends: base/wp-blog.yaml
+base_url: https://wujizun.com/
+
+novel:
+  tags:
+    css: 'a[href*="/category/"]'
+    all: true
+  synopsis:
+    css: ".entry-content"

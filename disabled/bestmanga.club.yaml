@@ -1,6 +1,6 @@
 spec: 1
 extends: base/madara.yaml
 base_url: https://bestmanga.club/
-disabled: Domain is parked on parklogic.
+disabled: "Domain is parked on parklogic."
 
 has_manga: true

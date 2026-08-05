@@ -1,0 +1,21 @@
+spec: 1
+base_url: https://oniichanyamete.moe/
+
+novel:
+  synopsis:
+    css: ".entry-content"
+  title:
+    css: "h1.entry-title"
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content"

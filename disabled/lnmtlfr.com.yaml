@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://lnmtlfr.com/
+disabled: "No response direct, through the tor pool, or in a browser."
