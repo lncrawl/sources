@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://topmanhua.com/
+disabled: Rendered, the domain serves a Klook travel affiliate page, not manhua.

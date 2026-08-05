@@ -18,7 +18,24 @@ novel:
 
 chapter:
   body:
-    css: ".container .reading-content div"
+    # The body div carries a generated id per chapter, so the prefix is the only stable handle:
+    # the Tailwind utility classes around it say nothing about content, and the theme this spec
+    # was written against is gone.
+    css: "div[id^='chapter-']"
     pipe:
       - strip_matching: { pattern: '^\s*(Translator|Editor):', tags: [p] }
       - clean_body
+
+toc:
+  request:
+    from: null
+    page: novel
+  items:
+    # A Tailwind theme, not madara. The link's own text carries a relative timestamp after the
+    # title, so the title comes from the label the theme writes for a screen reader instead.
+    css: "#chapter-list-container a[href]"
+    fields:
+      title:
+        attr: [aria-label, text]
+        pipe: [{ regex: { pattern: "^Read chapter [^:]*:\\s*(.+)$" } }, trim]
+      url: { attr: href }

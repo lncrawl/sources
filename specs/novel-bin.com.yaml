@@ -14,3 +14,9 @@ toc:
     paginate:
       while: has_items
       url: "{novel_url}?page={page}"
+  items:
+    # Only the list form. The parent also offers `select > option[value]`, which is right for the
+    # ajax routes that answer with a dropdown, but this deployment reads the novel page, where it
+    # matches the theme's colour and font pickers: the walk reported 88 chapters, 40 of them
+    # `#F4F4F4` anchors that download nothing.
+    css: "ul.list-chapter > li > a[href]"

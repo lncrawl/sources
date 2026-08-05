@@ -4,4 +4,24 @@ base_url: https://tunovelaligera.com/
 
 chapter:
   body:
-    css: div.text-left
+    # The theme moved: `div.text-left` is gone and the text sits in the WordPress entry wrapper.
+    css: div.entry-content_wrap
+
+toc:
+  request:
+    from: null
+    page: novel
+    paginate:
+      # The list is a List Category Posts widget, which pages itself by this parameter.
+      while: has_items
+      url: "{novel_url}?lcp_page0={page}"
+  items:
+    css: "ul[class*='lcp_catlist'] li > a[href]"
+    fields:
+      title: {}
+      url:
+        attr: href
+        # The widget's own pager sits in the same list, and its links read ">>" and "42". A row
+        # whose url is rejected loses a required field and drops out, which is how a row-level
+        # condition is written (section 3.8).
+        pipe: [{ reject: "lcp_page" }, trim]

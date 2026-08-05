@@ -54,12 +54,26 @@ def label_of(url: str) -> str:
     return found.group(1)
 
 
+def _label(document: Any, ctx: Any) -> str:
+    """The label this crawl is reading, from the novel URL rather than from the fetched page.
+
+    Blogger redirects a label archive to a post whenever one matches the label, so the landed
+    URL carries no label at all: two of these blogs answer `/search/label/Reverend%20Insanity`
+    with `/2019/04/reverend-insanity-tantm.html`. The URL the crawl was given is the identity;
+    the one it landed on is whatever the blog decided.
+    """
+    declared = (getattr(ctx, "vars", None) or {}).get("label") if ctx is not None else None
+    if isinstance(declared, str) and declared.strip():
+        return declared.strip()
+    return label_of(getattr(document, "url", "") or "")
+
+
 def label_name(label: str) -> str:
     return unquote(label).replace("+", " ").strip()
 
 
 def toc_items(value: Any, document: Any, ctx: Any) -> list[dict[str, str]]:
-    label = label_of(getattr(document, "url", "") or "")
+    label = _label(document, ctx)
     name = label_name(label)
     # `label` is the path segment as the URL already spelled it, so it is encoded once. Quoting it
     # again turns a space into %2520 and the feed answers with nothing.
@@ -196,4 +210,4 @@ def _is_novel_label(label: str) -> bool:
 
 def novel_title(value: Any, document: Any, ctx: Any | None = None) -> str:
     """The label, decoded. The archive page's own heading carries the blog name as well."""
-    return label_name(label_of(getattr(document, "url", "") or "")) or str(value or "")
+    return label_name(_label(document, ctx)) or str(value or "")

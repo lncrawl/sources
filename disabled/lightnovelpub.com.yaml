@@ -1,0 +1,4 @@
+spec: 1
+extends: base/novelpub.yaml
+base_url: https://lightnovelpub.com/
+disabled: "Serves a Light Novel World platform shutdown notice: 4 KB, one link, no novels."

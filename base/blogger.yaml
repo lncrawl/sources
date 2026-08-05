@@ -11,6 +11,14 @@ spec: 1
 # feed is cheap enough that this costs a novel two calls.
 rate_limit: 1
 
+vars:
+  # The label out of the novel URL, not out of the page that URL fetched: Blogger redirects a
+  # label archive to a post whenever one matches the label, and the landed URL then carries no
+  # label at all. Two of these blogs do that, and the chapter list failed on both.
+  label:
+    on: url
+    regex: "/search/label/([^/?#&]+)"
+
 hooks:
   novel.title: hooks/shared/blogger_feed.py
   toc.items: hooks/shared/blogger_feed.py

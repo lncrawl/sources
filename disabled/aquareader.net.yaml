@@ -1,3 +1,4 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://aquareader.net/
+disabled: The domain now serves a random-chat site, not novels.

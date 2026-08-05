@@ -1,3 +1,4 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://mangachill.io/
+disabled: The domain now serves a gambling and games lander, not manga.

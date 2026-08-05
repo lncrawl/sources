@@ -13,3 +13,19 @@ novel:
   cover:
     css: meta[property="og:image"]
     attr: content
+
+toc:
+  request:
+    # The chapters are on the novel page, so the parent's ajax alternatives are deleted rather
+    # than overridden: a mapping merges, and leaving them would keep both addresses.
+    from: null
+    page: novel
+  items:
+    # This theme is not madara-shaped. Its list is an `ol` per volume group, and the row carries a
+    # marker span outside the link, so the anchor is the row rather than the `li`.
+    css: "li.chapter-group__list-item > a[href]"
+
+chapter:
+  # This theme's own id, not the parent's madara container.
+  body:
+    css: "#chapter-content"

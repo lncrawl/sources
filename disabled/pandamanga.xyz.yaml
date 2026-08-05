@@ -1,3 +1,4 @@
 spec: 1
 extends: base/mangastream.yaml
 base_url: https://pandamanga.xyz/
+disabled: Answers a 1 KB doorway page reading 'Click here to enter'.
