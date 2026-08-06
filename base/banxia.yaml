@@ -4,6 +4,9 @@
 spec: 1
 
 novel:
+  # The page's h1 is the site's name; the book is titled inside the description block.
+  title: { css: "div.book-describe h1" }
+  authors: { css: "a[href*='/author']" }
   request:
     from:
       - get: "{novel_url}"

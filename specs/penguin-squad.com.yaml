@@ -2,6 +2,7 @@ spec: 1
 base_url: https://penguin-squad.com/
 
 novel:
+  cover: { css: "img.object-cover", attr: src }
   # The metadata chain finds the header logo's alt text before anything else on this theme.
   title:
     css: "h1"

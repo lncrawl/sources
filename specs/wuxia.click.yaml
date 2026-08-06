@@ -1,0 +1,53 @@
+spec: 1
+base_url: https://wuxia.click/
+
+# Nothing about the chapter list is in the markup: the page fetches it from the platform's API,
+# which serves its browsable HTML form unless the request asks for JSON.
+vars:
+  slug: { on: url, regex: "/novel/([^/?#]+)" }
+
+novel:
+  # The page's OpenGraph title and description are marketing copy — "Reverend Insanity - Read
+  # Wuxia Novels at WuxiaClick" and a "you are reading X online for free" blurb — so the metadata
+  # chain of section 3.8 would record the site's own name as the novel's. The record the page
+  # hydrates itself from carries the real values.
+  title:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.dehydratedState.queries.0.state.data.name"
+  cover:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.dehydratedState.queries.0.state.data.image"
+  authors:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.dehydratedState.queries.0.state.data.author.name"
+  synopsis:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.dehydratedState.queries.0.state.data.description"
+  # Every /tag/ link on the page belongs to this novel; the payload holds them as objects, and a
+  # json path cannot read one key from each element of an array.
+  tags:
+    css: "a[href*='/tag/']"
+    all: true
+
+toc:
+  request:
+    get: "https://wuxiaworld.eu/api/chapters/{vars.slug}/"
+    headers:
+      Accept: application/json
+  items:
+    json: "$"
+    fields:
+      title: { json: "title" }
+      cid: { json: "novSlugChapSlug" }
+      url: "{origin}/chapter/{item.cid}"
+
+chapter:
+  # The reader is a Next.js page whose class names are hashed per build, so the text is read from
+  # the payload the page hydrates itself with rather than from an element.
+  body:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.dehydratedState.queries.0.state.data.text"
+    pipe:
+      - split: "\n"
+      - drop_empty
+      - lines_to_html

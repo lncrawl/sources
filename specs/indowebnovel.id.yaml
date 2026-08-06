@@ -1,7 +1,11 @@
 spec: 1
 base_url: https://indowebnovel.id/
 
-novel: {}
+novel:
+  # `/genre/` alone would take the menu's own link to the genre index as a row.
+  tags: { css: "a[href*='/genre/']:not([href$='/genre/']), a[href*='/tag/']", all: true }
+  # Every page is titled 'Baca Novel <name> Bahasa Indonesia - Indowebnovel'.
+  title: { css: "div.series-title h2" }
 
 toc:
   request:
@@ -14,4 +18,11 @@ toc:
 
 chapter:
   body:
+    # The site changed reader template partway through its archive: the newer posts carry
+    # `#content` and the older ones a pair of `div.text-left`, and both are still served.
     css: "#content"
+    fallback:
+      # Not `div.text-left` alone: the older template renders an empty one before the real
+      # body, and a fallback stops at the first selector that matches rather than the first
+      # that yields text.
+      - { css: "div.adsads .text-left" }

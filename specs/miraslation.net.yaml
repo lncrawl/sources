@@ -1,7 +1,11 @@
 spec: 1
 base_url: https://www.miraslation.net/
 
-novel: {}
+novel:
+  synopsis: { css: "div.prose.line-clamp-5" }
+  # Every page of this theme titles itself after the site, and its h1 is the site name
+  # too; the novel is named only in the link the breadcrumb points back to.
+  title: { css: "a.link.link-secondary" }
 
 toc:
   request:

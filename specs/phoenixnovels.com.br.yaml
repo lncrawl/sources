@@ -2,6 +2,18 @@ spec: 1
 extends: base/wordpress.yaml
 base_url: https://phoenixnovels.com.br/
 
+novel:
+  # Asura prints its details as label/value pairs with no per-field class, so the author is
+  # anchored on its own label rather than selected. The parent's Madara containers are all absent.
+  # `css: null` deletes the parent's selector. Mappings merge, so leaving it in place would
+  # run `.author-content a` first, match nothing, and hand the regex an empty scope.
+  authors:
+    css: null
+    regex: "Autor</div>\\s*<div class=\"v\">([^<]{2,70})"
+  # The novel's own cover is the first upload on the page; the rest belong to the sidebar's
+  # recommendations.
+  cover: { css: "img[src*='/storage/upload/']", attr: src }
+
 toc:
   request:
     # The theme is Asura now, not the one the parent describes, and the list is rendered into the

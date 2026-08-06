@@ -1,7 +1,16 @@
 spec: 1
 base_url: https://xiaowaz.fr/
 
-novel: {}
+novel:
+  # The detail block is prose: each fact is a bolded French label followed by its value, and the
+  # genre list is one comma-separated line rather than links.
+  authors: { regex: "Auteur(?:&nbsp;|\\s)*:</strong>\\s*([^<\\n]{2,60})" }
+  tags:
+    regex: "Genres\\s*:\\s*([^<\\n]{2,120})"
+    pipe: [{ split: "," }, trim, drop_empty]
+  # The document title appends the site name.
+  title: { css: "h1" }
+  cover: { css: "img.wp-post-image", attr: src }
 
 toc:
   request:

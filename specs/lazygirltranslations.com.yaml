@@ -1,7 +1,13 @@
 spec: 1
 base_url: https://lazygirltranslations.com/
 
-novel: {}
+novel:
+  # The theme files the original author under `/writer/`, keeping it apart from the WordPress
+  # accounts under `/author/` that belong to the translators.
+  authors: { css: "a[href*='/writer/']", all: true }
+  tags: { css: "div.sertogenre a[href*='/genre/']", all: true }
+  # The document title appends the site's name, and the metadata chain would record it.
+  title: { css: "h1.entry-title" }
 
 toc:
   # An eplister list, as the mangastream family uses, but this deployment's rows sit under the

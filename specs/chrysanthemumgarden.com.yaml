@@ -2,6 +2,9 @@ spec: 1
 base_url: https://chrysanthemumgarden.com/
 
 novel:
+  # The summary block prints the author inline between `<br />` breaks; the theme gives it no
+  # element of its own.
+  authors: { regex: "Author:\\s*([^<\\n]{2,60})" }
   # OpenGraph carries the site name in the title, and only there.
   title:
     css: "h1.entry-title"

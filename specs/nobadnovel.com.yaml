@@ -1,7 +1,10 @@
 spec: 1
 base_url: https://nobadnovel.com/
 
-novel: {}
+novel:
+  authors:
+    css: "div.mt-3.text-sm"
+    pipe: [{ strip_tags: [span] }, text, trim]
 
 toc:
   request:

@@ -1,7 +1,11 @@
 spec: 1
 base_url: https://divinedaolibrary.com/
 
-novel: {}
+novel:
+  # `a.author` on this theme is the account that posted the translation, so the novel's own
+  # author is only ever named in the summary text.
+  authors: { regex: "Author\\s*:\\s*([^<\\n]{2,70})" }
+  tags: { css: "a.tag-pill._taxonomy-genre", all: true }
 
 toc:
   request:

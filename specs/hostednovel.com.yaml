@@ -1,7 +1,12 @@
 spec: 1
 base_url: https://hostednovel.com/
 
-novel: {}
+novel:
+  # The document title appends the site's name, and the metadata chain would record it.
+  title: { css: "h1" }
+  # The sidebar lists every other novel with the same cover markup, so the one that belongs
+  # to this page is identified by its size rather than by a class of its own.
+  cover: { css: "img.w-\\[300px\\]", attr: [data-src, src] }
 
 toc:
   request:

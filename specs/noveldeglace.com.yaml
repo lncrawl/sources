@@ -1,7 +1,10 @@
 spec: 1
 base_url: https://noveldeglace.com/
 
-novel: {}
+novel:
+  tags: { css: "a[href*='/genre/']", all: true }
+  # The document title appends the site name.
+  title: { css: "h1.entry-title" }
 
 toc:
   request:

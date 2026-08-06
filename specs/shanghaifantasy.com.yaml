@@ -1,0 +1,32 @@
+spec: 1
+base_url: https://shanghaifantasy.com/
+
+# The chapter list is fetched from the theme's own REST route when the list scrolls into view, so
+# nothing about it is in the served markup. The route is keyed by the category id the empty list
+# element carries.
+vars:
+  cat: { on: novel, css: "#chapterList", attr: data-cat }
+
+novel:
+  title: { css: "p.font-secondary.font-bold" }
+  cover: { css: "img[src*='/wp-content/uploads/']", attr: src }
+  # The `/author/` link is the translator's account; the novel's own author is printed in the
+  # detail block beside it.
+  authors: { regex: "Author:\\s*</span>\\s*([^<\\n]{1,60})" }
+  synopsis: { css: "div.md\\:max-w-3xl.mt-5" }
+
+toc:
+  request:
+    get: "{origin}/wp-json/fiction/v1/chapters?category={vars.cat}&order=asc&per_page=50&page=1"
+    paginate:
+      url: "{origin}/wp-json/fiction/v1/chapters?category={vars.cat}&order=asc&per_page=50&page={page}"
+      while: has_items
+  items:
+    json: "$"
+    fields:
+      title: { json: "title" }
+      url: { json: "permalink" }
+
+chapter:
+  body:
+    css: "div.contenta"

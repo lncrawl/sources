@@ -1,7 +1,9 @@
 spec: 1
 base_url: https://asianhobbyist.com/
 
-novel: {}
+novel:
+  # The document title appends the site's name, and the metadata chain would record it.
+  title: { css: "h1.entry-title" }
 
 toc:
   request:

@@ -1,7 +1,11 @@
 spec: 1
 base_url: https://ncode.syosetu.com/
 
-novel: {}
+novel:
+  # The element carries its own label, "作者：", before the name.
+  authors:
+    css: ".p-novel__author"
+    pipe: [text, { strip_prefix: "作者：" }, trim]
 
 toc:
   request:

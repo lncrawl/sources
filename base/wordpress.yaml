@@ -21,8 +21,11 @@ novel:
   # The heading carries a status span, which has to go before the text is read.
   title: { css: ".post-title h1", pipe: [{ strip_tags: [span] }, text, trim] }
   cover: { css: ".summary_image a img", attr: [data-src, src] }
-  authors: { css: '.author-content a[href*="manga-author"]', all: true }
-  tags: { css: '.genres-content a[rel="tag"]', all: true }
+  # Madara lets a deployment rename the author and genre taxonomies, so their permalinks read
+  # `/series-author/`, `/m-author/` or `/novel-author/` as often as `/manga-author/`. The
+  # containers are the theme's own and already scope both, which is why neither names a path.
+  authors: { css: ".author-content a", all: true }
+  tags: { css: ".genres-content a", all: true }
   synopsis: { css: ".description-summary" }
 
 toc:

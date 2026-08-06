@@ -1,7 +1,10 @@
 spec: 1
 base_url: https://smnovels.com/
 
-novel: {}
+novel:
+  synopsis: { css: "div.novel-description" }
+  # The document title appends the site name.
+  title: { css: "h1.entry-title" }
 
 toc:
   request:

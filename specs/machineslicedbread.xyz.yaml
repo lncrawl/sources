@@ -1,17 +1,26 @@
 spec: 1
 base_url: https://machineslicedbread.xyz/
 
-novel: {}
+novel:
+  # The document title appends the site's name, and the metadata chain would record it.
+  title: { css: "h1.entry-title" }
+  # The post links the original twice: the title goes to the work and the author to their
+  # profile, so only `xmypage` is the person. The name carries a ruby reading.
+  authors:
+    css: "div.entry-content p a[href*='xmypage.syosetu']"
+    pipe: [{ strip_tags: [ruby, rt, rp] }, text, trim]
 
 toc:
   request:
     get: "{novel_url}"
   items:
-    css: "ul.wp-block-latest-posts a[href]"
+    # Not the Recent Posts widget: that returns the site's five newest posts from any page at
+    # all, so a spec naming it reports a chapter list for pages that have none.
+    css: "div.entry-content a[href*='machineslicedbread.xyz']"
     fields:
       title: {}
       url: { attr: href }
 
 chapter:
   body:
-    css: "#page"
+    css: "div.entry-content"

@@ -4,11 +4,16 @@ base_url: https://wuxiasky.net/
 novel:
   title:
     css: "div.story__identity h1.story__identity-title"
+  # The thumbnail's own element, not the link wrapping it: the anchor carries no image attribute
+  # and the fallback list found nothing to read.
   cover:
-    css: ".story__thumbnail a"
-    attr: [content, data-src, src]
+    css: "img.story__thumbnail-image"
+    attr: src
   authors:
     css: "div.story__identity div.story__identity-meta a.author"
+    all: true
+  tags:
+    css: "a.tag-pill._taxonomy-genre"
     all: true
 
 toc:

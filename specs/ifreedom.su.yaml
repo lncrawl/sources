@@ -1,7 +1,9 @@
 spec: 1
 base_url: https://ifreedom.su/
 
-novel: {}
+novel:
+  # The document title appends the site name.
+  title: { css: "h1" }
 
 toc:
   request:

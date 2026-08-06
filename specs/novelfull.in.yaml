@@ -2,6 +2,13 @@ spec: 1
 base_url: https://novelfull.in/
 
 novel:
+  # Each detail is a `div.meta-row` opening with a bolded label, and only the genre row holds
+  # links, so the anchors identify the genres without naming the row.
+  authors:
+    css: "div.meta-row"
+    pipe: [{ strip_tags: [span] }, text, trim]
+  cover: { css: "img[src*='/uploads/covers/']", attr: src }
+  tags: { css: "div.meta-row a[href]", all: true }
   title:
     css: "h1"
 
