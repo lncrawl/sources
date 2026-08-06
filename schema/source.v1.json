@@ -270,7 +270,7 @@
             }
           ],
           "default": null,
-          "description": "A dotted path to an array of rows.",
+          "description": "A dotted path to an array of rows. With 'script', a path inside that element's JSON rather than into the response body.",
           "title": "Json"
         },
         "request": {
@@ -312,6 +312,19 @@
           "default": false,
           "description": "Reverse the order, applied after sort_by.",
           "title": "Reverse"
+        },
+        "script": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A selector for an element whose text is JSON, for a page that renders its rows from a payload rather than into markup. 'json' then walks inside it.",
+          "title": "Script"
         },
         "sort_by": {
           "anyOf": [
@@ -748,7 +761,7 @@
             }
           ],
           "default": null,
-          "description": "A dotted path to an array of rows.",
+          "description": "A dotted path to an array of rows. With 'script', a path inside that element's JSON rather than into the response body.",
           "title": "Json"
         },
         "request": {
@@ -790,6 +803,19 @@
           "default": false,
           "description": "Reverse the order, applied after sort_by.",
           "title": "Reverse"
+        },
+        "script": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A selector for an element whose text is JSON, for a page that renders its rows from a payload rather than into markup. 'json' then walks inside it.",
+          "title": "Script"
         },
         "sort_by": {
           "anyOf": [

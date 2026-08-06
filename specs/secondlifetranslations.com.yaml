@@ -1,0 +1,17 @@
+spec: 1
+base_url: https://secondlifetranslations.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.panel a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.entry-content"

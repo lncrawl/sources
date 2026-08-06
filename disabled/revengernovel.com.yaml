@@ -1,0 +1,18 @@
+spec: 1
+base_url: https://revengernovel.com/
+disabled: "Half the novel is behind a sign-in: chapters 1 to about 100 read, and every later one answers a Laravel login page instead of the text."
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.chapters-grid a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#chapterContent"

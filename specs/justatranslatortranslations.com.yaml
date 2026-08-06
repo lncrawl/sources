@@ -1,0 +1,9 @@
+spec: 1
+extends: base/wp-blog.yaml
+base_url: https://justatranslatortranslations.com/
+
+toc:
+  items:
+    # The contents post also links out to the raws and to its own share URLs; every chapter is a
+    # post whose slug carries the novel's abbreviation and a number.
+    css: ".entry-content a[href*='-chapter-'], .entry-content a[href*='-authornote-']"

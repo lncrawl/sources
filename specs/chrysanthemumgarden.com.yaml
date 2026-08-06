@@ -1,0 +1,21 @@
+spec: 1
+base_url: https://chrysanthemumgarden.com/
+
+novel:
+  # OpenGraph carries the site name in the title, and only there.
+  title:
+    css: "h1.entry-title"
+
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.translated-chapters a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#novel-content"

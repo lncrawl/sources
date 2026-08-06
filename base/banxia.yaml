@@ -1,0 +1,32 @@
+# 半夏小說, served on two domains from one build. Every page answers an HTTP fetch with an L9
+# managed-JavaScript challenge, so each stage tries the cheap route first and falls back to a
+# browser, which the site does serve.
+spec: 1
+
+novel:
+  request:
+    from:
+      - get: "{novel_url}"
+      - get: "{novel_url}"
+        render: true
+
+toc:
+  request:
+    from:
+      - get: "{novel_url}"
+      - get: "{novel_url}"
+        render: true
+  items:
+    css: "div.book-list a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  request:
+    from:
+      - get: "{chapter.url}"
+      - get: "{chapter.url}"
+        render: true
+  body:
+    css: "#nr1"

@@ -1,20 +1,51 @@
-# An old Chinese table-layout theme, shared by three hosts. The chapter list is a table of links
-# under the page's single content div, and a chapter's text sits directly in that div with no
-# wrapper of its own, which is why the body selector names the div rather than a class.
+# An old Chinese table-layout theme. Three domains redirect to one site, so the three specs
+# extending this differ only in the address a reader arrives by.
+#
+# The site addresses a novel two ways — `/bookinfo/<shelf>/<id>.html` carries the metadata and
+# `/html/<shelf>/<id>/` carries the chapter list — and links between them, so a reader may paste
+# either. Both are rebuilt from the pair of numbers rather than followed, which is what lets one
+# spec accept both.
 spec: 1
 encoding: gbk
 
-novel: {}
+vars:
+  shelf: { on: url, regex: "/(?:bookinfo|html)/(\\d+)/" }
+  book: { on: url, regex: "/(?:bookinfo|html)/\\d+/(\\d+)" }
+
+novel:
+  request:
+    get: "{origin}/bookinfo/{vars.shelf}/{vars.book}.html"
+  title: { css: "h1" }
+  # Only the book's own cover is wrapped in a link to the full-size image; the same path shape
+  # appears earlier in the sidebar of the author's other works, and selecting on it alone picks
+  # up whichever book happens to sit at the top of that list.
+  cover: { css: "a[href*='/files/article/image/'] > img", attr: src }
+  authors: { regex: "作(?:&nbsp;|\\s)*者：\\s*([^<\\n]+)" }
+  tags: { regex: "类(?:&nbsp;|\\s)*别：\\s*([^<\\n]+)" }
+  synopsis: { regex: "内容简介：</span><br\\s*/?>\\s*(.*?)<br" }
 
 toc:
   request:
-    get: "{novel_url}"
+    get: "{origin}/html/{vars.shelf}/{vars.book}/"
   items:
-    css: "div#content table tr td a[href], div.centent a[href]"
+    css: "div.centent a[href]"
     fields:
       title: {}
       url: { attr: href }
 
 chapter:
+  # A chapter's text is a bare text node in `<body>` with no wrapper of its own, so the body
+  # names the document and removes the furniture around it rather than selecting the prose.
   body:
-    css: "div#content, div.bookname + div"
+    css: "body"
+    pipe:
+      - strip_tags: [script, style, table, center, h1, ul, select, form, font]
+      - strip_css:
+          - "#guild"
+          - "#shop"
+          - "#feit2"
+          - "#Commenddiv"
+          - ".toplink"
+          - ".bottomlink"
+          - "div[align=center]"
+      - paragraphs

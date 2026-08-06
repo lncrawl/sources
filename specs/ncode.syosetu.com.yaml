@@ -1,0 +1,22 @@
+spec: 1
+base_url: https://ncode.syosetu.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+    # The index is a hundred episodes a page, and the pager prints only "next" and "last", so
+    # the bound comes from the address the last link points at.
+    paginate:
+      url: "{novel_url}?p={page}"
+      last: { css: "a.c-pager__item[href*='?p=']", attr: href, all: true, pipe: [{ regex: "\\?p=(\\d+)" }] }
+  items:
+    css: "div.p-eplist a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.p-novel__body"

@@ -1,0 +1,19 @@
+spec: 1
+base_url: https://www.royalroad.com/
+
+novel:
+  tags: { css: "span.tags a", all: true }
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # Each row links the chapter twice, once by title and once by its release date.
+    css: "table#chapters tbody tr td:first-child a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.chapter-inner.chapter-content"

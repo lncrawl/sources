@@ -1,0 +1,17 @@
+spec: 1
+base_url: https://machineslicedbread.xyz/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "ul.wp-block-latest-posts a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#page"

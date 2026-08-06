@@ -1,0 +1,23 @@
+spec: 1
+base_url: https://xiaowaz.fr/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # A List Category Posts widget, oldest first, holding only this series' chapter posts.
+    css: "#lcp_instance_0 a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.entry-content"
+    pipe:
+      # The post carries its own prev/next bar and the translator's author card, both inside the
+      # body element rather than around it.
+      - strip_css: [".wp-post-navigation", ".abh_box", ".saboxplugin-wrap", ".sharedaddy"]
+      - paragraphs

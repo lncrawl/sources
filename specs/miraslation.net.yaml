@@ -1,0 +1,17 @@
+spec: 1
+base_url: https://www.miraslation.net/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "ul.w-full.menu a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "main.roboto-serif.prose"

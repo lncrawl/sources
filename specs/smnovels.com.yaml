@@ -1,0 +1,23 @@
+spec: 1
+base_url: https://smnovels.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+    # The chapter widget pages with the category archive it sits in, a hundred rows at a time,
+    # and an out-of-range page is a 404 rather than an empty one, so the walk needs the bound
+    # the pager itself prints.
+    paginate:
+      url: "{novel_url}page/{page}/"
+      last: { css: "nav.pagination a.page-numbers", all: true }
+  items:
+    css: "div.all-chapters-list a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.entry-content"

@@ -1,0 +1,9 @@
+spec: 1
+extends: base/wp-blog.yaml
+base_url: https://rpgnovels.com/
+
+toc:
+  items:
+    # Every chapter post on this blog is addressed `<novel>_vol<n>ch<n>`, and naming that is what
+    # keeps the post's own headings and its comment permalinks out of the list.
+    css: ".entry-content a[href*='_vol']"

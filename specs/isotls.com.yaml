@@ -1,0 +1,21 @@
+spec: 1
+base_url: https://www.isotls.com/
+
+novel:
+  cover: { css: "main img", attr: src }
+
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # Two identical lists sit on the page; the other is the site-wide recent-chapters feed,
+    # which is why this names the nav that holds the novel's own.
+    css: "nav#chapters ul.content-list a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.content.flow-md"

@@ -1,0 +1,21 @@
+spec: 1
+base_url: https://noveltoon.mobi/
+disabled: "A paywalled platform: only the opening episodes are free, and every chapter after them serves an empty body. Sampled across eight titles, the last chapter was locked on all of them."
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # The container holds the list twice, ascending then descending, for the site's order
+    # toggle. Naming the first of the two blocks is what keeps every chapter from arriving
+    # again in reverse.
+    css: "div.episodes-info:nth-of-type(2) > a[href]"
+    fields:
+      title: { css: "span.episode-item-title" }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.watch-chapter-detail"

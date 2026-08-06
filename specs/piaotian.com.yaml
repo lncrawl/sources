@@ -1,0 +1,4 @@
+spec: 1
+extends: base/piaotia.yaml
+# The bare domain redirects to piaotia; the www host lands on an unrelated gateway page.
+base_url: https://piaotian.com/

@@ -1,0 +1,18 @@
+spec: 1
+base_url: https://divinedaolibrary.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # The same theme illusia.com.br runs: an ol per volume group inside the chapters tab.
+    css: "section.story__chapters li.chapter-group__list-item > a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#chapter-content"

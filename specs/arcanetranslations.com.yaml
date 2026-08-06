@@ -1,6 +1,0 @@
-spec: 1
-extends: base/mangastream.yaml
-base_url: https://arcanetranslations.com/
-
-has_mtl: false
-has_manga: false

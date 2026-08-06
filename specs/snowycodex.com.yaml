@@ -1,24 +1,8 @@
 spec: 1
+extends: base/wp-blog.yaml
 base_url: https://snowycodex.com/
 
-novel:
-  title:
-    css: ".entry-content h2"
-  cover:
-    css: ".entry-content img"
-    attr: [content, data-src, src]
-  synopsis:
-    css: ".entry-content p"
-
 toc:
-  request:
-    get: "{novel_url}"
   items:
-    css: ".entry-content a[href*='/chapter']"
-    fields:
-      title: {}
-      url: { attr: href }
-
-chapter:
-  body:
-    css: ".entry-content"
+    # The contents post opens with links to the raws and to a reading guide elsewhere.
+    css: ".entry-content a[href*='/chapter-']"

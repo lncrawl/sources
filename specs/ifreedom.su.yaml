@@ -1,0 +1,19 @@
+spec: 1
+base_url: https://ifreedom.su/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # Newest first, and a chapter still behind the site's wallet links there instead.
+    css: "div.chapterlinks a[href]:not([href*='koshelek'])"
+    reverse: true
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.chapter-content"

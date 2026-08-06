@@ -1,0 +1,23 @@
+spec: 1
+base_url: https://noveldeglace.com/
+
+novel: {}
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    # Each row links the chapter, then its parts inside a fold. The chapter page already holds
+    # every part, so taking the direct child alone reads the novel once rather than twice.
+    css: "li.chpt > a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.entry-content-chapitre"
+    pipe:
+      # A chapter page repeats the tome's table of contents above the text.
+      - strip_css: [".index", ".su-spoiler", ".chapter-nav"]
+      - paragraphs

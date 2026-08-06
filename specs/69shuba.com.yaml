@@ -1,0 +1,34 @@
+spec: 1
+base_url: https://www.69shuba.com/
+encoding: gbk
+
+# A book is addressed two ways — `/book/<id>.htm` carries the metadata, `/book/<id>/` the
+# catalog — and both are rebuilt from the id so a reader may paste either.
+vars:
+  book: { on: url, regex: "/book/(\\d+)" }
+
+novel:
+  request:
+    get: "{origin}/book/{vars.book}.htm"
+  title: { css: ".booknav2 h1" }
+  cover: { css: ".bookimg2 img", attr: src }
+  authors: { css: ".booknav2 p a[href*='/modules/article/author']" }
+  synopsis: { css: ".navtxt" }
+
+toc:
+  request:
+    get: "{origin}/book/{vars.book}/"
+  items:
+    # The catalog is newest-first, and its heading is an anchor back to the book page.
+    css: "#catalog ul li a[href]"
+    reverse: true
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.txtnav"
+    pipe:
+      - strip_css: [".txtinfo", ".bottom-ad", "#txtright", "h1"]
+      - paragraphs

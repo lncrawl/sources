@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://freemanga.me/
+disabled: "Reachable over a VPN, and the domain now serves an adult cam site rather than manga."

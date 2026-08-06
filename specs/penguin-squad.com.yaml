@@ -1,0 +1,20 @@
+spec: 1
+base_url: https://penguin-squad.com/
+
+novel:
+  # The metadata chain finds the header logo's alt text before anything else on this theme.
+  title:
+    css: "h1"
+
+toc:
+  request:
+    get: "{novel_url}"
+  items:
+    css: "div.divide-border.divide-y a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.reader-content"
