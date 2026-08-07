@@ -1,0 +1,33 @@
+spec: 1
+base_url: https://konkon.ink/
+disabled: "A paid platform. Its API is explicit about it: 47 of 48 chapters carry a coin price and answer is_locked with empty content, leaving only the opening chapter readable."
+
+# Nothing about a novel is in the markup: the reader is a client-side app fed by a public API,
+# which serves the record, the chapter list and the text of a chapter.
+vars:
+  slug: { on: url, regex: "/read/([^/?#]+)" }
+
+novel:
+  request:
+    get: "https://api-k.konkon.ink/api/public/novels/{vars.slug}"
+  title: { json: "data.title" }
+  authors: { json: "data.author.name" }
+  synopsis: { json: "data.description" }
+
+toc:
+  request:
+    get: "https://api-k.konkon.ink/api/public/novels/{vars.slug}"
+  items:
+    # The API nests chapters under volumes and offers no flat route; every novel sampled on this
+    # site has exactly one volume, and `chapters_pagination.total` matched what it held.
+    json: "data.volumes.0.chapters"
+    fields:
+      title: { json: "title" }
+      cid: { json: "id" }
+      cslug: { json: "slug" }
+      url: "{origin}/read/chapter/{item.cid}/{item.cslug}"
+
+chapter:
+  request:
+    get: "https://api-k.konkon.ink/api/public/chapters/{chapter.cid}"
+  body: { json: "data.content" }
