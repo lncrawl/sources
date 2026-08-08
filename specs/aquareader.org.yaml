@@ -4,5 +4,6 @@ base_url: https://aquareader.org/
 
 chapter:
   body:
-    # The crawler drops `h3` from the body; this theme heads each page image with one.
+    # The crawler drops `h3` from the body, and unlike the plain wordpress base this variant
+    # replaces `clean_body` wholesale with an image-oriented pipe that strips no headings.
     pipe: [{ strip_tags: [h3] }, clean_body]
