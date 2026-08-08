@@ -1,0 +1,26 @@
+spec: 1
+base_url: https://jrnovels.com/
+
+novel: {}
+
+toc:
+  request:
+    # The novel page shows only its newest rows; its "all chapters" link opens a numbered list a
+    # hundred at a time, and the pager prints the last page.
+    get: "{novel_url}/1"
+    paginate:
+      url: "{novel_url}/{page}"
+      last: { css: "a.page-link", all: true }
+  items:
+    css: "div.row div.border-bottom a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.p-4.border"
+    pipe:
+      # The reader opens with the page's breadcrumb and repeats the chapter number as a heading.
+      - strip_css: ["ul", ".breadcrumb"]
+      - paragraphs
