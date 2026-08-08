@@ -7,26 +7,20 @@ name: Shadow diff
 #
 # Retire this workflow when the legacy tier is gone; it has nothing to compare against.
 #
-# THE COMPARISON STEP DOES NOT EXIST YET, so the nightly schedule is off. It invoked
-# `sourcelib shadow-diff`, which was never implemented, and every run since this file
-# was added failed in seconds on `invalid choice: 'shadow-diff'`. A permanently red
-# nightly is worse than an absent one: it trains everybody to ignore this repo's CI.
+# The comparison lives here rather than in the interpreter because `sourcelib` must never
+# import `lncrawl`, and it drives the crawler as a subprocess rather than importing it,
+# which also keeps this Apache-licensed repository from linking a GPL one.
 #
-# It cannot be implemented where it was called from. `sourcelib` must never import
-# `lncrawl` — that rule is what keeps phase 5 a deletion rather than a rewrite — and a
-# shadow diff has to drive both tiers. So the comparison belongs either in the crawler
-# repo, which may depend on `sourcelib`, or in a script here that drives the two as
-# subprocesses. Neither tier currently has a command that dumps a normalised novel as
-# JSON, and that is the missing piece.
-#
-# `health.yml` already probes the live hosts nightly, so nothing is unguarded by this
-# being off except the cross-tier drift it was written for, which has never been guarded.
+# Every URL comes from a recorded fixture, so a run compares the hosts this repository has
+# already committed to and does not depend on a listing page still repeating its shape.
 
 on:
+  schedule:
+    - cron: "0 7 * * *"
   workflow_dispatch:
     inputs:
       hosts:
-        description: "Space separated hosts to compare. Empty means all overlapping."
+        description: "Space separated hosts to compare. Empty means every fixture."
         required: false
         default: ""
 
@@ -41,6 +35,9 @@ jobs:
   diff:
     name: Compare tiers
     runs-on: ubuntu-latest
+    # A live run over every fixture, twice each. Bounded so a hung host fails the job
+    # rather than holding a runner for six hours.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
@@ -64,10 +61,9 @@ jobs:
       - name: Diff
         working-directory: sources
         run: |
-          echo "::error::shadow-diff is not implemented. Neither tier has a command that"
-          echo "::error::dumps a normalised novel as JSON, which is what the comparison needs."
-          echo "::error::See the comment at the top of this workflow for where it should live."
-          exit 1
+          python .github/scripts/shadow_diff.py ${{ inputs.hosts }} \
+            --timeout 240 \
+            --output shadow.json
 
       - uses: actions/upload-artifact@v7
         if: always()
