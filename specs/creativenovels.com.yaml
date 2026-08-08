@@ -1,0 +1,49 @@
+spec: 1
+base_url: https://creativenovels.com/
+
+# The list is a form POST whose two arguments both come off the novel page: the post id from the
+# page's shortlink, and a per-request token from the inline `chapter_list_summon` object.
+vars:
+  book:
+    on: novel
+    css: "link[rel=shortlink]"
+    attr: href
+    pipe: [{ regex: { pattern: "[?&]p=(\\d+)" } }]
+  token:
+    on: novel
+    regex: "\"security\":\"([^\"]+)\""
+
+hooks:
+  toc.items: hooks/sites/creativenovels.com.py
+
+novel:
+  # The document title appends the site name after a hyphen; a novel's own name may contain
+  # an en dash, so the separator is matched with its surrounding spaces rather than alone.
+  title: { css: "head title", pipe: [text, { regex: { pattern: "^(.*?)\\s+[-\u2013\u2014]\\s+Creative Novels" } }, trim] }
+  cover: { css: "img.book_cover", attr: src }
+  # Without these two the metadata chain answers with the site's own marketing blurb, which is
+  # what `meta[name=description]` carries on every page here.
+  synopsis: { css: "div.novel_page_synopsis" }
+  # The label and the name are separated by a link, so the name is the anchor rather than the
+  # text after the colon.
+  authors: { css: "div.bK_C a[href*='/channel/']", all: true }
+
+toc:
+  request:
+    post: "{origin}/wp-admin/admin-ajax.php"
+    payload:
+      action: crn_chapter_list
+      view_id: "{vars.book}"
+      s: "{vars.token}"
+
+chapter:
+  body:
+    css: "article .entry-content"
+    pipe:
+      # The theme hides its watermarks in transparent text and repeats a showcase block and an
+      # announcement banner in every chapter.
+      - strip_css:
+          - ".announcements_crn"
+          - "span[style*='color:transparent']"
+          - "div.novel_showcase"
+      - paragraphs
