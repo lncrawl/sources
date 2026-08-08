@@ -1,34 +1,15 @@
 spec: 1
-extends: base/wordpress.yaml
+extends: base/fictioneer.yaml
 base_url: https://illusia.com.br/
 
+# This deployment runs an older build of the theme: the chapter list, the genre pills and the
+# chapter body all match the base, but it carries neither `story__identity-title` nor
+# `story__thumbnail-image`. Both fall through to the OpenGraph chain of section 3.8, which reads
+# them correctly. Verified through a browser on 2026-08-07, since the host cannot be fetched.
+#
+# No title rule of its own: the crawler took the og:title minus its last space-separated token,
+# because the site used to append its name. That tag now reads "Elysium Drama" on its own, so the
+# rule would cut a word off every title.
 novel:
-  # No title rule. The crawler took the og:title minus its last space-separated token, because the
-  # site used to append its own name; measured through a browser on 2026-08-07 the tag reads
-  # "Elysium Drama" on its own, so that rule now cuts a word off every real title. Section 3.8's
-  # chain reads it correctly without help.
-  cover:
-    css: meta[property="og:image"]
-    attr: content
-    # The crawler falls back to the parent's reader when the page carries no og:image.
-    fallback:
-      - { css: ".summary_image a img", attr: [data-src, src] }
-  # The Fictioneer theme divinedaolibrary also runs. `a.author` is the account that posted the
-  # translation rather than the novel's author, which is why only the genres are taken.
-  tags: { css: "a.tag-pill._taxonomy-genre", all: true }
-
-toc:
-  request:
-    # The chapters are on the novel page, so the parent's ajax alternatives are deleted rather
-    # than overridden: a mapping merges, and leaving them would keep both addresses.
-    from: null
-    page: novel
-  items:
-    # This theme is not madara-shaped. Its list is an `ol` per volume group, and the row carries a
-    # marker span outside the link, so the anchor is the row rather than the `li`.
-    css: "li.chapter-group__list-item > a[href]"
-
-chapter:
-  # This theme's own id, not the parent's madara container.
-  body:
-    css: "#chapter-content"
+  # `a.author` links the account that posted the translation rather than the novel's author.
+  authors: null

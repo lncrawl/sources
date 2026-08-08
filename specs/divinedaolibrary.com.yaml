@@ -1,22 +1,8 @@
 spec: 1
+extends: base/fictioneer.yaml
 base_url: https://divinedaolibrary.com/
 
 novel:
-  # `a.author` on this theme is the account that posted the translation, so the novel's own
-  # author is only ever named in the summary text.
+  # `a.author` here is the account that posted the translation, so the novel's own author is only
+  # ever named in the summary text.
   authors: { regex: "Author\\s*:\\s*([^<\\n]{2,70})" }
-  tags: { css: "a.tag-pill._taxonomy-genre", all: true }
-
-toc:
-  request:
-    get: "{novel_url}"
-  items:
-    # The same theme illusia.com.br runs: an ol per volume group inside the chapters tab.
-    css: "section.story__chapters li.chapter-group__list-item > a[href]"
-    fields:
-      title: {}
-      url: { attr: href }
-
-chapter:
-  body:
-    css: "#chapter-content"

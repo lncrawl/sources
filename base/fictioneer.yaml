@@ -1,0 +1,38 @@
+# Fictioneer, a WordPress theme for serialised fiction. Four hosts in this corpus run it.
+#
+# Its markup is its own rather than Madara's: a story page carries a `story__` identity block and a
+# chapters tab, and a chapter page an element the theme names outright. The selectors below were
+# confirmed on divinedaolibrary, wuxiasky and asianovel on 2026-08-07, which returned 1088, 157 and
+# 35 rows for the same one.
+#
+# `authors` is deliberately absent. The theme prints `a.author`, but what that holds differs by
+# deployment: on wuxiasky it is the novel's own author as a display field, while on divinedaolibrary
+# and illusia it links the WordPress account that posted the translation. Putting it here would
+# record the translator as the author on three hosts out of four, so each child says what its own
+# page means.
+spec: 1
+
+novel:
+  title: { css: "h1.story__identity-title" }
+  cover:
+    css: "img.story__thumbnail-image"
+    attr: src
+    fallback:
+      - { css: 'meta[property="og:image"]', attr: content }
+  tags: { css: "a.tag-pill._taxonomy-genre", all: true }
+
+toc:
+  request:
+    # The list is rendered into the story page, so there is no second request to make.
+    get: "{novel_url}"
+  items:
+    # Scoped to the chapters tab: the theme repeats a "latest chapters" strip elsewhere on the page
+    # and a looser selector takes those rows twice.
+    css: "section.story__chapters li.chapter-group__list-item > a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#chapter-content"

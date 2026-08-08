@@ -1,30 +1,8 @@
 spec: 1
+extends: base/fictioneer.yaml
 base_url: https://wuxiasky.net/
 
 novel:
-  title:
-    css: "div.story__identity h1.story__identity-title"
-  # The thumbnail's own element, not the link wrapping it: the anchor carries no image attribute
-  # and the fallback list found nothing to read.
-  cover:
-    css: "img.story__thumbnail-image"
-    attr: src
-  authors:
-    css: "div.story__identity div.story__identity-meta a.author"
-    all: true
-  tags:
-    css: "a.tag-pill._taxonomy-genre"
-    all: true
-
-toc:
-  request:
-    get: "{novel_url}"
-  items:
-    css: "section.story__chapters li > a"
-    fields:
-      title: {}
-      url: { attr: href }
-
-chapter:
-  body:
-    css: "section#chapter-content"
+  # Unlike the rest of the family, this deployment's `a.author` is a display field carrying the
+  # original author rather than a link to a poster's archive.
+  authors: { css: "a.author", all: true }

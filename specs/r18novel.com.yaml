@@ -1,0 +1,15 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://www.r18novel.com/
+
+toc:
+  request:
+    # This deployment answers 404 on both of the family's ajax routes and renders the whole list
+    # into the novel page instead; `?page=2` returns the same rows, so there is nothing to walk.
+    # `null` deletes the inherited alternatives rather than adding a third.
+    from: null
+    page: novel
+  items:
+    # Only the list. The parent also accepts a `select > option`, which on this theme is the
+    # reader's colour picker and arrives as rows named "Light gray" and "Light blue".
+    css: "ul.list-chapter > li > a[href]"
