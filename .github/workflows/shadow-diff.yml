@@ -6,10 +6,23 @@ name: Shadow diff
 # the only check that notices a fix landing on the legacy side and never reaching here.
 #
 # Retire this workflow when the legacy tier is gone; it has nothing to compare against.
+#
+# THE COMPARISON STEP DOES NOT EXIST YET, so the nightly schedule is off. It invoked
+# `sourcelib shadow-diff`, which was never implemented, and every run since this file
+# was added failed in seconds on `invalid choice: 'shadow-diff'`. A permanently red
+# nightly is worse than an absent one: it trains everybody to ignore this repo's CI.
+#
+# It cannot be implemented where it was called from. `sourcelib` must never import
+# `lncrawl` — that rule is what keeps phase 5 a deletion rather than a rewrite — and a
+# shadow diff has to drive both tiers. So the comparison belongs either in the crawler
+# repo, which may depend on `sourcelib`, or in a script here that drives the two as
+# subprocesses. Neither tier currently has a command that dumps a normalised novel as
+# JSON, and that is the missing piece.
+#
+# `health.yml` already probes the live hosts nightly, so nothing is unguarded by this
+# being off except the cross-tier drift it was written for, which has never been guarded.
 
 on:
-  schedule:
-    - cron: "0 7 * * *"
   workflow_dispatch:
     inputs:
       hosts:
@@ -51,10 +64,10 @@ jobs:
       - name: Diff
         working-directory: sources
         run: |
-          sourcelib shadow-diff \
-            --legacy-root ../lncrawl \
-            --hosts "${{ inputs.hosts }}" \
-            --report shadow.json
+          echo "::error::shadow-diff is not implemented. Neither tier has a command that"
+          echo "::error::dumps a normalised novel as JSON, which is what the comparison needs."
+          echo "::error::See the comment at the top of this workflow for where it should live."
+          exit 1
 
       - uses: actions/upload-artifact@v7
         if: always()
