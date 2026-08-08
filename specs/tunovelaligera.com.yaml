@@ -5,7 +5,11 @@ base_url: https://tunovelaligera.com/
 chapter:
   body:
     # The theme moved: `div.text-left` is gone and the text sits in the WordPress entry wrapper.
+    # The crawler's selector is kept behind it rather than dropped, since the host has been
+    # unreachable since that observation and cannot confirm it still holds.
     css: div.entry-content_wrap
+    fallback:
+      - { css: div.text-left }
 
 toc:
   request:

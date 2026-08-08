@@ -1,3 +1,8 @@
 spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://kissmanga.in/
+
+chapter:
+  body:
+    # The crawler drops `h3` from the body; this theme heads each page image with one.
+    pipe: [{ strip_tags: [h3] }, clean_body]

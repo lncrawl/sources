@@ -3,16 +3,19 @@ extends: base/wordpress.yaml
 base_url: https://illusia.com.br/
 
 novel:
-  title:
-    css: meta[property="og:title"]
-    attr: content
-    pipe:
-    - regex:
-        pattern: ^(.*?)\s*\\s*\S+$
-    - trim
+  # No title rule. The crawler took the og:title minus its last space-separated token, because the
+  # site used to append its own name; measured through a browser on 2026-08-07 the tag reads
+  # "Elysium Drama" on its own, so that rule now cuts a word off every real title. Section 3.8's
+  # chain reads it correctly without help.
   cover:
     css: meta[property="og:image"]
     attr: content
+    # The crawler falls back to the parent's reader when the page carries no og:image.
+    fallback:
+      - { css: ".summary_image a img", attr: [data-src, src] }
+  # The Fictioneer theme divinedaolibrary also runs. `a.author` is the account that posted the
+  # translation rather than the novel's author, which is why only the genres are taken.
+  tags: { css: "a.tag-pill._taxonomy-genre", all: true }
 
 toc:
   request:
