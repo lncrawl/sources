@@ -1,0 +1,56 @@
+# ReNovels. The site is a Next.js app whose pages carry no data of their own: a novel page and a
+# reader page both answer with a shell and the values arrive in a dehydrated query cache inside a
+# script. Its own API is the addressable form of the same thing, so every stage here reads that
+# instead of rendering the page.
+spec: 1
+base_url: https://renovels.org/
+language: ru
+
+vars:
+  dir: { on: url, regex: "/novel/([^/?#]+)" }
+  # A title can be translated by more than one group, each with its own numbering, and the chapter
+  # list is asked for by branch rather than by title. The first is the one the site opens on.
+  branch: { on: novel, json: "branches.0.id" }
+
+novel:
+  request:
+    get: "https://api.renovels.org/api/v2/titles/{vars.dir}/"
+  title: { json: "main_name" }
+  cover: { json: "cover.high" }
+  synopsis: { json: "description" }
+  # `creators` is the author where the site records one; it is empty on originals posted by their
+  # own writers, which is a warning rather than a failure.
+  authors: { json: "creators.0.name" }
+
+toc:
+  request:
+    # The chapter list is still on the older API. `ordering=index` is reading order, which saves
+    # reversing a list that can run to several thousand rows.
+    get: "https://api.renovels.org/api/titles/chapters/?branch_id={vars.branch}&ordering=index&count=100&page=1"
+    paginate:
+      url: "https://api.renovels.org/api/titles/chapters/?branch_id={vars.branch}&ordering=index&count=100&page={page}"
+      # The response carries the page it answered and nothing about how many there are, and the
+      # title's own `count_chapters` counts every branch rather than this one.
+      while: has_items
+  items:
+    json: "content"
+    fields:
+      id: { json: "id" }
+      # Named `volume` rather than `tome` because the field is the one the stage groups by, so
+      # the site's own volumes replace a grouping by count.
+      volume: { json: "tome" }
+      number: { json: "chapter" }
+      name: { json: "name" }
+      # Most rows carry no name at all, and the ones that do carry a subtitle rather than a
+      # label, so the site titles a chapter by its volume and number and appends the name where
+      # there is one. Nothing here is conditional: an absent name leaves a trailing space that
+      # the default pipe removes.
+      title: { const: "Том {item.volume} Глава {item.number} {item.name}" }
+      # The reader's address, which is the page a person would open. The body comes from the API
+      # instead, so `chapter.request` overrides where this is fetched from.
+      url: { const: "{origin}/novel/{vars.dir}/{item.id}" }
+
+chapter:
+  request:
+    get: "https://api.renovels.org/api/v2/titles/chapters/{chapter.id}/"
+  body: { json: "content" }

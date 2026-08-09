@@ -1,5 +1,6 @@
 spec: 1
 base_url: https://penguin-squad.com/
+disabled: "The served page carries 20 of 133 chapters and hides the rest behind a Show 113 more button whose data arrives from a server action on click; no page, limit or all parameter reveals them. The spec read the 20 and reported success, while the legacy crawler it shadows reads all 133, so it was worse than what it replaced. Found by shadow-diff 2026-08-09."
 
 novel:
   cover: { css: "img.object-cover", attr: src }

@@ -1,0 +1,30 @@
+# MVLEmpyr, one library on two domains. `.com` redirects to `.io`, but both are kept because
+# links to either are in circulation.
+#
+# The chapter list is not on the novel page and is not addressable from it either: see
+# hooks/shared/mvlempyr.py for what the site does instead.
+spec: 1
+
+hooks:
+  toc.items: hooks/shared/mvlempyr.py
+
+novel:
+  title: { css: ".novel-title" }
+  cover: { css: "img.novel-image2", attr: src }
+  synopsis: { css: ".synopsis" }
+  # The info block is a run of label/value pairs with no class distinguishing one row from the
+  # next, so the label is the only thing that identifies the author's.
+  authors:
+    css: 'div.textwrapper:has(> div.fieldtext:-soup-contains("Author:")) > div:not(.fieldtext)'
+  # The page prints the same block twice, once per breakpoint, and the outer anchor is repeated
+  # in the site's genre menu as well. The inner element under `.novelpage` is what belongs to
+  # this novel and appears once.
+  tags: { css: "a.g-t-link.novelpage div.genre-tags", all: true }
+
+toc:
+  request:
+    page: novel
+
+chapter:
+  body:
+    css: "#chapter-content"

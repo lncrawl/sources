@@ -11,12 +11,40 @@ novel:
 toc:
   request:
     get: "{novel_url}"
+    # A hundred rows a page, and the pager's "Last" link carries the bound.
+    paginate:
+      url: "{novel_url}?page={page}"
+      last:
+        css: "#chapters a[href*='page=']"
+        attr: href
+        all: true
+        pipe: [{ regex: { pattern: "page=(\\d+)" } }]
   items:
-    css: "div.relative.grid a[href]"
+    # Scoped to the chapter list and to chapter links within it. The panel also holds the
+    # pager and a sort control, and the page's other grids are the sidebar's novel list,
+    # which is what an unscoped selector read instead: 28 novels in place of 4000 chapters.
+    css: "#chapters a[href*='/chapter-']"
+    # A row rejected below has no title left, so naming it here is what drops the row rather
+    # than storing it with an empty one.
+    require: [title]
     fields:
-      title: {}
+      # The row prints the name and a relative date in one element with no separator, so the
+      # date is cut by its own shape rather than by position: a chapter name can end in a
+      # number, and "Chapter 7: 100 Years Later" would lose its tail to anything simpler.
+      title:
+        css: "div.truncate"
+        pipe:
+          - text
+          - regex: { pattern: "^\\s*•?\\s*(.*?)\\s*\\d+\\s+\\w+(?:\\s+\\d+\\s+\\w+)?\\s+ago\\s*$" }
+          # The list ends with one advert per membership tier, worded like a chapter and
+          # linked like one: "Chapter 2210 - 2230 Gold (40 chapters)". Their pages carry a
+          # title marked "(Teaser)" and no prose at all, so a crawl that keeps them ends with
+          # half a dozen empty chapters. Only the row says what they are; the chapter page
+          # looks like any other until it is fetched.
+          - reject: "\\(\\d+ chapters\\)\\s*$"
+          - trim
       url: { attr: href }
 
 chapter:
   body:
-    css: "#app"
+    css: "#chapter-content"

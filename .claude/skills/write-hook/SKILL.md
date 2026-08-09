@@ -40,11 +40,19 @@ only. `hooks/shared/blogger_feed.py` is alive on three of those at once. Its fee
 arrived; recognising the novel's own info post compares a row against the label name; and matching a
 search query compares a label against `{query}`.
 
-Two more limits are worth knowing before you conclude a spec cannot do something. A row that is a JSON
+One limit is worth knowing before you conclude a spec cannot do something. A row that is a JSON
 object honours only `json`, `const`, `pipe`, `default` and `all` — a `regex`, `attr` or `fallback` on
-such a field is ignored rather than refused. And `const` is not interpolated, so a field cannot yet be
-produced from `vars` alone. Both are interpreter defects against RFC-0001 rather than format decisions,
-so check whether they are still true before writing Python around them.
+such a field is ignored rather than refused. That is an interpreter defect against RFC-0001 rather
+than a format decision, so check whether it is still true before writing Python around it.
+
+What is *not* a limit, and reads like one: `const` interpolates. A row can therefore be given a field
+the response never carried, built from a var and from a sibling field declared above it, as
+`{origin}/novel/{vars.dir}/{item.id}`. That covers the common API shape where the list returns ids and
+the addresses have to be composed, and `specs/renovels.org.yaml` builds both its chapter titles and its
+chapter URLs that way with no Python at all.
+
+The gap that is real: `json` has no wildcard, so a list of objects cannot be mapped. A `genres` array
+of `{id, name}` yields one name via `genres.0.name` and no way to reach the rest.
 
 Track the rate. Past roughly 15% of specs carrying a `hooks:` entry, the grammar is wrong and should
 be extended rather than worked around one host at a time. Say so rather than writing the fifth copy.

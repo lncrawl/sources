@@ -90,6 +90,13 @@ check what it calls itself.
 own metadata, and a parked domain or a challenge page has a perfectly good `<title>`. A novel called
 `Home` or the site's brand means the selector missed and the fallback covered for it.
 
+**Rows at the end of the list that are adverts.** A site selling early access often posts one row per
+membership tier, worded and linked exactly like a chapter: `Chapter 2210 - 2230 Gold (40 chapters)`.
+The page behind it carries a title marked as a teaser and no prose, so keeping them ends a book with
+a run of empty chapters. Nothing on the chapter page distinguishes it until it is fetched, and only
+the row's own wording does, so `reject` in the title's pipe with `require: [title]` on the list is the
+fix. `try` samples the last chapter for this reason: it is where such rows live.
+
 ## Offline checks disagree with the live site
 
 Fixtures test the spec, never the site. A green `poe fixtures` means the spec still reads the pages

@@ -186,6 +186,44 @@ toc:
 An explicit `null` deletes an inherited key anywhere, not just here. It is the tool for every case
 where a base declares something a child needs gone rather than changed.
 
+## The page is an app shell and the list is nowhere in it
+
+`explain` shows an empty document and no selector finds a chapter. Before reaching for `render: true`,
+which is slow and has to run for every chapter, look for where the data actually comes from. Four
+places, cheapest first.
+
+**The page already carries it.** A Next.js or Nuxt page hydrates from a payload embedded in its own
+markup, so the record is usually there before any request is made. Look for `script#__NEXT_DATA__`
+and read it with a dotted path — `wuxia.click` keeps its whole novel under
+`props.pageProps.dehydratedState.queries.0.state.data`, so its spec needs no second request at all.
+`ItemList.script` reads rows out of such an element when the list is in there too.
+
+**The site calls an API you can call.** Watch the network while the page loads rather than reading the
+DOM afterwards. A public read endpoint is common, and then the spec is ordinary: a `get` for the
+record and another for the body, with `vars` carrying the slug out of the URL. `konkon.ink` answers
+`api-k.<host>/api/public/novels/<slug>` with the record, the chapter list and, from a second route,
+the text.
+
+**The call happens on a click.** A capture that loads the page and waits sees nothing, because the
+list arrives when a tab is opened. `wuxia.city` and `webfic.com` look identical to a dead site under a
+load-only capture. Either drive the interaction or accept the host as deferred, but do not record
+"no XHR" as "no API".
+
+**It is a form POST behind a token.** WordPress sites often answer on `admin-ajax.php` with a nonce
+minted per page. Both halves are declarable — a `var` reads the token out of the inline script, another
+reads the post id from the page's shortlink, and the request is a `post` with a `payload`. Only an
+answer that is neither markup nor JSON needs a hook; `creativenovels.com` is the corpus's example.
+
+Three things to check before counting such a host converted:
+
+- **Read the payload's own fields.** `konkon.ink` described itself perfectly and its spec worked, and
+  then the API reported `is_locked` with empty content on 47 of its 48 chapters. A site that says it is
+  paywalled is telling you something a chapter sample of one would miss.
+- **Check the totals the API gives you.** A response carrying `chapters_pagination.total` lets you
+  prove the rows you read are all of them, which no selector-based list can do.
+- **A `json` path has no wildcard.** `tags` and `genres` usually arrive as lists of objects, and a stage
+  field cannot map one key across them, so those stay empty even though the payload holds them.
+
 ## The data is JSON, not HTML
 
 A growing share of sites are API shells. Selectors are the wrong tool; use a dotted path. `$` is the
