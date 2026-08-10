@@ -1,0 +1,39 @@
+# TeaNovel. A Next.js site, but only the novel page needs its hydration payload: the chapter list
+# has a page of its own and is rendered into it whole.
+spec: 1
+base_url: https://www.teanovel.com/
+language: en
+
+novel:
+  # The page prints the name in its heading, but the payload is where the author is, and reading
+  # both from one place keeps them from disagreeing.
+  title: { css: "script#__NEXT_DATA__", json: "props.pageProps.novel.name" }
+  authors: { css: "script#__NEXT_DATA__", json: "props.pageProps.novel.author" }
+  synopsis: { css: "script#__NEXT_DATA__", json: "props.pageProps.novel.description" }
+  # The cover is served from Next's image pipeline rather than named in the payload.
+  cover: { css: "main img[src*='_next/']", attr: src }
+
+toc:
+  request:
+    get: "{novel_url}/chapter-list"
+  items:
+    css: "div.flex-col > a.border-b"
+    fields:
+      # The row prints the name and a publication date in one anchor; only the first paragraph is
+      # the chapter.
+      title: { css: "p" }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.prose"
+    # The theme opens every chapter with an ad slot inside the prose container, which reads as a
+    # first paragraph saying "Advertisement". Removed by its own class rather than by its wording,
+    # which would be a different word on a translated deployment.
+    #
+    # The two steps after it are the default body pipe, repeated because declaring a pipe replaces
+    # it rather than adding to it.
+    pipe:
+      - strip_css: [".ip_address"]
+      - unwrap: [a, abbr, acronym, label, span, time]
+      - paragraphs

@@ -1,0 +1,49 @@
+# wtr-lab. Everything but the chapter text is an ordinary JSON API. The text is encrypted and
+# fetched by a POST that reports refusals in its body rather than its status, which is what
+# hooks/sites/wtr-lab.com.py is for.
+#
+# `base_url` is the apex host deliberately. The site answers on `www` and redirects to the apex,
+# and the redirect drops a POST body: the reader then answers 500 and nothing says why.
+spec: 1
+base_url: https://wtr-lab.com/
+language: zh
+has_mtl: true
+
+hooks:
+  chapter.body: hooks/sites/wtr-lab.com.py
+
+vars:
+  raw_id: { on: url, regex: "/serie-(\\d+)" }
+  # The list endpoint takes a range rather than a page, so it needs to be told how far to go. The
+  # novel's own payload is the only place that number is.
+  count:
+    on: novel
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.serie.serie_data.chapter_count"
+
+novel:
+  title: { css: "script#__NEXT_DATA__", json: "props.pageProps.serie.serie_data.data.raw.title" }
+  authors: { css: "script#__NEXT_DATA__", json: "props.pageProps.serie.serie_data.data.raw.author" }
+  synopsis:
+    css: "script#__NEXT_DATA__"
+    json: "props.pageProps.serie.serie_data.data.raw.description"
+
+toc:
+  request:
+    # A start-and-end range, not a page number, so the whole list comes in one request when the
+    # end is the chapter count. Measured on a 961-chapter novel: one response, every row.
+    get: "{origin}/api/chapters/{vars.raw_id}?start=1&end={vars.count}"
+  items:
+    json: "chapters"
+    fields:
+      # The site stores an English title per chapter even where it will not translate the body.
+      title: { json: "title" }
+      order: { json: "order" }
+      url: { const: "{origin}/en/serie-{vars.raw_id}/x/chapter-{item.order}" }
+
+chapter:
+  request:
+    # Not the reader page: this is the same list endpoint narrowed to one row, a couple of hundred
+    # bytes against the page's thirty-odd kilobytes, and it carries the chapter id the reader POST
+    # wants. The hook reads both out of it.
+    get: "{origin}/api/chapters/{vars.raw_id}?start={chapter.order}&end={chapter.order}"

@@ -1,3 +1,10 @@
 spec: 1
 extends: base/mangastream.yaml
 base_url: https://fuyu-novel.my.id/
+
+toc:
+  items:
+    # This deployment lists oldest first, where the theme's default is newest first, so the base's
+    # reversal hands back a novel that reads from its ending. Confirmed on the site 2026-08-09:
+    # the first row is "Vol. 1 Ch. Ilustrasi" and the last is the volume 4 afterword.
+    reverse: false

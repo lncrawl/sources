@@ -140,6 +140,20 @@ paginate:
 Either may be a literal or read from the page, and where an extractor finds several numbers the largest
 wins, because a pager lists the pages it can reach.
 
+**When the pager says how long it is only by how long it is**, `count` reads that. Several themes
+render one `<option>` per page and give every one the same `value`, so no number can be selected out
+of the markup and the total is the number of options:
+
+```yaml
+paginate:
+  last: { css: "#indexselect option", all: true, pipe: [count] }
+  url: "{novel_url}?page={page}"
+```
+
+It is worth reaching for, because the alternative is `while`, and `while` walks speculatively where
+`last` fetches at the full width the rate limit allows. The `freewebnovel` family walked that way and
+a single `try` on a long novel ran past ten minutes.
+
 A site that addresses a page by the **index of its first item** rather than by a page number sets
 `step` to the page size, as above. Two shapes still need a hook: a start-and-end range over a known
 total, and a feed that answers with fewer rows than asked, where the next offset is a number only the

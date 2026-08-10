@@ -1,0 +1,34 @@
+# BabelNovel. A React app, but its book page is rendered server side and paginates through an
+# ordinary query parameter, so nothing here needs the hydration payload.
+spec: 1
+base_url: https://babelnovel.com/
+disabled: "A paid platform. The opening chapters read in full and the rest are cut to a teaser of three or four hundred characters, ending mid-sentence with no marker of any kind in the markup — the container, the classes and the status code are identical either way. Measured 2026-08-09 on a 68-chapter novel: 1 and 5 read at 4,383 and 8,973 characters, 20, 35 and 68 stop at 381, 295 and 399. The spec below reads the list and the free chapters correctly and is kept for the day the truncation becomes detectable or the site opens up."
+language: en
+
+novel:
+  title: { css: "h1[class*='book-info_title']" }
+
+toc:
+  request:
+    get: "{novel_url}"
+    paginate:
+      # The site numbers these from zero: `?page=0` is the page the novel URL already served, and
+      # `?page=1` is chapters 21 to 40.
+      first: 0
+      # The payload lists its chapter groups and so knows how many pages there are, but reaching
+      # the number needs a wildcard `json` path, which the format has not got. Walking until a
+      # page runs dry costs one extra request per novel.
+      while: has_items
+      url: "{novel_url}?page={page}"
+  items:
+    css: "a[href*='/chapters/']"
+    # The banner above the list links the newest chapter, so it arrives as a duplicate row on
+    # every page. It is the one row with no `chapter-item_title` inside it.
+    require: [title]
+    fields:
+      title: { css: "div[class*='chapter-item_title']" }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "article[class*='chapter_container']"

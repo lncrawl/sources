@@ -1,0 +1,42 @@
+# نادي الروايات. A Vue app in front of its own REST API. The pages render enough to read a chapter
+# from, but the novel's details and its chapter list live only in the API, so both are taken there.
+spec: 1
+base_url: https://rewayat.club/
+language: ar
+
+vars:
+  slug: { on: url, regex: "/novel/([^/?#]+)" }
+
+novel:
+  request:
+    get: "https://api.rewayat.club/api/novels/{vars.slug}/"
+  # `arabic` and `english` are both the novel's name. The Arabic one is what the site itself
+  # shows and what a reader of an Arabic host is looking for.
+  title: { json: "arabic" }
+  synopsis: { json: "about" }
+  # A media path rather than a URL, resolved against the API host it came from, which serves it.
+  cover: { json: "poster_url" }
+  # `genre` is a list of objects, and a dotted path can reach only one of them. Taking the first
+  # would be worse than taking none.
+  tags: { const: [] }
+
+toc:
+  request:
+    # `page_size` is honoured in full: this returns all 1468 rows of a long novel in one response,
+    # where the default 24 would be sixty sequential requests behind a `next` link.
+    get: "https://api.rewayat.club/api/chapters/{vars.slug}/?ordering=number&page_size=5000"
+  items:
+    json: "results"
+    fields:
+      number: { json: "number" }
+      title: { json: "title" }
+      # The API is a second host; the address a person opens is on the site.
+      url: { const: "{origin}/novel/{vars.slug}/{item.number}" }
+
+chapter:
+  # The reader renders the prose, so this needs no second API call. It renders it as one card per
+  # group the API splits the text into — eight of them on one chapter measured here — so the card
+  # itself is the wrong handle: taking the first delivers an eighth of the chapter and reports
+  # success. The flat card wrapping them all is the whole text.
+  body:
+    css: "div.v-card.v-card--flat:has(div.pre-formatted)"

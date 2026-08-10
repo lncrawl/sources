@@ -9,3 +9,23 @@ vars:
   slug:
     on: url
     regex: "/novela-ligera/([^/?#]+)"
+
+toc:
+  items:
+    # The newest post in every category is the novel's own landing page, not a chapter: its slug
+    # is the category's and its title is the novel's name with the site's tagline. It carries no
+    # chapter marker, which is the only thing that separates it from a real row.
+    require: [numbered]
+    fields:
+      numbered:
+        json: "title.rendered"
+        pipe: [parse_html, text, { regex: { pattern: "(?i)(cap[ií]tulo|historia adicional)\\s*\\d+" } }]
+      # Every title also repeats the novel's name first, which a reader already has. Cut from the
+      # marker rather than by stripping a prefix, so an extra keeps its own wording.
+      title:
+        json: "title.rendered"
+        pipe:
+          - parse_html
+          - text
+          - trim
+          - regex: { pattern: "(?i)((?:cap[ií]tulo|historia adicional).*)$" }

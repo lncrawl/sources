@@ -14,6 +14,9 @@ requires-python = ">=3.9"
 dev = [
     "lncrawl-sourcelib[fetch]",
     "websockets>=13",
+    # AES-GCM, for the one host that encrypts its chapter bodies. The app already ships it,
+    # so this only puts `try` and `record` on the same footing as a real crawl.
+    "pycryptodome>=3,<4",
     "jsonschema>=4.23",
     "poethepoet>=0.37.0",
     "pyyaml>=6.0",

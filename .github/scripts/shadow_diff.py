@@ -91,7 +91,11 @@ def dump(url: str, specs: str | None, timeout: int) -> dict:
         )
         body = pathlib.Path(target).read_text(encoding="utf-8").strip()
         if not body:
-            return {"error": f"no output (exit {result.returncode}): {result.stderr[-200:]}"}
+            # The whole of stderr, not its tail. The app prints a framed traceback, so the
+            # sentence that says what happened is near the top and the last 200 characters are
+            # the box drawing around it — which is how a host with no legacy crawler at all read
+            # as a broken one.
+            return {"error": f"no output (exit {result.returncode}): {result.stderr}"}
         return json.loads(body)
     except subprocess.TimeoutExpired:
         return {"error": f"timed out after {timeout}s"}
@@ -101,21 +105,30 @@ def dump(url: str, specs: str | None, timeout: int) -> dict:
         pathlib.Path(target).unlink(missing_ok=True)
 
 
-def _same(left, right) -> bool:
-    """Whether two tiers found the same thing, ignoring how their cleaners spaced it.
+def _plain(value: str) -> str:
+    """A title with the typography the two tiers disagree about removed.
 
-    The two normalise whitespace differently often enough to matter: one writes
-    "Children 2 — Having" where the other writes "Children 2— Having", and comparing
-    those literally would leave the nightly permanently red over a space. What is being
-    asked is whether both tiers found the same chapter, not whether they agree on
-    typography, so whitespace is removed on both sides before comparing.
+    Whitespace first: they normalise it differently often enough to matter, one writing
+    "Children 2 — Having" where the other writes "Children 2— Having". Then trailing
+    sentence punctuation, because one cleaner strips it and the other keeps what the site
+    wrote — "Capítulo 1. Prólogo." against "Capítulo 1. Prólogo" is the same chapter and
+    would otherwise hold a nightly red over a full stop.
+
+    Only the trailing kind. A period inside a title is part of its numbering.
+    """
+    return "".join(value.split()).rstrip(".,;:·。、")
+
+
+def _same(left, right) -> bool:
+    """Whether two tiers found the same thing, ignoring how their cleaners wrote it.
+
+    What is being asked is whether both tiers found the same chapter, not whether they
+    agree on typography.
     """
     if isinstance(left, str) and isinstance(right, str):
-        return "".join(left.split()) == "".join(right.split())
+        return _plain(left) == _plain(right)
     if isinstance(left, list) and isinstance(right, list):
-        return sorted("".join(str(x).split()) for x in left) == sorted(
-            "".join(str(x).split()) for x in right
-        )
+        return sorted(_plain(str(x)) for x in left) == sorted(_plain(str(x)) for x in right)
     return left == right
 
 
