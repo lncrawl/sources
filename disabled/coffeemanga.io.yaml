@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://coffeemanga.io/
+disabled: "Redirects wholesale to bunnynovel.com, exactly as coffeemanga.ink does; both domains now land on that home page and neither serves its old catalogue. Probed 2026-08-09. bunnynovel.com is served by its own spec."

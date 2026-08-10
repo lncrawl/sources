@@ -1,0 +1,10 @@
+spec: 1
+extends: base/mangastream.yaml
+base_url: https://bunnynovel.com/
+language: en
+
+toc:
+  items:
+    # This deployment lists oldest first, where the theme's default is newest first, so the
+    # base's reversal would hand back a novel that reads from its ending.
+    reverse: false

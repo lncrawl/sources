@@ -90,6 +90,12 @@ check what it calls itself.
 own metadata, and a parked domain or a challenge page has a perfectly good `<title>`. A novel called
 `Home` or the site's brand means the selector missed and the fallback covered for it.
 
+**A row field named `id`.** `try` passes and the crawler raises `Chapter() got multiple values for
+keyword argument 'id'`, which names neither the spec nor the field. A row's extra fields are handed
+to the app's chapter model as keyword arguments, so a field sharing a name with one of its own —
+`id`, `body`, `images`, `success`, `crawler_version` — collides. An API returning bare ids is the
+common case; call the field `chapter_id` or `part_id`.
+
 **Rows at the end of the list that are adverts.** A site selling early access often posts one row per
 membership tier, worded and linked exactly like a chapter: `Chapter 2210 - 2230 Gold (40 chapters)`.
 The page behind it carries a title marked as a teaser and no prose, so keeping them ends a book with

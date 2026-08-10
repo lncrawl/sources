@@ -9,7 +9,12 @@ toc:
   items:
     css: "div.flex-1.min-h-0.overflow-y-auto a[href]"
     fields:
-      title: {}
+      # The row is three things in one anchor: a number, a name, and a view count in the block
+      # on the right. Taking the row's own text runs all three together and ends every chapter
+      # title with a number that is not part of it, so each is read separately and joined here.
+      number: { css: "span.font-medium" }
+      name: { css: "p.text-xs" }
+      title: { const: "{item.number} {item.name}" }
       url: { attr: href }
 
 chapter:

@@ -36,7 +36,14 @@ uv run poe all       # every gate a pull request has to pass
 uv run poe explain <url>
 uv run poe try specs/<host>.yaml <novel-url>
 uv run poe record specs/<host>.yaml <novel-url>
+.venv/bin/sourcelib try-search specs/<host>.yaml "<a title the host carries>"
 ```
+
+**`try-search` is the only thing that tests a `search` stage**, and nothing else does: `try` skips it,
+a fixture does not record it, and a search that finds nothing is not an error a site reports. A
+renamed form field answers `200` with the empty results page, so the stage returns zero rows and the
+spec still passes every gate. Run it when you touch a `search` stage, and run it on the children when
+you touch one in a base — the same family can disagree, and freewebnovel's does.
 
 `poe all` is what CI runs, so there is no gate here that cannot be reproduced before pushing.
 

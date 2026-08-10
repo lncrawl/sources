@@ -1,0 +1,4 @@
+spec: 1
+extends: base/mangastream.yaml
+base_url: https://dobytranslations.com/
+disabled: "A paid platform, and the same 52-character 'Login to buy access' block as hyacinthbloom, in the same container the free chapters use. Measured 2026-08-09 on a 94-chapter novel: 1 and 10 read at 16 to 18 thousand characters, 25, 41 and 60 all locked. The chapter list is also wrong here — its last row resolves to chapter 1 again — but that is not worth fixing on a source that cannot deliver the chapters either way."

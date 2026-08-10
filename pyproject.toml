@@ -8,16 +8,12 @@ version = "0"
 description = "Declarative source definitions for Lightnovel Crawler, per RFC-0001."
 readme = "README.md"
 license = { file = "LICENSE" }
-# The floor is the interpreter that runs the hooks, which is whatever lncrawl-sourcelib supports.
-# Raising it to please a linter or a type checker would strand users on older Pythons.
 requires-python = ">=3.9"
 
 [dependency-groups]
 dev = [
-    # The interpreter under test. Deliberately unpinned here: `schema/source.v1.json` carries the
-    # version CI installs, in its `x-generator` field, and `poe pin` reports when the two disagree.
-    # Pinning it in both places would make the schema stop being the single source of truth.
     "lncrawl-sourcelib[fetch]",
+    "websockets>=13",
     "jsonschema>=4.23",
     "poethepoet>=0.37.0",
     "pyyaml>=6.0",
@@ -25,8 +21,6 @@ dev = [
 ]
 
 [tool.uv]
-# Nothing to build: the specs are data and the hooks are loaded by path, never imported as a
-# package. Without this uv tries to build a wheel and fails on the missing module.
 package = false
 
 [tool.poe.tasks]
@@ -80,18 +74,13 @@ cmd = "uv pip install -e"
 [tool.ruff]
 line-length = 100
 target-version = "py39"
-# Markdown holds the RFC, whose Python blocks are illustrative and column-aligned on purpose.
-# Formatting them silently rewrites the specification's prose.
 extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 # UP is on because everything here is new code with no legacy to migrate, and every file carries
 # `from __future__ import annotations`, which makes the PEP 585 and 604 spellings safe on the floor.
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = [
-    # The formatter owns line length.
-    "E501",
-]
+ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # A hook's parameters are duck-typed by contract: the value, `document` and `ctx` are whatever the

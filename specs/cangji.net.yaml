@@ -22,3 +22,12 @@ toc:
         # The info pages live in their own category rather than inside each novel's.
         json: link
         pipe: [{ reject: { pattern: "/synopsis/" } }]
+      # Every post is titled "<novel name> – <chapter>", so the name a reader already has
+      # would fill the width of a table of contents on every row. Cut at the theme's own
+      # separator rather than by stripping a prefix: that keeps a chapter called "Prologue"
+      # as readable as a numbered one, and the crawler's attempt at the prefix is what leaves
+      # ontimestory's chapters titled "In The Face Of Melodrama" with the first four words of
+      # the novel gone.
+      title:
+        json: "title.rendered"
+        pipe: [parse_html, text, trim, { regex: { pattern: "–\\s*(.*)$" } }]

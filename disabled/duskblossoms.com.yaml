@@ -1,0 +1,4 @@
+spec: 1
+extends: base/madara.yaml
+base_url: https://duskblossoms.com/
+disabled: "A paid platform. The opening chapters read and the rest answer a 31-character 'This chapter is locked! Buy it?' block priced in coins, inside the same container the free ones use. Measured 2026-08-09 on a 20-chapter novel: 1, 3 and 5 free at 7 to 11 thousand characters, 8, 11, 15 and 20 all locked. Nothing on the chapter row says which is which, so a spec cannot drop the locked ones; it would report a whole novel and deliver a quarter of it."

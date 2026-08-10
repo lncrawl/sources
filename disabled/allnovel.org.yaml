@@ -1,0 +1,4 @@
+spec: 1
+extends: base/novelfull.yaml
+base_url: https://allnovel.org/
+disabled: "Every path redirects to novelfull.com, which this repository already serves under its own name: a search URL and a novel-list URL both land on that home page with the query dropped. Probed 2026-08-09. Nothing is lost by disabling it, and leaving it registered means two specs racing to serve one site."

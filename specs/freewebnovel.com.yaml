@@ -1,3 +1,13 @@
 spec: 1
 extends: base/freewebnovel.yaml
 base_url: https://freewebnovel.com/
+
+search:
+  request:
+    # This deployment renamed the search field; libread and bednovel still send `searchkey`.
+    # Neither name is refused — the wrong one answers 200 with the empty search page, so the
+    # stage returned no results and reported no error. Probed 2026-08-09: `keyword` returns 20
+    # rows here and 0 on the other two, and `searchkey` the reverse.
+    payload:
+      searchkey: null
+      keyword: "{query}"

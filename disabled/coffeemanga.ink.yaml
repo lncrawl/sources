@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wordpress-manga.yaml
+base_url: https://coffeemanga.ink/
+disabled: "Every path on the domain now redirects to bunnynovel.com, a different site with a different catalogue: the recorded novel URL lands on that home page, its /series/ equivalent answers 404, and a search there for the novel returns no rows. The theme is not broken, the content is gone. Found by shadow-diff 2026-08-09; bunnynovel.com itself is live on a mangastream-shaped theme and is a conversion candidate in its own right."

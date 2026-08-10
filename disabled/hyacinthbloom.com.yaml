@@ -1,0 +1,4 @@
+spec: 1
+extends: base/wpcategory.yaml
+base_url: https://hyacinthbloom.com/
+disabled: "Half the novel is behind a paywall. A locked chapter answers a 52-character 'Premium Content — Login to buy access' block in the same container the free ones use. Measured 2026-08-09 on a 126-chapter novel: 1, 64 and 70 read at 9 to 11 thousand characters, and 85, 100, 110, 115 and every side story are locked. Same shape as revengernovel."

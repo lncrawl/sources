@@ -11,7 +11,16 @@ novel:
 
 toc:
   items:
+    # The first post in every category is the novel's own landing page rather than a chapter, and
+    # nothing in the feed marks it as one: it shares the type, the format and the sticky flag with
+    # every chapter, and its title is the novel's name, which is also how each chapter title
+    # begins. What it does not carry is a chapter number, and on a site that is Russian throughout
+    # the word is always the same one.
+    require: [numbered]
     fields:
+      numbered:
+        json: "title.rendered"
+        pipe: [parse_html, text, { regex: { pattern: "Глава\\s*\\d+" } }]
       title:
         json: "title.rendered"
         pipe:
@@ -20,3 +29,8 @@ toc:
           - trim
           # Every chapter title ends with the site's own two-word label.
           - replace: { pattern: "\\s*Ранобэ\\s+Новелла\\s*$", with: "" }
+          # And every one begins with the novel's name, which a reader already has and which
+          # would otherwise fill the width of a table of contents 538 times. Cut from the
+          # chapter word rather than by stripping a prefix: the same field is what `require`
+          # above proves is present, so a row that reaches here has one.
+          - regex: { pattern: "(Глава\\s*\\d+.*)$" }

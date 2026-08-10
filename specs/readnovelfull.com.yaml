@@ -1,3 +1,9 @@
 spec: 1
 extends: base/novelfull.yaml
 base_url: https://readnovelfull.com/
+
+search:
+  request:
+    # This deployment files search under the novel list rather than at the root; the family's
+    # `/search` answers 404 here. Probed 2026-08-09: 30 rows.
+    get: "{origin}/novel-list/search?keyword={query|urlencode}"

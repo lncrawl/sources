@@ -35,7 +35,10 @@ toc:
   items:
     json: "content"
     fields:
-      id: { json: "id" }
+      # Not `id`: the app splats a row's extra fields into its Chapter constructor, which
+      # already takes one, and the crawl dies with a TypeError naming neither the spec nor
+      # the field. `body`, `images` and `success` are reserved for the same reason.
+      chapter_id: { json: "id" }
       # Named `volume` rather than `tome` because the field is the one the stage groups by, so
       # the site's own volumes replace a grouping by count.
       volume: { json: "tome" }
@@ -48,9 +51,9 @@ toc:
       title: { const: "Том {item.volume} Глава {item.number} {item.name}" }
       # The reader's address, which is the page a person would open. The body comes from the API
       # instead, so `chapter.request` overrides where this is fetched from.
-      url: { const: "{origin}/novel/{vars.dir}/{item.id}" }
+      url: { const: "{origin}/novel/{vars.dir}/{item.chapter_id}" }
 
 chapter:
   request:
-    get: "https://api.renovels.org/api/v2/titles/chapters/{chapter.id}/"
+    get: "https://api.renovels.org/api/v2/titles/chapters/{chapter.chapter_id}/"
   body: { json: "content" }

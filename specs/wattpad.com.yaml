@@ -34,7 +34,10 @@ toc:
   items:
     json: "parts"
     fields:
-      id: { json: "id" }
+      # Not `id`: the app splats a row's extra fields into its Chapter constructor, which
+      # already takes one, and the crawl dies with a TypeError naming neither the spec nor
+      # the field. `body`, `images` and `success` are reserved for the same reason.
+      part_id: { json: "id" }
       title: { json: "title" }
       url: { json: "url" }
 
@@ -43,5 +46,5 @@ chapter:
     # The address the site's own reader is handed for a part, with the page left empty. That is
     # not an omission: a part over about six thousand characters is served in pages, and the
     # empty parameter is what returns all of them in one response.
-    get: "{origin}/apiv2/?m=storytext&id={chapter.id}&page="
+    get: "{origin}/apiv2/?m=storytext&id={chapter.part_id}&page="
   body: { css: "body" }

@@ -10,7 +10,11 @@ vars:
 search:
   request:
     get: "{origin}/search?keyword={query|urlencode}"
-  css: "#list-page .row h3[class*='title'] > a"
+  # The heading carries no class on every deployment: novgo moved the name onto the row's own
+  # `s-title` div and left the `h3` bare, which matched nothing and returned no results without
+  # failing. Matching the heading by position covers both shapes — 30 rows on novelfull, 10 on
+  # novgo, where the classed selector returned 0.
+  css: "#list-page .row h3 > a"
   fields:
     title: { attr: [title, text] }
     url: { attr: href }

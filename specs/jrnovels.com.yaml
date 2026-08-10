@@ -1,7 +1,17 @@
 spec: 1
 base_url: https://jrnovels.com/
 
-novel: {}
+novel:
+  # The page carries the novel's name nowhere but its own title, and every metadata field the
+  # fallback chain would reach appends the site's name: `og:title` is "… | JrNovels.com" and
+  # `og:image` is the site's favicon. Cutting at the bar is the only source there is.
+  #
+  # `trim` leads the pipe because it has to: the tag's text opens with a newline and three tabs,
+  # and an anchored pattern cannot cross them, so the regex matched nothing and the blank sent
+  # the field straight back to the metadata it was written to avoid.
+  title:
+    css: "title"
+    pipe: [trim, { regex: { pattern: "^(.*?)\\s*\\|" } }]
 
 toc:
   request:
