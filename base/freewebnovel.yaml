@@ -24,11 +24,12 @@ toc:
   request:
     page: novel
     paginate:
-      # Walked until a page runs dry, which is not the preferred shape. The theme does report its
-      # length, as one `#indexselect` option per page of forty, but every option carries the same
-      # `value`: the pager is driven by script and the markup cannot say where page two is. Counting
-      # the options would need a step that measures a list, which the registry does not have.
-      while: has_items
+      # The theme reports its length as one `#indexselect` option per page of forty, and every
+      # option carries the same `value`: the pager is driven by script, so the page total is the
+      # number of options and is nowhere else in the markup. `while` walked it speculatively
+      # instead, and on a long novel a single trial ran past ten minutes; this reads the same
+      # novel in twenty-one seconds.
+      last: { css: "#indexselect option", all: true, pipe: [count] }
       url: "{novel_url}?page={page}"
   items:
     css: "#idData li > a"

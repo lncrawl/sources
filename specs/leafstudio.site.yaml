@@ -1,0 +1,41 @@
+# Leaf Studio. A WordPress theme of its own: the chapter list is rendered into the novel page and
+# the chapter text sits loose in the article rather than in a container of its own.
+spec: 1
+base_url: https://leafstudio.site/
+language: en
+
+novel:
+  title: { css: "h1.title" }
+
+toc:
+  request:
+    page: novel
+  items:
+    css: "div.novel_index a.chap"
+    # The site sells early access: the newest chapters are `premium_chap` and answer with a
+    # 263-character "Login to buy access to this Chapter" in the same container the free ones
+    # use. Measured 2026-08-09 on a 471-row list: 384 free and 87 premium, and the premium ones
+    # are the newest, so what is left is a contiguous novel rather than a novel with holes.
+    require: [free]
+    fields:
+      free:
+        attr: class
+        pipe: [{ regex: { pattern: "free_chap" } }]
+      title: {}
+      url: { attr: href }
+    # The list runs newest first.
+    reverse: true
+
+chapter:
+  body:
+    # The article is the whole page body, so everything that is not prose has to go by name.
+    # `.confuse` is the site's own anti-scraping padding: 156 hidden copies of
+    # "LongStringOfTextToSimulateLargeRandomDataSet123456789abcdef…" interleaved with the text,
+    # which a reader never sees and a naive extraction keeps.
+    css: "article.single"
+    pipe:
+      - strip_tags: [script, style, h1]
+      - strip_css:
+          ["#font-options-bar", ".novel_nav_item", ".confuse", ".post-navigation"]
+      - unwrap: [a, abbr, acronym, label, span, time]
+      - paragraphs
