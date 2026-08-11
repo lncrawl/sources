@@ -1,0 +1,50 @@
+# Truyện Full. A Vietnamese host on the same theme family as novelfull, with its own selectors and
+# its own pager: pages are `/trang-N/` path segments rather than a query parameter.
+#
+# `truyenfull.vn` redirects to `truyenfull.live` and both are served here; the address a reader has
+# is usually the `.vn` one, so that is what this document is named for.
+spec: 1
+base_url: https://truyenfull.vn/
+language: vi
+
+search:
+  request:
+    get: "{origin}/tim-kiem/?tukhoa={query|urlencode}"
+  css: "div.list-truyen div.row h3.truyen-title a"
+  fields:
+    title: { attr: [title, text] }
+    url: { attr: href }
+
+novel:
+  title: { css: "h3.title" }
+  cover: { css: "div.book img", attr: [data-src, src] }
+  authors: { css: ".info a[itemprop='author']", all: true }
+  tags: { css: ".info a[itemprop='genre']", all: true }
+  synopsis: { css: ".desc-text" }
+
+toc:
+  request:
+    page: novel
+    paginate:
+      # The last page is a link of its own, second from the end of the pager — the entry after it
+      # is the "choose a page" dropdown, which goes nowhere. Taken from its address rather than
+      # from the numbers on the pager: the pager shows a window, so the highest number it prints is
+      # 11 where the novel has 107 pages, and a walk that trusted it would stop at a tenth of the
+      # book while reporting success.
+      last:
+        css: "ul.pagination li:nth-last-child(2) a"
+        attr: href
+        pipe: [{ regex: { pattern: "/trang-(\\d+)/" } }]
+      url: "{novel_url}trang-{page}/"
+  items:
+    css: "ul.list-chapter li a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#chapter-c"
+    pipe:
+      - strip_tags: [script, style, ins, div]
+      - paragraphs
