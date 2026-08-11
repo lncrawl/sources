@@ -1,0 +1,58 @@
+# Panda Novel. The same theme and content as novelfire.net, but it is not written as a child of that
+# spec: this deployment rotates mirrors, and the chapter address has to be rebuilt rather than read,
+# which needs a field declared before the one the parent already has.
+#
+# What a row can hold: an ordinary absolute URL most of the time, and sometimes a backslash-escaped
+# protocol-relative href to another mirror — `\/\/novelphoenix.com\/novel\/<slug>\/chapter-133` —
+# which is resolved against whichever host served the page and answers 404. Measured 2026-08-12:
+# a different chapter of the three sampled on each of three runs.
+spec: 1
+base_url: https://pandanovel.co/
+disabled: "The host rotates mirrors mid-crawl and loses chapters doing it. A chapter address answers from pandanovel.co, from readnovel.site or from novelphoenix.com depending on the request, and some rows carry a backslash-escaped protocol-relative href to one of them — `\\/\\/novelphoenix.com\\/novel\\/<slug>\\/chapter-133` — which is joined onto whichever host answered and 404s. Rebuilding every address from the chapter number, as below, fixes the rows and not the redirects: measured 2026-08-12, the same novel passed 1 of 4 consecutive runs, failing on a different chapter each time. The selectors are novelfire.net's and are correct; what is missing is a stable host."
+language: en
+rate_limit: 3
+
+search:
+  request:
+    get: "{origin}/search?keyword={query|plus}&type=title"
+  css: "ul.novel-list li.novel-item"
+  fields:
+    title: { css: a, attr: title }
+    url: { css: a, attr: href }
+    info: { css: ".icon-book-open" }
+
+novel:
+  title: { css: "h1.novel-title" }
+  cover: { css: "figure.cover img", attr: [data-src, src] }
+  authors: { css: ".author span[itemprop=author]", all: true }
+  tags: { css: ".categories a", all: true }
+  synopsis: { css: ".summary .content" }
+
+toc:
+  request:
+    get: "{novel_url}/chapters"
+    paginate:
+      last:
+        css: ".pagination a[href]"
+        attr: href
+        all: true
+        pipe: [{ regex: { pattern: "page=(\\d+)" } }, max]
+      url: "{novel_url}/chapters?page={page}"
+  items:
+    css: "ul.chapter-list li a"
+    fields:
+      title: { css: ".chapter-title" }
+      # The number is the only part of the address worth keeping, and it survives every shape the
+      # row arrives in. Declared before `url`, which is built from it.
+      part:
+        attr: href
+        pipe: [{ regex: { pattern: "(chapter-[0-9.]+)/?$" } }]
+      url: { const: "{novel_url}/{item.part}" }
+    require: [part]
+
+chapter:
+  body:
+    css: "#content"
+    pipe:
+      - { drop_leading: { matches: '(?i)^\s*chapter\s+\d+', within: 5 } }
+      - { paragraphs: { block_tags: [p] } }
