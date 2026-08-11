@@ -1,0 +1,35 @@
+# OppaTranslations. A WordPress.com site whose novel pages list their chapters, with one oddity: the
+# links are written against the install's `wpcomstaging.com` address rather than the domain the page
+# is served from. Every one of them redirects back here, so they are followed as written.
+spec: 1
+base_url: https://oppatranslations.com/
+language: en
+
+# No search stage. The novels are pages and the posts are release announcements, and WordPress.com's
+# search returns the announcements whatever it is asked: `?s=main+character` and the same with
+# `&post_type=page` both answer "Main Character hides his Strength Chapter 327, 328, 329, and 330 are
+# out!" rather than the novel. Returning announcements as novels is worse than declaring no search.
+
+novel:
+  title: { css: "h1.entry-title" }
+  cover: { css: ".entry-content img", attr: [data-orig-file, data-src, src] }
+
+toc:
+  request:
+    page: novel
+  items:
+    # Scoped to the staging host on purpose. The same block also links the raw on munpia.com and an
+    # affiliate shortener, and both are chapter-shaped rows that download something else.
+    css: ".entry-content a[href*='oppatranslationscom.wpcomstaging.com']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content"
+    pipe:
+      - strip_tags: [script, style, ins, form]
+      - strip_css:
+          [".sharedaddy", ".jp-relatedposts", ".wp-block-buttons", ".post-navigation", "#jp-post-flair"]
+      - paragraphs

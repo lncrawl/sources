@@ -1,0 +1,56 @@
+# SkyNovels. An Angular reader in front of its own JSON API on a second host. The pages render
+# nothing a spec can read, so every field is taken from the API.
+spec: 1
+base_url: https://www.skynovels.net/
+language: es
+
+hooks:
+  chapter.body: hooks/sites/skynovels.net.py
+
+vars:
+  # Everything the API takes is keyed on the numeric id, and only the URL carries it.
+  novel_id: { on: url, regex: "/novelas/(\\d+)" }
+  # The API names the cover by file only. Its image route wants the name, a collection and a flag,
+  # in that order, and answers 404 for the name alone.
+  cover_file: { on: novel, json: "novel.0.image" }
+
+# No search stage. `/api/novels` is the home page's selection, not an index: it answers with twenty
+# novels however it is called, `limit` caps at a hundred, and the novel measured here is in neither.
+# A search that cannot see most of the catalogue is worse than none.
+
+novel:
+  request:
+    get: "https://api.skynovels.net/api/novel/{vars.novel_id}/reading"
+  title: { json: "novel.0.nvl_title" }
+  cover: { const: "https://api.skynovels.net/api/get-image/{vars.cover_file}/novels/true" }
+  synopsis: { json: "novel.0.nvl_content" }
+  authors: { json: "novel.0.nvl_writer" }
+  # `genres` is a list of objects and a dotted path reaches only one of them, so taking the first
+  # would be worse than taking none.
+  tags: { const: [] }
+
+toc:
+  request:
+    # The reading endpoint carries the same chapters nested one level deeper, under `volumes`, where
+    # a path cannot reach them: there is no wildcard. This one is the flat list.
+    get: "https://api.skynovels.net/api/novel-chapters/{vars.novel_id}"
+  items:
+    json: "novel.0.chapters"
+    fields:
+      title: { json: "chp_index_title" }
+      # Named for the row rather than `id`: `id` is a field the chapter model already has, and a row
+      # that carries it collides with the one the interpreter sets.
+      chapter_id: { json: "id" }
+      slug: { json: "chp_name" }
+      number: { json: "chp_number" }
+      # The address a person opens. The API is a second host and its endpoints are not pages.
+      url: { const: "{origin}/novelas/{vars.novel_id}/{item.slug}" }
+    sort_by: number
+
+chapter:
+  request:
+    get: "https://api.skynovels.net/api/novel-chapter/{chapter.chapter_id}"
+  body:
+    json: "chapter.0.chp_content"
+    # Plain text with CRLF breaks, not markup.
+    pipe: [{ split: { separator: "\n" } }, drop_empty, lines_to_html]

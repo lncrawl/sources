@@ -1,0 +1,60 @@
+# Novel Cool. A reader that carries the whole chapter list in the novel page and the prose in the
+# chapter page, both as ordinary markup. It also hosts manga under the same routes, and a manga entry
+# has rows whose pages hold no text at all — nothing on the novel page distinguishes the two, so a
+# novel URL is the caller's to choose.
+spec: 1
+base_url: https://www.novelcool.com/
+language: en
+
+search:
+  request:
+    get: "{origin}/search/?name_sel=contain&name={query|urlencode}"
+  # Each result carries two links to the same novel. The name is not inside a link — the link wraps
+  # it — so the row is the anchor that holds one, and the other anchor, whose text is the cover's
+  # genre-and-summary block, is left out.
+  css: "div.book-item a:has(.book-name)"
+  fields:
+    title: { css: ".book-name" }
+    url: { attr: href }
+
+novel:
+  # The heading is repeated in the mobile and desktop layouts and in the page header.
+  title: { css: "h1.bookinfo-title" }
+  cover: { css: ".bookinfo-pic img", attr: [data-original, src] }
+  # The page carries a mobile and a desktop copy of the same block, so every field it holds is
+  # matched twice.
+  authors: { css: ".bookinfo-author a", all: true, pipe: [unique] }
+  synopsis: { css: ".bookinfo-summary" }
+  # No genres. Every `/category/` link on the page belongs to the site's own navigation; the entry's
+  # own genres are not published in the markup.
+  tags: { const: [] }
+
+toc:
+  request:
+    page: novel
+  items:
+    css: "div.chp-item a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+      # The list ends with a link to the novel's comment thread, which is a chapter-shaped row that
+      # downloads a page of comments. Its address is the only thing that marks it.
+      real:
+        attr: href
+        pipe: [{ reject: { pattern: "Most-Recent-Comments" } }]
+    require: [real]
+    # Newest first, by the date on each row rather than by the number in its title: this host
+    # re-publishes a prologue late, so the two disagree and the date is the site's own order.
+    reverse: true
+
+chapter:
+  body:
+    css: "div.overflow-hidden"
+    pipe:
+      - strip_tags: [script, style, ins]
+      # The page opens by repeating the row's own title, which is the novel's name followed by the
+      # chapter's. Matched on the word rather than on "whatever is first": a pattern that matches
+      # anything deletes the opening paragraph of any chapter that does not carry the repeat, and
+      # leaving a title in is a great deal cheaper than losing prose.
+      - drop_leading: { matches: '(?i)\bchapter\b' }
+      - paragraphs

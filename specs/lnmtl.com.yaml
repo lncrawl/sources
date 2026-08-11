@@ -1,0 +1,42 @@
+# LNMTL. Machine translations presented a sentence at a time, the English above the Chinese it came
+# from. The novel and chapter pages are ordinary markup; the chapter list is a Vue template with a
+# placeholder where the address should be, which is what hooks/sites/lnmtl.com.py is for.
+spec: 1
+base_url: https://lnmtl.com/
+language: en
+has_mtl: true
+
+hooks:
+  toc.items: hooks/sites/lnmtl.com.py
+
+# No search stage. `/novel` ignores every query parameter tried — `query` and `title` both return
+# the same unfiltered first twenty of the index — and the box in the header is a typeahead whose
+# endpoint answers 302 rather than rows. A search that silently returns the index is worse than
+# none, so the source declares it cannot search.
+
+novel:
+  title: { css: ".novel .media-heading" }
+  cover: { css: ".novel img", attr: [src] }
+  # Every author link and every genre link is a filter on the novel index, which is the only handle
+  # on either: the labels beside them sit in a heading rather than on the row.
+  authors: { css: "a[href*='/novel?author=']", all: true }
+  tags: { css: "a[href*='/novel?genre=']", all: true }
+  synopsis: { css: "div.description" }
+
+toc:
+  request:
+    page: novel
+
+chapter:
+  body:
+    css: ".chapter-body"
+    pipe:
+      # Each line is served twice, the translation and the Chinese it was made from, as sibling
+      # `sentence` elements distinguished only by class. A reader wants one of them.
+      - strip_css: ["sentence.original"]
+      # The translator wraps every term it recognised in an element carrying the Chinese it stood
+      # for, as a `data-title` tooltip: 1,223 `w` and 92 `t` in one chapter, none of it prose.
+      - unwrap: [w, t, dq, da, sq]
+      # `sentence` is the site's own element name, so the default block set does not know it and
+      # every line would be run together into one paragraph.
+      - paragraphs: { block_tags: [sentence, p, div] }

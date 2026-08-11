@@ -1,0 +1,29 @@
+# Chicken Gege. A WordPress translation blog whose novel pages carry the chapter list as a table and
+# whose chapters live under a separate `/translations/` tree.
+spec: 1
+base_url: https://www.chickengege.org/
+disabled: "Every chapter is a WordPress password-protected post. Measured 2026-08-11 on a 117-chapter novel: chapters 1, 2, 60 and 117 all carry `post-password-required` and answer with a password form, and what is left in the entry is the Prev/TOC/Next line — 31 to 54 characters. The list below reads correctly, so this needs a password rather than a parser."
+language: en
+
+novel:
+  title: { css: "h1.entry-title" }
+  cover: { css: ".entry-content img", attr: [data-src, src] }
+
+toc:
+  request:
+    page: novel
+  items:
+    # Scoped to the table. The paragraph above it links the newest chapter as well, and a selector
+    # on the whole entry took that too, which put chapter 117 first and again last.
+    css: ".entry-content table a[href*='/translations/']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - strip_css: [".sharedaddy", ".jp-relatedposts", ".wp-block-buttons", ".post-navigation"]
+      - paragraphs
