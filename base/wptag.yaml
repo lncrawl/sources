@@ -1,0 +1,62 @@
+# WordPress sites where a novel is a *tag* and each chapter is a post carrying it.
+#
+# The same shape as base/wpcategory.yaml with the other taxonomy. Kept as its own document rather
+# than as options on that one: the endpoint, the archive path and the query parameter all differ,
+# and a base is data with no way to stand for a name.
+#
+# Which taxonomy a site uses is not a detail a spec can shrug at. A blog that files every chapter
+# under one broad category and distinguishes novels by tag has categories that are useless here —
+# xperimentalhamid.com puts all 17,276 chapter posts in `Novels` and separates the novels with tags
+# of a few thousand each.
+spec: 1
+
+vars:
+  # The tag slug, from the novel URL itself. No document is involved.
+  slug:
+    on: url
+    regex: "/tag/([^/?#]+)"
+  # The numeric id the posts endpoint needs, off the tag document the novel stage fetched.
+  tag_id:
+    on: novel
+    json: "0.id"
+
+search:
+  request:
+    get: "{origin}/wp-json/wp/v2/tags?search={query|urlencode}&per_page=20&_fields=id,name,slug,count,link"
+  json: "$"
+  # `require` is what drops a row: `posts` resolves empty when its filter rejects, and an empty
+  # required field skips the item.
+  require: [posts]
+  fields:
+    title: { json: name, pipe: [parse_html, text, trim] }
+    url: { json: link }
+    info: { json: count, pipe: [{ replace: { pattern: "$", with: " chapters" } }] }
+    # A tag with no posts is a label the theme created and never used.
+    posts: { json: count, pipe: [{ reject: { pattern: "^0$" } }] }
+
+novel:
+  request:
+    get: "{origin}/wp-json/wp/v2/tags?slug={vars.slug}&_fields=id,name,count,description"
+  # Both read row 0: a slug lookup returns a one-element array.
+  title: { json: "0.name", pipe: [parse_html, text, trim] }
+  synopsis: { json: "0.description" }
+
+toc:
+  request:
+    get: "{origin}/wp-json/wp/v2/posts?tags={vars.tag_id}&per_page=100&page=1&orderby=date&order=asc&_fields=link,title"
+    paginate:
+      # The feed reports its own length, so the walk has a known end. Stopping when a page looks
+      # empty is how a partial list gets mistaken for a whole one.
+      last: { header: X-WP-TotalPages }
+      url: "{origin}/wp-json/wp/v2/posts?tags={vars.tag_id}&per_page=100&page={page}&orderby=date&order=asc&_fields=link,title"
+  items:
+    json: "$"
+    fields:
+      # Ordering is publication date, which is what the request asks for. Chapter numbers are
+      # deliberately unused: these sites bundle chapters into one post and carry the occasional
+      # typo, so any order derived from the numbers is worse.
+      title: { json: "title.rendered", pipe: [parse_html, text, trim] }
+      url: { json: link }
+
+chapter:
+  body: { css: .entry-content }

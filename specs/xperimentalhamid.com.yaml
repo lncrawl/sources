@@ -1,0 +1,32 @@
+# XH. A general-interest blog that also serves novels. Its categories are useless for finding one —
+# every chapter post is filed under `Novels`, 17,276 of them — so the novel is the tag, and a tag
+# archive page is the address to open.
+spec: 1
+extends: base/wptag.yaml
+base_url: https://xperimentalhamid.com/
+language: en
+
+toc:
+  items:
+    fields:
+      # The tag also carries the novel's landing posts — "… Novel Book PDF" and the like — which are
+      # chapter-shaped rows that download an index. Only the chapter posts say so in their title.
+      chapter:
+        json: "title.rendered"
+        pipe: [{ regex: { pattern: "(?i)\\bchapter\\b" } }]
+    require: [chapter]
+
+chapter:
+  body:
+    css: .entry-content
+    pipe:
+      # The post opens by naming what it is and closes with the theme's navigation, both as blocks
+      # of their own. `wp-block-buttons` is the Prev/Next/Chapters row.
+      - strip_css: [".wp-block-buttons", ".sharedaddy", ".code-block"]
+      # A newsletter sign-up sits loose in the post with no wrapper of its own, so its controls go
+      # by tag and its heading by what it says.
+      - strip_tags: [form, label, button, input, script, style]
+      - strip_matching: { pattern: "(?i)^\\s*subscribe for more" }
+      - drop_leading: { matches: "(?i)^\\s*read\\b.*\\bnovel\\b" }
+      - drop_empty_nodes
+      - paragraphs
