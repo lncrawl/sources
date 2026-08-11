@@ -1,0 +1,50 @@
+# Novel Phoenix. The novel page shows no chapters at all; its `/chapters` page holds them, a hundred
+# to a page.
+spec: 1
+base_url: https://novelphoenix.com/
+language: en
+
+search:
+  request:
+    get: "{origin}/search?keyword={query|urlencode}"
+  css: "li.novel-item > a"
+  fields:
+    # The row's own text runs the title into a rank and a chapter count, so the heading inside it
+    # is what the title comes from.
+    title: { css: "h4.novel-title" }
+    url: { attr: href }
+
+novel:
+  title: { css: "h1.novel-title" }
+  cover: { css: ".novel-cover img, .book img", attr: [data-src, src] }
+  synopsis: { css: ".summary" }
+
+toc:
+  request:
+    get: "{novel_url}/chapters"
+    paginate:
+      # The pager prints a window, an ellipsis and then the last page, so the highest number on it
+      # is the total whichever page it is read from.
+      last: { css: "a.page-link", all: true, pipe: [max] }
+      url: "{novel_url}/chapters?page={page}"
+  items:
+    # Scoped to the list. The page's header also links the newest chapter, which would otherwise
+    # arrive as a first row duplicating the last.
+    css: "ul.chapter-list li a"
+    fields:
+      # The row is a number, the title and a relative date in one anchor, so the title comes from
+      # its own element rather than from the row's text.
+      title: { css: "strong.chapter-title" }
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".d-chapter-content"
+    pipe:
+      - strip_tags: [script, style, ins]
+      # Ad slots, the reader's own "restore scroll position" control and a share box, all siblings
+      # of the prose rather than around it.
+      - strip_css: [".nf-ads", ".box-notification", ".text-center"]
+      # What is left opens by repeating the chapter's title.
+      - drop_leading: { matches: "(?i)^\\s*chapter\\s" }
+      - paragraphs
