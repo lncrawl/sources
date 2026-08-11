@@ -1,0 +1,49 @@
+# Cổng Light Novel. A Vietnamese fan-translation host. Everything but the chapter text is ordinary
+# markup; the text is obfuscated, which is what hooks/sites/docln.net.py is for.
+spec: 1
+base_url: https://docln.net/
+language: vi
+
+hooks:
+  chapter.body: hooks/sites/docln.net.py
+
+search:
+  request:
+    get: "{origin}/tim-kiem?keywords={query|urlencode}"
+  css: ".series-title a"
+  fields:
+    title: {}
+    url: { attr: href }
+
+novel:
+  title: { css: "span.series-name" }
+  # The site records the uploader, not the author: its only labelled field is the status, and the
+  # name beside the cover belongs to whoever posted the translation. Nothing here is the author, so
+  # nothing is declared and the metadata chain fills what the page happens to publish.
+  tags: { css: ".series-gernes a", all: true }
+  synopsis: { css: ".summary-content" }
+
+toc:
+  request:
+    # The whole list is on the novel page whatever its length — measured at 944 rows across four
+    # volumes on one novel, in a single response.
+    page: novel
+  items:
+    # The row also holds a date in a sibling div, so the anchor is reached through its own wrapper
+    # rather than off the row.
+    css: "ul.list-chapters li div.chapter-name > a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+  # The site groups chapters into volume sections and the chapters are nested inside them, which
+  # `volumes` cannot describe — it reads a flat list where volume rows are siblings of chapter rows.
+  # Declaring nothing leaves `chapters_per_volume` to group them.
+
+chapter:
+  # The hook replaces this wherever the chapter is protected. Kept declared so an unprotected one
+  # still reads without the hook having to know what a normal page looks like.
+  body:
+    css: "#chapter-content"
+    pipe:
+      - strip_css: [".chapter-nav", ".ads-holder"]
+      - paragraphs

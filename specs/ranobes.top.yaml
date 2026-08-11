@@ -1,0 +1,48 @@
+# Ranobes. A DLE installation with a Vue reader in front of it. The novel and chapter pages are
+# ordinary markup; the chapter list is a payload, which is what hooks/sites/ranobes.top.py is for.
+spec: 1
+base_url: https://ranobes.top/
+language: en
+
+hooks:
+  toc.items: hooks/sites/ranobes.top.py
+
+vars:
+  book_id: { on: url, regex: "/novels/(\\d+)-" }
+
+search:
+  request:
+    get: "{origin}/search/{query|urlencode}"
+  css: "div.short-cont h2.title a"
+  fields:
+    title: {}
+    url: { attr: href }
+
+novel:
+  # The heading carries every language the site knows the novel by, separated by bullets. The
+  # first is the one the rest of the page is written in.
+  title:
+    css: "h1.title"
+    pipe: [{ regex: { pattern: "^[^•]+" } }, trim]
+  cover: { css: "div.poster img", attr: [data-src, src] }
+  # `/tags/genre/` with nothing after it is the catalogue link in the nav, not a genre.
+  tags:
+    css: "a[href*='/tags/genre/']:not([href$='/tags/genre/'])"
+    all: true
+  # The block holds the description twice, collapsed and full, and a selector on the block itself
+  # returns the truncated copy followed by the whole one.
+  synopsis: { css: "div.moreless__full" }
+
+toc:
+  request:
+    # The novel page shows a twenty-five row window of the list; this is the list itself. The hook
+    # walks the rest from the page count the first page reports.
+    get: "{origin}/chapters/{vars.book_id}/"
+
+chapter:
+  body:
+    css: "#arrticle"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - strip_css: [".splitnewsnavigation", ".ads-holder"]
+      - paragraphs

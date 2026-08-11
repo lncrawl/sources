@@ -11,12 +11,33 @@ toc:
     # alternatives alongside `page` and validation would refuse both.
     from: null
     page: novel
-    paginate:
-      while: has_items
-      url: "{novel_url}?page={page}"
+    # No pager. The novel page carries the whole list however long it is — measured at 2113 rows in
+    # one 1.6 MB response, ending on the chapter the page's own `og:novel:lastest_chapter_name`
+    # names — and `?page=` is ignored, so every page answers byte-identically. A `while: has_items`
+    # walk therefore never runs out of items: it re-read the same list until it was killed, twice,
+    # after three and a half hours.
   items:
     # Only the list form. The parent also offers `select > option[value]`, which is right for the
     # ajax routes that answer with a dropdown, but this deployment reads the novel page, where it
     # matches the theme's colour and font pickers: the walk reported 88 chapters, 40 of them
     # `#F4F4F4` anchors that download nothing.
     css: "ul.list-chapter > li > a[href]"
+
+novel:
+  # The author is a link that goes nowhere — `href="#"`, where the genre and status beside it are
+  # real links — so every pattern the parent matches on the address misses it and the field came
+  # back empty. The dead href is what tells the three apart without depending on their order.
+  authors: { css: ".info-meta a[href='#']", all: true }
+
+chapter:
+  body:
+    pipe:
+      # The theme prints the chapter title as an `h4` and then repeats it as one or two ordinary
+      # paragraphs before the prose — measured across seven chapters of one novel: 0, 1 and 2
+      # repeats, so a fixed count is wrong and the parent's single `drop_leading` left the rest.
+      # The `h4` goes by name because it is always the title; the copies are peeled one step each.
+      - drop_empty_nodes
+      - strip_tags: [h4]
+      - drop_leading: { matches: '(?i)^\s*(prologue|epilogue|chapter\s*\d)' }
+      - drop_leading: { matches: '(?i)^\s*(prologue|epilogue|chapter\s*\d)' }
+      - paragraphs
