@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://www.wuxiaworld.com/
+disabled: "2026-08-12: the ladder reaches it — the novel page is 188 KB served, 166 KB rendered — but neither carries a chapter list. The page links exactly one chapter, /novel/<slug>/app-chapter-1, and /novel/<slug>/toc answers 200 with no chapter link served or rendered. No /api/novels shape answers. Nothing to walk."

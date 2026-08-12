@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://app.yoru.world/
+disabled: "2026-08-12: an app shell. /en/story/<id>/chapters/ answers 232 KB with only nav links, and a browser render of it produces no chapter link either."

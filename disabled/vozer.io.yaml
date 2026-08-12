@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://vozer.io/
+disabled: "2026-08-12: not a novel source. It redirects to voznovel.com, which is a summary and wiki site — a novel page's repeated shape is character cards, its title says 'Tóm tắt cốt truyện' (plot summary), and no chapter route exists: /danh-sach-chuong and /chuong-1 are 404 and ?tab=chapters returns the same page."

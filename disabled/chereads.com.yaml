@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://www.chereads.com/
+disabled: "redirects to www.chereads.com, which answers a 5.4 KB challenge on both the direct path and tor"

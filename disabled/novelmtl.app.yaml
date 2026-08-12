@@ -1,0 +1,51 @@
+# NovelMTL. A Quasar app that keeps everything it renders in a `window.__INITIAL_STATE__` blob, so
+# every field here is read out of that rather than out of markup.
+#
+# It re-hosts fanmtl.com, which this repository serves under its own name — each novel names its
+# source in `original_url` — but it is a live host with its own addresses, so it is served too.
+#
+# A novel is not divided into chapters here. It is divided into reader *pages*, `/read/1` upward,
+# and `page_count` is how many. Each page is one row.
+spec: 1
+base_url: https://novelmtl.app/
+disabled: "Only the first reader page is served. `/novel/<slug>/read/1` carries its text in the state blob and every later page answers with a 10.6 KB shell holding no page state — measured 2026-08-12 on pages 2, 4 and 6 — so a crawl would deliver one page of a six-page novel. Rendering does not recover them either: a browser on /read/2 produces 27 KB with 722 characters in the app root, and waiting for the container page one uses times out after 90 seconds. Everything else here is verified: the reader list, the row de-duplication and the hook that decodes the state blob all work, so this needs the page endpoint found rather than a rewrite."
+language: en
+has_mtl: true
+
+hooks:
+  chapter.body: hooks/sites/novelmtl.app.py
+
+vars:
+  slug: { on: url, regex: "/novel/([^/?#]+)" }
+
+# Nothing is declared for the novel. Its state blob is a JavaScript assignment, which `json` cannot
+# read, and the page publishes the same title, author and description as OpenGraph tags — which is
+# what the metadata chain reads. Declaring extractors that always yield blank would only hide that.
+novel:
+  tags: { const: [] }
+
+toc:
+  request:
+    page: novel
+    # The only stage that needs a browser. The novel page ships its metadata in the state blob but
+    # renders the reader links from it, so the addresses exist only after the app has run. One
+    # render per novel; the chapters themselves are plain fetches.
+    render: true
+  items:
+    css: "a[href*='/read/']"
+    fields:
+      title: {}
+      url: { attr: href }
+      # Two rows point at a page that is already in the list: the "continue reading" button carries
+      # the same address with a query on it, and "Start Reading" is page one under another name.
+      # Both would arrive as duplicates.
+      real:
+        attr: href
+        pipe: [{ reject: { pattern: "\\?" } }]
+      numbered:
+        pipe: [{ regex: { pattern: "^\\s*\\d+\\s*$" } }]
+    require: [real, numbered]
+
+chapter:
+  # The body comes from the hook: the text is inside the same assignment, which `json` cannot walk.
+  body: { css: "body" }

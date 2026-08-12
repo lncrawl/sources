@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://www.kitenovel.com/
+disabled: "the shell is public and its only data source, /api/novellist, answers 401 behind an identity provider (L19)"

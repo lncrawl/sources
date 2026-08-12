@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://www.goodnovel.com/
+disabled: "2026-08-12: the novel page is server-rendered Vue and reads well — title, description — but carries no chapter link at all, so the list comes from the app's own API. A commercial platform, so the paywall wants measuring before any of it is worth writing."

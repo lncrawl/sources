@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://blnovels.net/
+disabled: "2026-08-12: the ladder clears the block the old L12 note describes, but the chapter list cannot be reached. It is Madara — body carries wp-manga-template-default and the empty #manga-chapters-holder — with both of the theme's endpoints removed: /novel/<slug>/ajax/chapters/ and wp-admin/admin-ajax.php both 404, wp-json 404s, the reader page has no chapter select, and a browser render of the novel page produces no rows either."

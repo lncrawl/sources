@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://manga-tr.com/
+disabled: "2026-08-12: its only novel-shaped link is a relative '../manga-list-sayfala.html' that does not resolve."

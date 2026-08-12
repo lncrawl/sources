@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://wetriedtls.com/
+disabled: "2026-08-12: reachable, but the series page carries no chapter list. It is a Next.js App Router site whose list sits behind a Radix tab and arrives from a server action: no wp-json, no /api route answers, and the only `chapters_list` in the markup is the tab's own id."

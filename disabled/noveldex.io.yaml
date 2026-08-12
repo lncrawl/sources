@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://noveldex.io/
+disabled: "2026-08-12: JS-gated end to end. A served novel page's only h1 is 'JavaScript Required'; rendered it yields 101 chapter links, so the list is reachable at the cost of one render. A chapter page serves 218 characters and a noscript-blocker, and its /api/ paths answer with the SPA shell rather than JSON — so every chapter would need its own browser."

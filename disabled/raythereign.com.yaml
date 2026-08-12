@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://raythereign.com/
+disabled: "2026-08-12: reachable, but the pages under /index.php/stories-and-manga/ carry no h1 and no chapter-shaped link."

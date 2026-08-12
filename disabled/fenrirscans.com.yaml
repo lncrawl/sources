@@ -1,0 +1,3 @@
+spec: 1
+base_url: https://fenrirscans.com/
+disabled: "2026-08-11: the full list is behind a login. The series page renders eight rows; the rest comes from wp-admin/admin-ajax.php, and every action the theme's main.js names — load_all_chapters, get_all_novel_chapters, sort_chapters, search_chapters — answers 403 '-1' with the page's own nonce and cookies. The theme treats that 403 as its 'please log in' path, so this needs an account, not a parser."

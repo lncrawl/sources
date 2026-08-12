@@ -1,0 +1,4 @@
+# A mirror of 69shuba.com, same install and same GBK encoding.
+spec: 1
+extends: specs/69shuba.com.yaml
+base_url: https://69shuba.cx/
