@@ -43,6 +43,11 @@ Declare `pipe:` only when the site is unusual. Every field kind has a default, a
 replaces the default rather than extending it**, so a needless one silently drops the deduplication or
 paragraph handling you were relying on.
 
+**An override of one key merges with the base's rest.** Writing `url: { attr: href }` under a base that
+declared `url: { css: a, attr: href }` keeps the `css`, so the extractor still looks *inside* the row.
+Where the row is the anchor, nothing matches and every row drops. Delete the inherited key with
+`css: null`, and run `poe resolve` whenever an override does not seem to take.
+
 To add one step to a base's body pipe, reference the base's own by name rather than respelling it:
 `pipe: [{strip_css: [...]}, clean_body]`. Do not redeclare `pipes.clean_body` in the child to do it,
 because a mapping merges by key and the name would then refer to itself.
@@ -81,6 +86,13 @@ by five hosts beats five copies, and copy-per-source is exactly what the Python 
 
 Before concluding a host is dead: a parked domain, a Cloudflare challenge and an ISP block page all
 answer `200`. Check the byte count and the redirect target, and check from a second network.
+
+**A challenge is not a verdict until you have watched one.** The solver runs hidden first and opens a
+window only later, and that window waits for a *person*. Unattended it fails and says so, which is
+indistinguishable from a host that cannot be cleared. Run `SOURCELIB_BROWSER=headed` and sit with it,
+and retry three times: eleven hosts recorded as permanently blocked all served real markup once
+someone watched, two of them only on the third attempt. Then stop — repeated tries degrade what a
+challenged host will give you, and a host answering worse than it did is not evidence about the host.
 
 The signatures worth knowing, all measured on this corpus: a ~4.6 KB page titled `Redirecting...`
 whose script names `router.parklogic.com` is a parked domain, and its size varies with the domain's

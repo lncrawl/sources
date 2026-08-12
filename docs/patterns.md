@@ -57,6 +57,14 @@ condition allows it, and the host's pace still applies: it is enforced per origi
 decides how many requests wait on that budget rather than how large it is. Set `concurrent: false` to
 force one at a time.
 
+**Check that the pager names the last page rather than a window of them.** Several themes print a
+few neighbours, an ellipsis, and then the end — those are safe, and `max` over the link text reads the
+total. Others print only the neighbours, and then the highest number on the page is not the last:
+measured on one host, the pager showed `11` where the novel had `107` pages, and a walk that trusted it
+would have stopped at a tenth of the book while reporting success. Where the pager has a "last" link,
+take the number out of *its* address instead. `base/novelmtl.yaml` reads its `>>` jump link for exactly
+this reason.
+
 The last page can come from a **response header**, which is how a REST feed usually says it:
 
 ```yaml
@@ -212,6 +220,13 @@ and read it with a dotted path — `wuxia.click` keeps its whole novel under
 `props.pageProps.dehydratedState.queries.0.state.data`, so its spec needs no second request at all.
 `ItemList.script` reads rows out of such an element when the list is in there too.
 
+**The payload is there, but behind an assignment.** `script` and a `json:` path both need the
+element's text to *be* JSON. A page that writes `window.__INITIAL_STATE__ = {…};` or
+`window.__DATA__ = {…};` is a statement with JSON inside it, and neither key can reach in. That is a
+hook — `ranobes.top` and `novelmtl.app` both decode theirs with a raw JSON decoder rather than a
+pattern, because the object holds chapter titles and prose and a brace in either would end a
+brace-matching pattern early.
+
 **The site calls an API you can call.** Watch the network while the page loads rather than reading the
 DOM afterwards. A public read endpoint is common, and then the spec is ordinary: a `get` for the
 record and another for the body, with `vars` carrying the slug out of the URL. `konkon.ink` answers
@@ -365,6 +380,13 @@ It considers only elements with no children of their own unless `tags` names som
 detail: every ancestor of a match contains the matching text too, so an unrestricted search would
 find the body itself and delete the chapter while every field still reported `ok`.
 
+**It removes elements, so it cannot reach a bare line.** Some hosts write their own address into the
+prose as loose text rather than as an element — `twkan.com` puts a "first published at" line and a
+"remember our domain" note straight into the container, spelling the name in circled letters so a
+plain domain match would miss them anyway. There is nothing for `strip_matching` to take out until
+`paragraphs` has given each line a paragraph of its own, so the removal has to happen *after* it, with
+a `replace` over the resulting markup.
+
 ### Adding a step to a base's pipe
 
 A declared `pipe` **replaces** the default rather than extending it, so a child wanting one more step
@@ -384,6 +406,19 @@ the child's entry replaces the parent's and the name inside it then refers to it
 load-time error. Redeclare it only when you mean to replace the base's cleanup outright, as
 `base/wordpress-manga.yaml` does for a body that is images.
 
+### Overriding one key of an inherited field
+
+The same merge applies inside `fields`. A base declaring `url: { css: a, attr: href }` and a child
+writing `url: { attr: href }` resolves to **both**, so the child still looks for an anchor inside the
+row. Where the row already is the anchor, nothing matches, every row loses its required field, and the
+stage reports zero chapters with the count of skipped rows as the only clue. Delete the inherited key:
+
+```yaml
+url: { css: null, attr: href }
+```
+
+`poe resolve` is what shows this, and it is worth running whenever an override does not take.
+
 ### When `drop_leading` does nothing
 
 It only removes a block that looks like a heading: a leaf holding a line of text, not an element with
@@ -402,6 +437,40 @@ Note what a *filter* does. `regex` and `reject` yield **nothing** when they do n
 whose pipe ends in one disappears rather than passing through. That is deliberate, and it is how a
 loose selector gets narrowed. It is also how a careless pipe silently deletes data, so check the
 `try` output rather than the exit code.
+
+## The host answers a challenge
+
+Reach for the `from` ladder above first: it costs nothing when the host is behaving and needs no edit
+when it stops challenging. Set `render: true` outright only where the markup is never in the served
+page, or where every path is challenged every time. It applies to the pages a stage paginates over
+too, so a challenged list walks:
+
+```yaml
+toc:
+  request:
+    render: true
+    wait_for: "li.wp-manga-chapter a"
+    paginate:
+      last: { css: "#indexselect option", all: true, pipe: [count] }
+      url: "{novel_url}/{page}"
+```
+
+**`wait_for` must name the content, not the container that will hold it.** This is the mistake that
+costs the most time here. A theme writes `.reading-content` into the markup and fills it a moment
+later, so waiting on the container returns an empty body — and it does so intermittently, which reads
+as a flaky site rather than a wrong selector. Name the paragraphs, the rows, the images: the thing you
+are about to select.
+
+Where a stage reuses another's document through `page`, only the stage that *fetches* needs `render`;
+put the wait selector there. A `toc` reading `page: novel` wants the novel request to wait for the
+chapter rows, not for the heading, because the heading arrives long before the list.
+
+Two costs worth knowing before you reach for it. Rendering is a browser page load each, so a long
+chapter list is slow and runs one page at a time. And `record` has no page cap, so a rendered host
+with a long list cannot practically be given a fixture — those ship trial-verified instead.
+
+Unattended, the solver only ever tries hidden. See the troubleshooting page for
+`SOURCELIB_BROWSER=headed` before concluding a host refuses.
 
 ## The list has rows that are not chapters
 

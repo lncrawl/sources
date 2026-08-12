@@ -33,9 +33,10 @@ Most reaches for a hook are a spec problem. Check in this order:
 - **The junk is identified only by its wording.** `strip_matching` removes an element by what it says.
 
 A hook is genuinely justified for: paging whose next address is a number only the response knows,
-decryption or any transformation with branching, a protocol the request model does not describe, and
-any condition that needs a `vars` or `query` value *inside* a step argument, since steps take literals
-only. `hooks/shared/blogger_feed.py` is alive on three of those at once. Its feed under-delivers
+decryption or any transformation with branching, a protocol the request model does not describe, a
+payload the page assigns rather than serves — `window.__DATA__ = {…};` is a statement with JSON in it,
+and both `script` and a `json:` path need the element's text to *be* JSON — and any condition that
+needs a `vars` or `query` value *inside* a step argument, since steps take literals only. `hooks/shared/blogger_feed.py` is alive on three of those at once. Its feed under-delivers
 `max-results` by an amount that varies per blog and per offset, so the walk has to advance by what
 arrived; recognising the novel's own info post compares a row against the label name; and matching a
 search query compares a label against `{query}`.

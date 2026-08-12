@@ -75,6 +75,22 @@ the file and the next person believes it.
 **`curl` fails where the tooling works.** The interpreter's HTTP layer impersonates a browser's TLS
 fingerprint; `curl` does not. A Cloudflare error from `curl` says nothing about the site.
 
+**"The browser could not clear it" usually means nobody was watching.** The solver runs hidden for
+the first part of its budget and only then opens a window — and that window is waiting for a *person*
+to answer the challenge. Run unattended it spends the rest of the budget waiting for someone who is
+not there and reports failure, which reads exactly like a host that cannot be cleared. Set
+`SOURCELIB_BROWSER=headed` and sit with it before believing otherwise. Eleven hosts recorded here as
+permanently blocked turned out to serve 26 KB to 267 KB of real markup on the first attended run.
+
+**One attempt is not a measurement.** Retry a challenged host three times before writing anything
+down. Two of those eleven cleared only on the third try, and one cleared on the first after failing
+outright a minute earlier.
+
+**Probing a challenged host spends something.** Repeated attempts degrade what it will serve you: one
+went from the full page, to alternating full and partial, to a fifth of the size with no title, over
+perhaps fifteen tries. Work in a small number of deliberate attempts rather than a loop, and if a host
+starts answering worse than it did, stop and come back rather than concluding it is broken.
+
 ## A pass that is not one
 
 The failures worth fearing are the ones that report success.
@@ -85,6 +101,14 @@ The failures worth fearing are the ones that report success.
 check what it calls itself.
 
 **A body that is mostly advertising.** `try` reports the length, not the quality. Read one.
+
+**Every novel field `ok`, and the body empty.** The metadata chain fills a field whose extractor
+yields nothing, so `title`, `authors` and `synopsis` go green off the page's OpenGraph tags whether or
+not the selector behind them ever resolved. `chapter.body` has no such fallback. A run where the novel
+reads perfectly and only the body fails is the shape of an extractor that never worked at all — on
+`novelmtl.app` a `json:` path pointed into a script the interpreter could not parse, and the three
+novel fields hid it. Change one to something deliberately wrong: if it still reports the same value,
+the chain is answering, not the spec.
 
 **A title that is the site's name.** When a selector misses, the interpreter falls back to the page's
 own metadata, and a parked domain or a challenge page has a perfectly good `<title>`. A novel called
