@@ -1,0 +1,45 @@
+# House of Hoeni. A WordPress translation blog. The novel page carries its whole chapter list — the
+# List Category Posts plugin renders it — and each chapter is an ordinary post under `/zoq/`.
+spec: 1
+base_url: https://houseofhoeni.com/
+language: en
+
+search:
+  request:
+    get: "{origin}/?s={query|urlencode}&post_type=page"
+  css: "h2.entry-title a, h1.entry-title a"
+  fields:
+    title: {}
+    url: { attr: href }
+    # `post_type=page` is ignored here, so the results mix novels with individual chapters — a
+    # search for a novel answered with "Cherish | Chapter 49 | Chapter 13". Only a novel lives
+    # under `/novel/`; a chapter is a post under `/zoq/`.
+    novel:
+      attr: href
+      pipe: [{ regex: { pattern: "/novel/" } }]
+  require: [novel]
+
+novel:
+  title: { css: "h1.entry-title" }
+  cover: { css: ".entry-content img", attr: [data-src, src] }
+  # The meta block is a run of lines, each led by an emoji and a label. The author's is the only
+  # one that links out, to the novel on its original host.
+  authors: { css: ".hoeni-meta p a[href*='gongzicp'], .hoeni-meta p a[href*='jjwxc']", all: true }
+
+toc:
+  request:
+    page: novel
+  items:
+    # The plugin numbers its instances; this theme renders one list per novel page.
+    css: "ul[id^='lcp_instance'] li a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content"
+    pipe:
+      - strip_tags: [script, style, ins, form]
+      - strip_css: [".sharedaddy", ".jp-relatedposts", ".wp-block-buttons", ".post-navigation", "#jp-post-flair"]
+      - paragraphs

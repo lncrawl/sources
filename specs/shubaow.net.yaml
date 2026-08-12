@@ -1,0 +1,32 @@
+# 书包网 (shubaow). GBK, and the mobile host redirects here, so this is the address to write against.
+# The novel page carries the whole chapter list in a grid beside a "latest chapter" block that links
+# the same novel — the grid is the list, the block is one row that would arrive first and duplicate
+# the last.
+spec: 1
+base_url: https://www.shubaow.net/
+language: zh
+encoding: gbk
+
+novel:
+  title: { css: "h1.book-title-meta" }
+  synopsis: { css: "div.book-description-text" }
+  # The status line runs author, genre, length and a score together with no element per field.
+  authors:
+    css: "div.book-status-tags"
+    pipe: [{ regex: { pattern: "作者：\\s*([^\\s字]+)" } }]
+
+toc:
+  request:
+    page: novel
+  items:
+    css: "div.chapter-list-grid a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.read-content-body"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - paragraphs

@@ -1,0 +1,61 @@
+# 顶点小说 (dmxs). A Chinese host served as GBK with no charset a parser can trust, so the encoding is
+# declared. The novel page carries its whole chapter list — 1,540 rows on the novel measured — and a
+# chapter is a numbered page under `/view/`.
+spec: 1
+base_url: https://www.dmxs.org/
+language: zh
+# Without this the page decodes as mojibake: the title reads '��ӭ��������ֱ����'
+# rather than '欢迎进入梦魇直播间', and nothing that matches on text works.
+encoding: gbk
+
+# No search stage yet, and only because of the interpreter. The site's form reads its query as GBK,
+# and a payload was sent as UTF-8 whatever `encoding` said — against RFC-0001 section 3.6, which
+# requires `form` values to be encoded with it. Posted as UTF-8 the endpoint answers 1,336 bytes and
+# no rows; as GBK, 3,954 and the novel. Nothing raises either way, so a search here would just
+# return nothing.
+#
+# The fix is in sourcelib and the stage is verified working against it. Once that release lands,
+# this is the whole of it:
+#
+#   search:
+#     request:
+#       post: "{origin}/e/search/indexsearch.php"
+#       payload: { keyboard: "{query}", show: title, classid: "0" }
+#     css: "div.books div.bk a[href^='/book/']"
+#     fields:
+#       title: { css: h3 }
+#       url: { attr: href }
+
+novel:
+  title: { css: "h1" }
+  # No cover. The novel page carries no image at all — not a missing selector.
+  # The info block runs the title, author, date and tags together as one line of text; the author
+  # is the run that follows its own label.
+  authors:
+    css: "div.infos div.date"
+    # The date follows the name with no separator once the text is taken, so the author stops
+    # at the first digit rather than at whitespace.
+    pipe: [{ regex: { pattern: "作者：\\s*([^\\d\\s]+)" } }]
+  # Each tag is its own link, so they are taken as elements rather than cut out of the line: the
+  # label and the tags are separated by newlines there, not by spaces.
+  tags: { css: "div.infos div.tags a", all: true }
+
+toc:
+  request:
+    page: novel
+  items:
+    # Scoped to the list: the same `ul li a` shape is the site's genre nav everywhere else, which
+    # matched ten section links before this.
+    css: "div.book_list ul li a[href^='/view/']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    # The chapter page opens with a heading block repeating the novel's name, author and tags, and
+    # closes with two navigation rows. The prose has a container of its own.
+    css: "div.read_chapterDetail"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - paragraphs

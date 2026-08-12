@@ -1,0 +1,50 @@
+# UU看書. A biquge-shaped Chinese host: the novel page carries the whole chapter list as a
+# definition list, however long it is, and each chapter is a numbered page under the book.
+spec: 1
+base_url: https://uukanshu.cc/
+language: zh
+
+search:
+  request:
+    # The site's own form: a POST with the key it names, not a query string. `/search/?q=` is a 404.
+    post: "{origin}/search"
+    payload:
+      searchkey: "{query}"
+      searchtype: all
+  # Each result carries three links to the same book — the title, its latest chapter and a "read"
+  # button — so the row is the title's own container.
+  css: "div.bookname a[href$='/']"
+  fields:
+    title: {}
+    url: { attr: href }
+
+novel:
+  title: { css: "h1.booktitle" }
+  cover: { css: ".bookinfo img", attr: [data-src, src] }
+  # The cover is inside the description paragraph rather than beside it, so it goes before the
+  # text is taken.
+  synopsis:
+    css: "p.bookintro"
+    pipe: [{ strip_tags: [img, a] }, paragraphs]
+  # The tag line runs author, length, genre and status together, separated by spaces. The author
+  # is the first of them and the only one worth taking; the rest are not fields here.
+  authors:
+    css: "p.booktag"
+    pipe: [{ regex: { pattern: "^\\s*(\\S+)" } }]
+
+toc:
+  request:
+    page: novel
+  items:
+    # Measured at 6,106 rows on one novel, in a single response — there is no pager to walk.
+    css: "dl dd a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "div.readcotent"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - paragraphs

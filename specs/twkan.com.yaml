@@ -1,0 +1,41 @@
+# 台灣看書. Traditional Chinese, served as UTF-8 despite its neighbours. Three addresses per novel:
+# `/book/<id>.html` is the novel, `/book/<id>/index.html` is the chapter list, and a chapter is
+# `/txt/<id>/<chapter>`.
+spec: 1
+base_url: https://twkan.com/
+language: zh
+
+vars:
+  # The list address is built from the id, since a template cannot trim `.html` off the novel URL.
+  book_id: { on: url, regex: "/book/(\\d+)" }
+
+novel:
+  title: { css: "h1" }
+  cover: { css: "img[src*='/files/article/image/']", attr: [data-src, src] }
+
+toc:
+  request:
+    # Not the novel page: that carries five links, four of them the novel's own title and a "start
+    # reading" button. The list lives on its own address.
+    get: "{origin}/book/{vars.book_id}/index.html"
+  items:
+    css: "div#allchapter a[href*='/txt/']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    # The prose has an id of its own; the heading, the byline and an ad row are siblings of it.
+    css: "div#txtcontent0, div.txtnav div[id^='txtcontent']"
+    pipe:
+      - strip_tags: [script, style, ins]
+      # The site injects its own address into the prose, as whole lines mixed in with the text:
+      # a bracketed "remember our domain" note and a "first published at" line, both spelling the
+      # name in circled letters so a plain domain match would miss them. Matched on the site's own
+      # name, which is what both carry.
+      - paragraphs
+      # Removed after the split rather than before it. The lines are bare text inside the
+      # container, not elements, so there is nothing for `strip_matching` to take out until
+      # `paragraphs` has given each one a paragraph of its own.
+      - { replace: { pattern: "<p>[^<]*臺灣小説網[^<]*</p>", with: "" } }

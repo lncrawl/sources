@@ -1,0 +1,60 @@
+# Dragonholic Translations. A WordPress install with a Tailwind theme of its own. The series page
+# renders no chapter list at all, served or rendered, but the install exposes its custom post types
+# over the REST API and a chapter names its series as its `parent`, which is the whole list.
+spec: 1
+base_url: https://dragonholictranslations.com/
+language: en
+
+vars:
+  slug: { on: url, regex: "/series/([^/?#]+)" }
+  # The numeric id the chapter query filters on, off the series document the novel stage fetched.
+  series_id: { on: novel, json: "0.id" }
+
+search:
+  request:
+    get: "{origin}/wp-json/wp/v2/series?search={query|urlencode}&per_page=20&_fields=link,title"
+  json: "$"
+  fields:
+    title: { json: "title.rendered", pipe: [parse_html, text, trim] }
+    url: { json: link }
+
+novel:
+  request:
+    # `_embed` is what carries the cover: the series type exposes `featured_media` as an id only.
+    # `excerpt` is not among the fields this type answers with, so the description comes from
+    # `content`, which is the synopsis block itself.
+    get: "{origin}/wp-json/wp/v2/series?slug={vars.slug}&_fields=id,link,title,content,_links&_embed=wp:featuredmedia"
+  # Row 0: a slug lookup returns a one-element array.
+  title: { json: "0.title.rendered", pipe: [parse_html, text, trim] }
+  synopsis: { json: "0.content.rendered" }
+  cover: { json: "0._embedded.wp:featuredmedia.0.source_url" }
+
+toc:
+  request:
+    get: "{origin}/wp-json/wp/v2/chapter?parent={vars.series_id}&per_page=100&page=1&orderby=date&order=asc&_fields=link,title"
+    paginate:
+      # The feed reports its own length, so the walk has a known end.
+      last: { header: X-WP-TotalPages }
+      url: "{origin}/wp-json/wp/v2/chapter?parent={vars.series_id}&per_page=100&page={page}&orderby=date&order=asc&_fields=link,title"
+  items:
+    json: "$"
+    fields:
+      title: { json: "title.rendered", pipe: [parse_html, text, trim] }
+      url: { json: link }
+
+chapter:
+  body:
+    css: "div.chapter-content"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - paragraphs
+      # The site sells early access, and a chapter behind it answers with the paywall notice in the
+      # same container the free ones use — 51 characters of "Premium Content. Login to buy access
+      # to this content." Measured 2026-08-12 by bisecting one 50-chapter novel: 34 free, and the
+      # newest 16 paid, so what is left is a contiguous novel rather than one with holes. Rejecting
+      # it makes those chapters fail visibly instead of storing the notice as prose.
+      #
+      # Deliberately not read from the REST API. `wp-json/wp/v2/chapter` returns the full text of
+      # the paid ones — 12,280 characters for a chapter the page refuses — which is the install
+      # leaking what it sells, not an interface to build on.
+      - { reject: { pattern: "Login to buy access to this content" } }

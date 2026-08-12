@@ -1,0 +1,46 @@
+# Euricette. A WordPress translation blog. Each novel has a page of its own that is the table of
+# contents — not the category archive, which lists only the newest posts and mixes in the
+# announcements the translator writes between chapters.
+spec: 1
+base_url: https://www.euricette.com/
+language: en
+
+search:
+  request:
+    get: "{origin}/?s={query|urlencode}"
+  css: "h2.entry-title a, h1.entry-title a"
+  fields:
+    title: {}
+    url: { attr: href }
+    # A chapter post is titled for its chapter and lives at its own address; only a novel's table
+    # of contents has no `-chapter-` in the slug.
+    novel:
+      attr: href
+      pipe: [{ reject: { pattern: "-chapter-" } }]
+  require: [novel]
+
+novel:
+  title: { css: "h1.entry-title" }
+  # The first image in the entry is a spacer the theme lazy-loads, so the cover is taken from the
+  # first that is actually an address.
+  cover:
+    css: ".entry-content img[src^='http']"
+    attr: [data-src, src]
+
+toc:
+  request:
+    page: novel
+  items:
+    # Measured at 667 rows on one novel. The category archive reaches three.
+    css: ".entry-content a[href*='-chapter-']"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: ".entry-content"
+    pipe:
+      - strip_tags: [script, style, ins, form]
+      - strip_css: [".sharedaddy", ".jp-relatedposts", ".wp-block-buttons", ".post-navigation", "#jp-post-flair"]
+      - paragraphs
