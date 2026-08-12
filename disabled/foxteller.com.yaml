@@ -1,0 +1,33 @@
+spec: 1
+base_url: https://foxteller.com/
+disabled: >-
+  The chapter body cannot be described as data. It comes from a POST to /aux_dem carrying the page's
+  csrf-token meta and the XSRF cookie, and the response is base64 behind a six-pair substitution
+  cipher (%Ra& to A, %Rc& to B, and so on). That is decryption and branching, which section 7 puts
+  in a hook. Everything above the body is declared below, read off the crawler on 2026-08-12 and
+  unverified: the host answers a managed challenge and needs an attended run.
+
+novel:
+  request:
+    render: true
+    wait_for: ".novel-title h2"
+  title: { css: ".novel-title h2" }
+  cover: { css: ".novel-featureimg img", attr: src }
+
+toc:
+  request:
+    page: novel
+  items:
+    css: "#myTabContent #accordion .card .card-body a"
+    fields:
+      title: {}
+      url: { attr: href }
+  # Each accordion card is a volume.
+  volumes:
+    css: "#myTabContent #accordion .card .card-header"
+    fields:
+      title: {}
+
+chapter:
+  # Needs a hook: see the reason above. Declared so the spec resolves and so the shape is recorded.
+  body: { css: "#chapter-content" }

@@ -1,0 +1,60 @@
+spec: 1
+base_url: https://scribblehub.com/
+disabled: >-
+  Written from the Python crawler on 2026-08-12 and not yet run: the host answers a managed
+  challenge, so it needs an attended session with SOURCELIB_BROWSER=headed to confirm. Every
+  selector below is the crawler's; what is unverified is that they still match.
+
+vars:
+  # The list endpoint keys on the post id, and only the novel page carries it.
+  post_id:
+    on: novel
+    css: "input#mypostid"
+    attr: value
+
+search:
+  request:
+    get: "{origin}/?s={query|urlencode_plus}&post_type=fictionposts"
+  css: ".search_main_box"
+  fields:
+    title: { css: ".search_title a" }
+    url: { css: ".search_title a", attr: href }
+
+novel:
+  title: { css: ".fic_title" }
+  cover: { css: ".fic_image img", attr: src }
+  authors: { css: ".auth_name_fic", all: true }
+  tags: { css: "a.fic_genre", all: true }
+  synopsis: { css: ".wi_fic_desc" }
+
+toc:
+  request:
+    # `pagenum: -1` asks for the whole list in one response rather than a page of it.
+    post: "{origin}/wp-admin/admin-ajax.php"
+    payload:
+      action: wi_getreleases_pagination
+      pagenum: "-1"
+      mypostid: "{vars.post_id}"
+  items:
+    css: ".toc_ol a.toc_a"
+    # The endpoint answers newest first.
+    reverse: true
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#chp_raw"
+    pipe:
+      - strip_css:
+          [
+            ".p-avatar-wrap",
+            ".sp-head",
+            ".spdiv",
+            ".chp_stats_feature",
+            ".modern-footnotes-footnote",
+            ".modern-footnotes-footnote__note",
+            ".wi_authornotes",
+          ]
+      - paragraphs

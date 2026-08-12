@@ -1,0 +1,5 @@
+spec: 1
+# The blog's original address, which redirects to rpgnovels.com. Declared so a reader pasting
+# the old URL is served rather than missed by host matching.
+extends: specs/rpgnovels.com.yaml
+base_url: https://rpgnoob.wordpress.com/

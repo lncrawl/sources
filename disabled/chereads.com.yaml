@@ -1,3 +1,28 @@
 spec: 1
-base_url: https://www.chereads.com/
-disabled: "redirects to www.chereads.com, which answers a 5.4 KB challenge on both the direct path and tor"
+base_url: https://chereads.com/
+disabled: >-
+  Redirects to www.chereads.com, which answers a 5.4 KB challenge on the direct path and through
+  the tor pool alike. Probed 2026-08-09 and unchanged 2026-08-12.
+
+# A Next.js shell whose __NEXT_DATA__ carries everything, so this needs no selectors beyond the one
+# script element. Written out because reading the payload is the whole of the work.
+novel:
+  title: { json: "props.pageProps.data.bookInfo.bookName" }
+  authors: { json: "props.pageProps.data.bookInfo.authorName" }
+  synopsis: { json: "props.pageProps.data.bookInfo.description" }
+
+toc:
+  request:
+    page: novel
+  items:
+    json: "props.pageProps.data.volumeItems.0.chapterItems"
+    # A locked chapter carries isAuth 0 and its body is never served.
+    require: [locked]
+    fields:
+      title: { json: chapterName }
+      id: { json: chapterId }
+      url: "{novel_url}/{item.id}"
+      locked: { json: isAuth, pipe: [{ reject: { pattern: "^0$" } }] }
+
+chapter:
+  body: { json: "pageProps.pageData.chapterInfo.contents.0.content" }

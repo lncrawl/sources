@@ -1,0 +1,56 @@
+spec: 1
+base_url: https://ranobe-novels.ru/
+language: ru
+disabled: >-
+  Written from the crawler on 2026-08-12 and unverified. The host answered 200 with 215 KB on one
+  pass and then timed out on every later request, direct and through the tor pool, with no detection
+  layer named. That is a reachability problem rather than a parsing one, so this needs another pass
+  from a different address.
+
+vars:
+  # The chapter endpoint keys on the WordPress category id, which the page publishes only in its
+  # alternate JSON link.
+  category_id:
+    on: novel
+    css: 'link[rel="alternate"][type="application/json"][href*="/wp-json/wp/v2/categories/"]'
+    attr: href
+    pipe: [{ regex: { pattern: "/categories/(\\d+)" } }]
+
+search:
+  request:
+    post: "{origin}/wp-content/themes/ranobe-novels/template-parts/queries/get-search-results.php"
+    payload:
+      search_query: "{query}"
+      sort: new
+      completed: "false"
+  json: "data"
+  fields:
+    title: { json: cat_title }
+    url: { json: cat_link }
+    info: { json: chapters }
+
+novel:
+  title: { css: "h2.category-title a" }
+  cover: { css: "picture.category-img img", attr: src }
+  authors: { css: 'span[itemprop="creator"]', all: true }
+  synopsis: { css: "div.category-exerpt.description" }
+  tags: { css: '.post_tags a[href*="/novels/"]', all: true }
+
+toc:
+  request:
+    post: "{origin}/wp-content/themes/ranobe-novels/template-parts/category/chapters-query.php"
+    payload:
+      cat_id: "{vars.category_id}"
+      limit: "9999"
+      offset: "0"
+      query: ""
+  items:
+    json: "$"
+    # The endpoint answers newest first.
+    reverse: true
+    fields:
+      title: { json: title }
+      url: { json: link }
+
+chapter:
+  body: { css: ".entry-content" }

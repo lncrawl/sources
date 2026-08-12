@@ -1,0 +1,24 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://dragontea.ink/
+disabled: >-
+  Reachable in a headed browser (149 KB, 130 chapter rows seen directly on 2026-08-12) but not
+  verifiable: the render returns the novel page or a partial one depending on the attempt, and
+  after repeated tries the host began serving 39 KB with no title at all. The spec below matches
+  what the page carries and needs one clean attended run to confirm.
+
+# A plain GET answers a managed challenge, so every stage renders. Unattended the solver gives up
+# hidden; SOURCELIB_BROWSER=headed is what lets a person clear it.
+novel:
+  request:
+    render: true
+    wait_for: ".summary_image img"
+
+toc:
+  request:
+    render: true
+
+chapter:
+  request:
+    render: true
+    wait_for: ".reading-content p"

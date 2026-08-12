@@ -1,3 +1,26 @@
 spec: 1
-base_url: https://www.kitenovel.com/
-disabled: "the shell is public and its only data source, /api/novellist, answers 401 behind an identity provider (L19)"
+base_url: https://kitenovel.com/
+disabled: >-
+  The page is a shell and its only data source, /api/novellist, answers 401 behind an identity
+  provider. Probed 2026-08-09 and unchanged 2026-08-12.
+
+# The selectors below are the ones the Python crawler used against the rendered page, kept so the
+# host needs describing only once if the API ever opens.
+novel:
+  title: { css: "span.title" }
+  cover: { css: "div.col-md-4.col-sm-4 > img", attr: src }
+  authors: { css: "div.col-md-8.col-sm-8.pt-2 > p:nth-child(2)" }
+
+toc:
+  request:
+    # The list is behind the novel page's own "read" button rather than on the page.
+    from:
+      - page: novel
+  items:
+    css: 'a[href*="/read/"]'
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body: { css: "#content" }

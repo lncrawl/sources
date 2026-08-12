@@ -1,0 +1,34 @@
+spec: 1
+base_url: https://ranobelib.me/
+language: ru
+disabled: >-
+  The reader's API answers L12 Super Bot Fight Mode, and the alternate host carries no detection
+  layer to work with. The novel side is described below and needs no hook; the chapter list does,
+  because a novel carries several translation branches and the crawler keeps only the most common
+  one, which is a count and a comparison rather than a selector.
+
+vars:
+  slug: { on: url, regex: "/ranobe/([^/?#]+)" }
+
+novel:
+  request:
+    get: "https://api.cdnlibs.org/api/manga/{vars.slug}?fields[]=summary&fields[]=genres&fields[]=authors&fields[]=chap_count"
+  title: { json: "data.rus_name" }
+  cover: { json: "data.cover.default" }
+  authors: { json: "data.authors.0.name" }
+  synopsis: { json: "data.summary" }
+
+toc:
+  # Needs a hook: the rows arrive with a `branches` list and only one branch belongs in the novel.
+  request:
+    get: "https://api.cdnlibs.org/api/manga/{vars.slug}/chapters"
+  items:
+    json: "data"
+    fields:
+      title: { json: name }
+      number: { json: number }
+      volume: { json: volume }
+      url: "https://api.cdnlibs.org/api/manga/{vars.slug}/chapter?volume={item.volume}&number={item.number}"
+
+chapter:
+  body: { json: "data.content" }

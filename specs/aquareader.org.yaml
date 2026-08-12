@@ -2,7 +2,24 @@ spec: 1
 extends: base/wordpress-manga.yaml
 base_url: https://aquareader.org/
 
+# A plain GET answers a managed challenge and the clearance does not survive to the next request,
+# so every stage renders. The toc reuses the novel document through the base's first `from`
+# alternative; `render` there is for the pages after it.
+
+novel:
+  request:
+    render: true
+    wait_for: ".post-title"
+
+toc:
+  request:
+    render: true
+
 chapter:
+  request:
+    render: true
+    # The images, not the reader that holds them: the container is in the markup first.
+    wait_for: ".reading-content img"
   body:
     # The crawler drops `h3` from the body, and unlike the plain wordpress base this variant
     # replaces `clean_body` wholesale with an image-oriented pipe that strips no headings.

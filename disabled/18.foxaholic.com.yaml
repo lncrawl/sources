@@ -1,0 +1,27 @@
+spec: 1
+extends: base/wordpress.yaml
+base_url: https://18.foxaholic.com/
+disabled: >-
+  Written from the Python crawler on 2026-08-12 and not yet run: the host answers a managed
+  challenge, so it needs an attended session with SOURCELIB_BROWSER=headed to confirm. Every
+  selector below is the crawler's; what is unverified is that they still match.
+
+novel:
+  request:
+    render: true
+    wait_for: "li.wp-manga-chapter a"
+  # The theme's own heading is unreliable on this deployment; the crawler read the meta tag.
+  title:
+    css: 'meta[property="og:title"]'
+    attr: content
+  cover: { css: ".summary_image a img", attr: [data-src, src] }
+  authors: { css: '.author-content a[href*="novel-author"]', all: true }
+
+toc:
+  request:
+    render: true
+
+chapter:
+  request:
+    render: true
+    wait_for: ".reading-content p"

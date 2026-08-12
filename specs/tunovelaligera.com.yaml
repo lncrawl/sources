@@ -2,7 +2,19 @@ spec: 1
 extends: base/wordpress.yaml
 base_url: https://tunovelaligera.com/
 
+# A plain GET answers a managed challenge and the clearance does not survive to the next request,
+# so every stage renders. The toc reuses the novel document through the base's first `from`
+# alternative; `render` there is for the pages after it.
+
+novel:
+  request:
+    render: true
+    wait_for: ".post-title"
+
 chapter:
+  request:
+    render: true
+    wait_for: "div.entry-content_wrap p, div.text-left p"
   body:
     # The theme moved: `div.text-left` is gone and the text sits in the WordPress entry wrapper.
     # The crawler's selector is kept behind it rather than dropped, since the host has been
@@ -15,6 +27,7 @@ toc:
   request:
     from: null
     page: novel
+    render: true
     paginate:
       # The list is a List Category Posts widget, which pages itself by this parameter.
       while: has_items

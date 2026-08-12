@@ -1,3 +1,47 @@
 spec: 1
 base_url: https://novelhi.com/
-disabled: "the chapter list API is public but every body answers {\"code\":\"1001\",\"msg\":\"not login\"}, including chapter 1 marked isVip 0. Probed 2026-08-09; the legacy crawler hits the same wall"
+disabled: >-
+  Every chapter body answers {"code":"1001","msg":"not login"}, including chapter 1 marked isVip 0.
+  Probed 2026-08-09 and 2026-08-12; the Python crawler hits the same wall. The rest of the site is
+  described below and needs only an authenticated session to serve.
+
+# Kept rather than deleted: the search, novel and chapter-list stages were all read successfully.
+# Only the body endpoint refuses, so this becomes servable the day a login hook exists.
+vars:
+  book_id:
+    on: novel
+    css: "input#bookId"
+    attr: value
+
+search:
+  request:
+    get: "{origin}/book/searchByPageInShelf?curr=1&limit=10&keyword={query|urlencode}"
+  json: "data.list"
+  fields:
+    title: { json: bookName }
+    # Declared before `url`, which reads it: fields evaluate in declaration order and a template
+    # may only reach a sibling above it.
+    slug: { json: simpleName }
+    url: "{origin}/s/{item.slug}"
+    info: { json: lastIndexName }
+
+novel:
+  title: { css: "a.book_cover img.cover", attr: alt }
+  cover: { css: "a.book_cover img.cover", attr: src }
+  authors: { css: ".book_info ul.list span.item + *" }
+
+toc:
+  request:
+    get: "{origin}/book/queryIndexList?bookId={vars.book_id}&curr=1&limit=50000"
+  items:
+    json: "data.list"
+    # The endpoint answers newest first.
+    reverse: true
+    fields:
+      title: { json: indexName }
+      number: { json: indexNum }
+      url: "{novel_url}/{item.number}"
+
+chapter:
+  # `#showReading sent` is the site's own element name, not a typo.
+  body: { css: "#showReading sent" }

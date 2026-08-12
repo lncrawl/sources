@@ -1,0 +1,8 @@
+spec: 1
+base_url: https://novelupdates.com/
+disabled: >-
+  Not a source. It is a directory: its series pages carry no chapter text, and the Python crawler
+  that serves it reads the listing and then delegates to whichever host actually publishes the
+  novel, caching a crawler per host. A spec describes one site's markup and has no way to hand a
+  novel to another source, so this cannot be expressed and should not be. Its value is search and
+  metadata, which belongs in a different feature than the source tier.

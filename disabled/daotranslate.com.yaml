@@ -1,0 +1,49 @@
+spec: 1
+extends: base/mangastream.yaml
+base_url: https://daotranslate.com/
+disabled: >-
+  The site no longer publishes chapters. A novel's list holds four range pages, each of which
+  holds six more range links, and all of them point at one /goto/ gateway with no prose behind
+  it. Verified 2026-08-12 through a headed browser, so the challenge was never the obstacle.
+
+has_mtl: true
+rate_limit: 1.1
+
+# A plain GET answers a managed challenge, so every stage renders. Unattended the solver gives up
+# hidden; `SOURCELIB_BROWSER=headed` is what lets a person clear it.
+search:
+  request:
+    render: true
+    get: "{origin}/?s={query|plus}"
+  css: article.maindet
+  fields:
+    title: { css: "h2 a" }
+    url: { css: "h2 a", attr: href }
+    info: { css: ".mdinfodet .nchapter a" }
+
+novel:
+  request:
+    render: true
+    wait_for: ".eplisterfull li a"
+  title: { css: ".infox h1" }
+  cover: { css: ".thumbook .thumb img", attr: [data-src, src] }
+  authors: { css: ".info-content .spe span:nth-child(3) a", all: true }
+  synopsis: { css: ".entry-content" }
+
+toc:
+  request:
+    page: novel
+  items:
+    css: ".eplisterfull ul li a"
+    reverse: true
+    fields:
+      title: { css: ".epl-title" }
+      # The row is the anchor itself here, not a container holding one, so the base's `css: a`
+      # has to go rather than be overridden: a mapping merges, and it would keep looking inside.
+      url: { css: null, attr: href }
+
+chapter:
+  request:
+    render: true
+    wait_for: ".epcontent p"
+  body: { css: ".epcontent.entry-content" }

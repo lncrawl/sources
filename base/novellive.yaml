@@ -1,0 +1,57 @@
+# The Novel Live theme: 4 hosts serve the same corpus under different names.
+#
+# They are separate specs rather than one crawler rewriting the host, which is how the Python this
+# replaces did it. A mirror that diverges then costs one file rather than breaking the other three.
+spec: 1
+
+search:
+  request:
+    get: "{origin}/search/?keyword={query|urlencode}"
+  css: ".ul-list4 li, .ul-list5 li"
+  fields:
+    title: { css: "h3, .tit", attr: [title, text] }
+    url: { css: "a[href*='/book/']", attr: href }
+    info: { css: ".s1, .desc" }
+
+novel:
+  title: { css: ".m-desc h1.tit" }
+  cover: { css: ".m-imgtxt img", attr: [data-src, src] }
+  authors: { css: "a[href*='/author/']", all: true }
+  tags: { css: ".m-imgtxt a[href*='/genres/']", all: true }
+  synopsis: { css: ".m-desc .txt" }
+
+# Every path below the novel page is behind a managed challenge, so those requests go through the
+# browser. The novel page itself is served plainly, which is why `render` is not set on the stage.
+toc:
+  request:
+    page: novel
+    render: true
+    wait_for: ".m-newest2 .ul-list5 li a"
+    paginate:
+      # The theme prints one option per page of the list, each carrying its own number, so the
+      # last of them bounds the walk. The pager's own links only reach the next page and the last.
+      last:
+        css: "#indexselect option"
+        attr: value
+        all: true
+        pipe: [max]
+      url: "{novel_url}/{page}"
+  items:
+    css: ".m-newest2 .ul-list5 li a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+
+chapter:
+  # The first chapter of a novel answers with a head and no body on this theme, whether it is
+  # reached by the link the list gives or by the one the page's own `og:novel:read_url` names.
+  # Measured on two novels; chapter two onward read normally. Nothing here can recover it.
+  request:
+    render: true
+    wait_for: ".m-read .txt"
+  body:
+    css: ".m-read .txt"
+    pipe:
+      # The theme injects its ad slots into the body itself.
+      - strip_css: ["[id^='pf-']", "script", "ins"]
+      - paragraphs

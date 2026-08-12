@@ -1,0 +1,43 @@
+spec: 1
+base_url: https://syosetu.org/
+language: ja
+disabled: >-
+  Written from the Python crawler on 2026-08-12 and not yet run: the host answers a managed
+  challenge, so it needs an attended session with SOURCELIB_BROWSER=headed to confirm. Every
+  selector below is the crawler's; what is unverified is that they still match.
+
+search:
+  request:
+    get: "{origin}/search/?mode=search&word={query|urlencode_plus}"
+  css: ".searchkekka_box"
+  fields:
+    title: { css: ".novel_h a" }
+    url: { css: ".novel_h a", attr: href }
+    info: { css: ".attention" }
+
+novel:
+  title:
+    css: "#maind span[itemprop='name']"
+    fallback:
+      - { css: "title", pipe: [{ regex: { pattern: "^(.*?) - " } }] }
+  authors: { css: "#maind span[itemprop='author'] a", all: true }
+  tags: { css: '#maind span[itemprop="genre"] a', all: true }
+  synopsis: { css: "#maind .ss:nth-of-type(2)" }
+
+toc:
+  request:
+    page: novel
+  items:
+    # The list is a table whose chapter rows carry two cells; a volume heading is a single cell
+    # spanning both, which `volumes` picks up and positional assignment applies.
+    css: "#maind table tr td a[href]"
+    fields:
+      title: {}
+      url: { attr: href }
+  volumes:
+    css: '#maind table tr td[colspan="2"] strong'
+    fields:
+      title: {}
+
+chapter:
+  body: { css: "#honbun" }

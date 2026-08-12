@@ -1,0 +1,34 @@
+spec: 1
+base_url: https://novelgo.id/
+language: id
+disabled: >-
+  Written from the Python crawler on 2026-08-12 and not yet run: the host answers a managed
+  challenge, so it needs an attended session with SOURCELIB_BROWSER=headed to confirm. Every
+  selector below is the crawler's; what is unverified is that they still match.
+
+vars:
+  # The REST route keys on the category slug, which is the third path segment of a novel URL.
+  book_id:
+    on: url
+    regex: "^https?://[^/]+/[^/]+/([^/?#]+)"
+
+novel:
+  title: { css: "h2.novel-title" }
+  authors: { css: "div.noveils-current-author a", all: true }
+  # The theme puts the cover in a CSS background rather than an img.
+  cover:
+    css: "div.novel-thumbnail"
+    attr: data-bg
+    pipe: [{ regex: { pattern: "url\\((.+)\\)" } }]
+
+toc:
+  request:
+    get: "{origin}/wp-json/noveils/v1/chapters?paged=1&perpage=10000&category={vars.book_id}"
+  items:
+    json: "$"
+    fields:
+      title: { json: post_title }
+      url: { json: permalink }
+
+chapter:
+  body: { css: "#chapter-post-content" }

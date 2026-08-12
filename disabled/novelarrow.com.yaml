@@ -1,0 +1,8 @@
+spec: 1
+base_url: https://novelarrow.com/
+disabled: >-
+  The chapter list is not reachable. A Next.js App Router site whose flight payload carries
+  totalChapter (4932 on one novel) and an initialChapterList of the first 30; ?page=N is ignored and
+  returns the same 30, no route handler shape answers, and the rest comes from a server action.
+  Synthesising addresses is not an option either: chapter-1 is 200 while chapter-2500 and
+  chapter-4900 are both 404, so the ids are not a run. Measured 2026-08-11.

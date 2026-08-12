@@ -2,4 +2,23 @@ spec: 1
 extends: base/mangastream.yaml
 base_url: https://centralnovel.com/
 
+# A plain GET answers a managed challenge and the clearance does not survive to the next request,
+# so every stage renders. The toc reuses the novel document through the base's first `from`
+# alternative; `render` there is for the pages after it.
+
 rate_limit: 2.99
+
+novel:
+  request:
+    render: true
+    wait_for: "h1.entry-title"
+
+toc:
+  request:
+    render: true
+
+chapter:
+  request:
+    render: true
+    # The paragraphs rather than the reader, which is in the markup before its content is.
+    wait_for: "#readerarea p, .entry-content p"

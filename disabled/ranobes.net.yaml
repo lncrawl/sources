@@ -1,0 +1,63 @@
+# Ranobes.net. Copied from ranobes.com rather than extending it, because a spec may not extend
+# one in disabled/ (a child would be orphaned the moment the parent is turned off).
+#
+# Ranobes, the Russian side. The same DLE engine as ranobes.top and a different build of it: this
+# one renders its chapter list into markup and addresses a novel by slug, so it needs no hook and
+# shares nothing with that spec but three selectors.
+spec: 1
+base_url: https://ranobes.net/
+disabled: >-
+  A third mirror of the same DLE installation as ranobes.com, whose spec this copies. Reachable
+  in a headed browser on 2026-08-12 (76 KB, on the third attempt) and otherwise unverified:
+  which of the two builds this host serves has not been confirmed against a novel URL.
+language: ru
+
+rate_limit: 1
+
+vars:
+  slug: { on: url, regex: "/ranobe/\\d+-([^./?#]+)" }
+
+search:
+  request:
+    get: "{origin}/search/{query|urlencode}"
+  css: "div.short-cont h2.title a"
+  fields:
+    title: {}
+    url: { attr: href }
+
+novel:
+  # The heading carries every language the site knows the novel by, separated by bullets.
+  title:
+    css: "h1.title"
+    pipe: [{ regex: { pattern: "^[^•]+" } }, trim]
+  cover: { css: "div.poster img", attr: [data-src, src] }
+  # `/cloud/genre/` with nothing after it is the catalogue link in the nav, not a genre.
+  tags:
+    css: "a[href*='/cloud/genre/']:not([href$='/cloud/genre/'])"
+    all: true
+  synopsis: { css: "div.cont-text" }
+
+toc:
+  request:
+    get: "{origin}/chapters/{vars.slug}/"
+    paginate:
+      concurrent: false
+      # The pager shows a window of ten and then the last page, so the highest number it carries is
+      # the total — 48 on a 1430-chapter novel — and `max` reads it whichever page it is read from.
+      last: { css: "div.pages a", all: true, pipe: [max] }
+      url: "{origin}/chapters/{vars.slug}/page/{page}/"
+  items:
+    css: "div.cat_block.cat_line a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+    # Newest first, on every page and across them.
+    reverse: true
+
+chapter:
+  body:
+    css: "#arrticle"
+    pipe:
+      - strip_tags: [script, style, ins]
+      - strip_css: [".splitnewsnavigation", ".ads-holder"]
+      - paragraphs

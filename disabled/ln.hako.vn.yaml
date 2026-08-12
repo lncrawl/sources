@@ -1,0 +1,44 @@
+spec: 1
+base_url: https://ln.hako.vn/
+language: vi
+has_mtl: true
+disabled: >-
+  Written from the Python crawler on 2026-08-12 and not yet run: the host answers a managed
+  challenge, so it needs an attended session with SOURCELIB_BROWSER=headed to confirm. Every
+  selector below is the crawler's; what is unverified is that they still match.
+
+search:
+  request:
+    get: "{origin}/tim-kiem-nang-cao?title={query|urlencode_plus}"
+  css: ".sect-body .thumb-item-flow"
+  fields:
+    title: { css: ".series-title a", attr: title }
+    url: { css: ".series-title a", attr: href }
+    info: { css: ".volume-title" }
+
+novel:
+  title: { css: ".series-name a" }
+  authors: { css: '.info-value a[href*="/tac-gia/"]', all: true }
+  # A CSS background again, this time inside a style attribute.
+  cover:
+    css: ".series-cover .img-in-ratio"
+    attr: style
+    pipe: [{ regex: { pattern: "url\\('([^']+)'\\)" } }]
+
+toc:
+  request:
+    page: novel
+  items:
+    css: ".volume-list .list-chapters a"
+    fields:
+      title: { attr: [title, text] }
+      url: { attr: href }
+  # Volume headings and chapter rows are interleaved in document order, which is what positional
+  # assignment reads (section 3.8).
+  volumes:
+    css: ".volume-list .sect-title"
+    fields:
+      title: {}
+
+chapter:
+  body: { css: "#chapter-content" }

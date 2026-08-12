@@ -2,9 +2,37 @@ spec: 1
 extends: base/wordpress.yaml
 base_url: https://f-w-o.com/
 
+# Every path answers a managed challenge to a plain GET, and the clearance does not survive to the
+# next request. Rendering carries the solve with each page instead. The toc reuses the novel
+# document through the base's first `from` alternative, so it needs no fetch of its own; `render`
+# there is for the pages after it.
 novel:
+  request:
+    render: true
+    wait_for: ".post-title"
   authors:
     css: .author-content a[href*="novel-author"]
+
+toc:
+  request:
+    render: true
+  items:
+    # The list carries the book's announcement pages beside its chapters, and they sit under their
+    # own path segment. Nothing about the row's title or link text tells them apart.
+    require: [kind]
+    fields:
+      kind:
+        attr: href
+        pipe: [{ reject: { pattern: "/about-this-book/" } }]
+
 chapter:
+  request:
+    render: true
+    # The paragraphs, not the container that holds them: `.reading-content` is in the markup
+    # before its content is, so waiting on it returns an empty body about half the time.
+    wait_for: ".text-left p"
+  # 195 of this book's 487 chapters are VIP, and a locked one never fills its body, so the render
+  # waits out its timeout rather than returning something a pipe could reject. Free chapters read
+  # normally; a trial that samples the tail will report the paid ones as failures.
   body:
     css: div.text-left

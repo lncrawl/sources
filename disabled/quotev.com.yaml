@@ -1,0 +1,26 @@
+spec: 1
+base_url: https://quotev.com/
+disabled: >-
+  Written from the crawler on 2026-08-12 and unverified. The earlier note that its stories are not
+  addressed as novels with chapter lists is wrong: the crawler reads a list from #rselectList, which
+  is what is described below. What is unconfirmed is whether the host still serves it.
+
+novel:
+  title: { css: "#quizHeaderTitle h1" }
+  cover: { css: 'meta[property="og:image"]', attr: content }
+
+toc:
+  request:
+    page: novel
+  items:
+    css: "#rselectList a"
+    fields:
+      title: {}
+      url: { attr: href }
+
+chapter:
+  body:
+    css: "#rescontent"
+    pipe:
+      - strip_css: [".nosel"]
+      - paragraphs
